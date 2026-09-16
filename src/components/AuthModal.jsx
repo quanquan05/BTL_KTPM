@@ -52,9 +52,9 @@ export const AuthModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="modal-overlay" id="modal-auth-overlay" data-testid="auth-modal">
-      <div className="modal-card">
+      <div className="modal-card" style={{ maxWidth: 440 }}>
         {/* Header Tabs */}
-        <div style={{ display: 'flex', borderBottom: '1px solid var(--border-subtle)', background: '#FAFAFA' }}>
+        <div style={{ display: 'flex', borderBottom: '1px solid var(--border-subtle)', background: '#FFFFFF', position: 'relative' }}>
           <button
             type="button"
             id="tab-auth-login"
@@ -62,13 +62,14 @@ export const AuthModal = ({ isOpen, onClose }) => {
             style={{
               flex: 1,
               padding: '14px',
-              background: tab === 'login' ? 'var(--primary-light)' : 'transparent',
+              background: 'transparent',
               border: 'none',
-              borderBottom: tab === 'login' ? '2px solid var(--primary)' : 'none',
+              borderBottom: tab === 'login' ? '2px solid var(--primary)' : '2px solid transparent',
               color: tab === 'login' ? 'var(--primary)' : 'var(--text-muted)',
-              fontWeight: 600,
-              fontSize: '0.94rem',
-              cursor: 'pointer'
+              fontWeight: 700,
+              fontSize: '0.92rem',
+              cursor: 'pointer',
+              transition: 'all var(--transition-fast)'
             }}
           >
             Đăng Nhập
@@ -80,28 +81,29 @@ export const AuthModal = ({ isOpen, onClose }) => {
             style={{
               flex: 1,
               padding: '14px',
-              background: tab === 'register' ? 'var(--primary-light)' : 'transparent',
+              background: 'transparent',
               border: 'none',
-              borderBottom: tab === 'register' ? '2px solid var(--primary)' : 'none',
+              borderBottom: tab === 'register' ? '2px solid var(--primary)' : '2px solid transparent',
               color: tab === 'register' ? 'var(--primary)' : 'var(--text-muted)',
-              fontWeight: 600,
-              fontSize: '0.94rem',
-              cursor: 'pointer'
+              fontWeight: 700,
+              fontSize: '0.92rem',
+              cursor: 'pointer',
+              transition: 'all var(--transition-fast)'
             }}
           >
-            Tạo Tài Khoản
+            Đăng Ký
           </button>
           <button
             type="button"
             onClick={onClose}
             id="btn-close-auth-modal"
-            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', padding: '0 16px', cursor: 'pointer' }}
+            style={{ position: 'absolute', right: 12, top: 12, background: 'none', border: 'none', color: 'var(--text-subtle)', cursor: 'pointer', padding: 4 }}
           >
             <X size={18} />
           </button>
         </div>
 
-        <div className="modal-body">
+        <div className="modal-body" style={{ padding: '20px 24px' }}>
           {error && (
             <div
               id="auth-error-alert"
@@ -110,16 +112,16 @@ export const AuthModal = ({ isOpen, onClose }) => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 8,
-                padding: '10px 14px',
+                padding: '8px 12px',
                 borderRadius: 8,
                 background: 'var(--accent-red-bg)',
                 border: '1px solid var(--accent-red-border)',
-                color: '#DC2626',
-                fontSize: '0.85rem',
+                color: 'var(--accent-red-text)',
+                fontSize: '0.82rem',
                 marginBottom: 14
               }}
             >
-              <AlertCircle size={16} />
+              <AlertCircle size={15} />
               <span>{error}</span>
             </div>
           )}
@@ -128,8 +130,8 @@ export const AuthModal = ({ isOpen, onClose }) => {
             <form onSubmit={handleSubmitLogin}>
               {/* Điền nhanh tài khoản test */}
               <div style={{ marginBottom: 14, background: 'var(--bg-surface)', padding: 10, borderRadius: 8, border: '1px solid var(--border-subtle)' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-subtle)', display: 'block', marginBottom: 6 }}>
-                  Phím tắt tài khoản kiểm thử:
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-subtle)', display: 'block', marginBottom: 6, fontWeight: 600 }}>
+                  Điền nhanh tài khoản mẫu:
                 </span>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button
@@ -137,41 +139,41 @@ export const AuthModal = ({ isOpen, onClose }) => {
                     id="btn-quick-fill-user"
                     onClick={() => fillQuickAccount('user')}
                     className="btn btn-secondary"
-                    style={{ flex: 1, padding: '6px 8px', fontSize: '0.78rem' }}
+                    style={{ flex: 1, padding: '5px 8px', fontSize: '0.76rem' }}
                   >
-                    Điền Acc: <strong>Khách Thuê</strong>
+                    Acc: <strong>Khách Thuê</strong>
                   </button>
                   <button
                     type="button"
                     id="btn-quick-fill-admin"
                     onClick={() => fillQuickAccount('admin')}
                     className="btn btn-secondary"
-                    style={{ flex: 1, padding: '6px 8px', fontSize: '0.78rem' }}
+                    style={{ flex: 1, padding: '5px 8px', fontSize: '0.76rem' }}
                   >
-                    <Shield size={12} /> Điền Acc: <strong>Admin</strong>
+                    <Shield size={12} /> Acc: <strong>Admin</strong>
                   </button>
                 </div>
               </div>
 
               <div className="form-group">
-                <label className="form-label" htmlFor="input-login-email">
-                  Địa chỉ Email:
+                <label className="form-label" htmlFor="input-login-email" style={{ fontSize: '0.82rem' }}>
+                  Địa chỉ Email
                 </label>
                 <input
                   type="email"
                   id="input-login-email"
                   data-testid="input-login-email"
                   className="form-input"
-                  placeholder="user@demo.com"
+                  placeholder="tester@gmail.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
 
-              <div className="form-group">
-                <label className="form-label" htmlFor="input-login-password">
-                  Mật khẩu:
+              <div className="form-group" style={{ marginBottom: 18 }}>
+                <label className="form-label" htmlFor="input-login-password" style={{ fontSize: '0.82rem' }}>
+                  Mật khẩu
                 </label>
                 <input
                   type="password"
@@ -190,16 +192,16 @@ export const AuthModal = ({ isOpen, onClose }) => {
                 id="btn-submit-login"
                 data-testid="btn-submit-login"
                 className="btn btn-primary"
-                style={{ width: '100%', marginTop: 10, padding: '10px' }}
+                style={{ width: '100%', padding: '10px' }}
               >
-                <LogIn size={16} /> Đăng Nhập
+                <LogIn size={15} /> Đăng Nhập
               </button>
             </form>
           ) : (
             <form onSubmit={handleSubmitRegister}>
               <div className="form-group">
-                <label className="form-label" htmlFor="input-reg-name">
-                  Họ và tên hiển thị:
+                <label className="form-label" htmlFor="input-reg-name" style={{ fontSize: '0.82rem' }}>
+                  Họ và tên
                 </label>
                 <input
                   type="text"
@@ -214,8 +216,8 @@ export const AuthModal = ({ isOpen, onClose }) => {
               </div>
 
               <div className="form-group">
-                <label className="form-label" htmlFor="input-reg-email">
-                  Địa chỉ Email:
+                <label className="form-label" htmlFor="input-reg-email" style={{ fontSize: '0.82rem' }}>
+                  Địa chỉ Email
                 </label>
                 <input
                   type="email"
@@ -230,24 +232,24 @@ export const AuthModal = ({ isOpen, onClose }) => {
               </div>
 
               <div className="form-group">
-                <label className="form-label" htmlFor="input-reg-password">
-                  Mật khẩu (tối thiểu 6 ký tự):
+                <label className="form-label" htmlFor="input-reg-password" style={{ fontSize: '0.82rem' }}>
+                  Mật khẩu
                 </label>
                 <input
                   type="password"
                   id="input-reg-password"
                   data-testid="input-reg-password"
                   className="form-input"
-                  placeholder="••••••••"
+                  placeholder="Tối thiểu 6 ký tự"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </div>
 
-              <div className="form-group">
-                <label className="form-label" htmlFor="input-reg-confirm-password">
-                  Nhập lại mật khẩu:
+              <div className="form-group" style={{ marginBottom: 18 }}>
+                <label className="form-label" htmlFor="input-reg-confirm-password" style={{ fontSize: '0.82rem' }}>
+                  Nhập lại mật khẩu
                 </label>
                 <input
                   type="password"
@@ -266,9 +268,9 @@ export const AuthModal = ({ isOpen, onClose }) => {
                 id="btn-submit-register"
                 data-testid="btn-submit-register"
                 className="btn btn-primary"
-                style={{ width: '100%', marginTop: 10, padding: '10px' }}
+                style={{ width: '100%', padding: '10px' }}
               >
-                <UserPlus size={16} /> Hoàn Tất Đăng Ký (Nhận 50k Test)
+                <UserPlus size={15} /> Tạo Tài Khoản (Nhận 100k Ví)
               </button>
             </form>
           )}

@@ -46,76 +46,78 @@ export const DepositModal = ({ isOpen, onClose, initialAmount = 50000 }) => {
 
   return (
     <div className="modal-overlay" id="modal-deposit-overlay" data-testid="deposit-modal">
-      <div className="modal-card">
+      <div className="modal-card" style={{ maxWidth: 480 }}>
+        {/* Header */}
         <div className="modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ padding: 7, borderRadius: 8, background: 'var(--primary-light)', color: 'var(--primary)' }}>
+            <div style={{ width: 34, height: 34, borderRadius: 8, background: 'var(--primary-light)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <CreditCard size={18} />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-main)' }}>Nạp Tiền Vào Ví</h3>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-main)' }}>Nạp Tiền Vào Ví</h3>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-subtle)' }}>
                 Số dư hiện tại: <strong style={{ color: 'var(--primary)' }}>{currentUser?.balance?.toLocaleString('vi-VN')} đ</strong>
               </span>
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
             id="btn-close-deposit-modal"
-            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
+            style={{ background: 'none', border: 'none', color: 'var(--text-subtle)', cursor: 'pointer', padding: 4 }}
           >
             <X size={18} />
           </button>
         </div>
 
         {isSimulatingQR ? (
-          <div className="modal-body" style={{ textAlign: 'center', padding: '26px 20px' }}>
+          <div className="modal-body" style={{ textAlign: 'center', padding: '30px 20px' }}>
             <div
               style={{
                 display: 'inline-block',
-                padding: 14,
+                padding: 16,
                 background: '#FFFFFF',
                 borderRadius: 12,
-                border: '1px solid var(--border-medium)',
-                boxShadow: 'var(--shadow-md)',
+                border: '1px solid var(--border-subtle)',
+                boxShadow: 'var(--shadow-sm)',
                 marginBottom: 16
               }}
             >
               {/* Giả lập QR Code */}
               <div
                 style={{
-                  width: 150,
-                  height: 150,
-                  background: 'repeating-linear-gradient(45deg, #0f172a, #0f172a 10px, #ffffff 10px, #ffffff 20px)',
-                  borderRadius: 6,
+                  width: 140,
+                  height: 140,
+                  background: 'repeating-linear-gradient(45deg, #0f172a, #0f172a 8px, #ffffff 8px, #ffffff 16px)',
+                  borderRadius: 8,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}
               >
-                <div style={{ background: 'var(--primary)', padding: '6px 12px', borderRadius: 6, color: '#FFFFFF', fontWeight: 700, fontSize: '0.85rem' }}>
+                <div style={{ background: 'var(--primary)', padding: '5px 10px', borderRadius: 6, color: '#FFFFFF', fontWeight: 700, fontSize: '0.8rem' }}>
                   VietQR Pay
                 </div>
               </div>
             </div>
 
             {successMsg ? (
-              <div id="deposit-success-alert" style={{ color: 'var(--accent-green)', fontWeight: 700, fontSize: '1rem', marginTop: 10 }}>
-                <Check size={20} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />
+              <div id="deposit-success-alert" style={{ color: 'var(--accent-green-text)', fontWeight: 700, fontSize: '0.98rem' }}>
+                <Check size={20} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
                 {successMsg}
               </div>
             ) : (
               <div>
-                <p style={{ fontWeight: 600, fontSize: '1rem', color: 'var(--text-main)' }}>Đang xác thực giao dịch tự động...</p>
-                <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)', marginTop: 4 }}>
-                  Số tiền: <span style={{ color: 'var(--primary)', fontWeight: 700 }}>{Number(amount).toLocaleString('vi-VN')} đ</span>
+                <p style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-main)' }}>Hệ thống đang kiểm tra thanh toán...</p>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 4 }}>
+                  Số tiền nạp: <strong style={{ color: 'var(--primary)' }}>{Number(amount).toLocaleString('vi-VN')} đ</strong>
                 </p>
               </div>
             )}
           </div>
         ) : (
           <form onSubmit={handleDepositSubmit}>
-            <div className="modal-body">
+            <div className="modal-body" style={{ padding: '20px 24px' }}>
               {error && (
                 <div
                   id="deposit-error-msg"
@@ -124,33 +126,34 @@ export const DepositModal = ({ isOpen, onClose, initialAmount = 50000 }) => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 8,
-                    padding: '10px 14px',
+                    padding: '8px 12px',
                     borderRadius: 8,
                     background: 'var(--accent-red-bg)',
                     border: '1px solid var(--accent-red-border)',
-                    color: '#DC2626',
-                    fontSize: '0.85rem',
+                    color: 'var(--accent-red-text)',
+                    fontSize: '0.84rem',
                     marginBottom: 14
                   }}
                 >
-                  <AlertCircle size={16} />
+                  <AlertCircle size={15} />
                   <span>{error}</span>
                 </div>
               )}
 
-              <div className="form-group">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <label className="form-label" htmlFor="input-deposit-amount" style={{ margin: 0, fontSize: '0.85rem' }}>
-                    Số tiền muốn nạp (VNĐ) <span style={{ color: '#DC2626' }}>*</span>
+              {/* Amount Input */}
+              <div className="form-group" style={{ marginBottom: 14 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <label className="form-label" htmlFor="input-deposit-amount" style={{ margin: 0, fontSize: '0.84rem' }}>
+                    Số tiền cần nạp (VNĐ) <span style={{ color: 'var(--accent-red)' }}>*</span>
                   </label>
                   {Number(amount) > 0 && (
-                    <span style={{ fontSize: '0.82rem', color: 'var(--primary)', fontWeight: 600 }}>
-                      = {Number(amount).toLocaleString('vi-VN')} đ
+                    <span style={{ fontSize: '0.82rem', color: 'var(--primary)', fontWeight: 700 }}>
+                      {Number(amount).toLocaleString('vi-VN')} đ
                     </span>
                   )}
                 </div>
 
-                {/* Bộ điều khiển tăng giảm số tiền */}
+                {/* Amount stepper */}
                 <div
                   style={{
                     display: 'flex',
@@ -161,7 +164,6 @@ export const DepositModal = ({ isOpen, onClose, initialAmount = 50000 }) => {
                     overflow: 'hidden'
                   }}
                 >
-                  {/* Nút giảm 10.000 đ */}
                   <button
                     type="button"
                     id="btn-decrease-deposit"
@@ -170,7 +172,7 @@ export const DepositModal = ({ isOpen, onClose, initialAmount = 50000 }) => {
                     onClick={() => handleStep(-10000)}
                     disabled={Number(amount) <= 10000}
                     style={{
-                      padding: '0 14px',
+                      padding: '0 12px',
                       background: 'var(--bg-surface)',
                       border: 'none',
                       borderRight: '1px solid var(--border-subtle)',
@@ -179,15 +181,13 @@ export const DepositModal = ({ isOpen, onClose, initialAmount = 50000 }) => {
                       display: 'flex',
                       alignItems: 'center',
                       gap: 4,
-                      fontSize: '0.82rem',
-                      fontWeight: 600
+                      fontSize: '0.8rem',
+                      fontWeight: 700
                     }}
                   >
-                    <Minus size={15} />
-                    <span>-10k</span>
+                    <Minus size={14} /> -10k
                   </button>
 
-                  {/* Ô nhập số tiền trực tiếp */}
                   <input
                     type="number"
                     id="input-deposit-amount"
@@ -201,15 +201,14 @@ export const DepositModal = ({ isOpen, onClose, initialAmount = 50000 }) => {
                       background: 'transparent',
                       border: 'none',
                       color: 'var(--text-main)',
-                      padding: '10px 12px',
+                      padding: '8px 12px',
                       fontSize: '1.15rem',
-                      fontWeight: 700,
+                      fontWeight: 800,
                       fontFamily: 'var(--font-heading)',
                       textAlign: 'center'
                     }}
                   />
 
-                  {/* Nút tăng 10.000 đ */}
                   <button
                     type="button"
                     id="btn-increase-deposit"
@@ -218,7 +217,7 @@ export const DepositModal = ({ isOpen, onClose, initialAmount = 50000 }) => {
                     onClick={() => handleStep(10000)}
                     disabled={Number(amount) >= 5000000}
                     style={{
-                      padding: '0 14px',
+                      padding: '0 12px',
                       background: 'var(--bg-surface)',
                       border: 'none',
                       borderLeft: '1px solid var(--border-subtle)',
@@ -227,28 +226,24 @@ export const DepositModal = ({ isOpen, onClose, initialAmount = 50000 }) => {
                       display: 'flex',
                       alignItems: 'center',
                       gap: 4,
-                      fontSize: '0.82rem',
-                      fontWeight: 600
+                      fontSize: '0.8rem',
+                      fontWeight: 700
                     }}
                   >
-                    <span>+10k</span>
-                    <Plus size={15} />
+                    +10k <Plus size={14} />
                   </button>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 5 }}>
-                  <span style={{ fontSize: '0.74rem', color: 'var(--text-subtle)' }}>
-                    Tối thiểu 10.000 đ - Tối đa 5.000.000 đ
-                  </span>
-                  <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
-                    Bước nhảy: ±10.000 đ
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-subtle)' }}>
+                    Hạn mức: 10.000 đ - 5.000.000 đ
                   </span>
                 </div>
               </div>
 
-              {/* Phím chọn nhanh số tiền */}
+              {/* Quick Amount Buttons */}
               <div style={{ marginBottom: 16 }}>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-subtle)', display: 'block', marginBottom: 6, fontWeight: 600 }}>
                   Chọn nhanh mệnh giá:
                 </span>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
@@ -258,17 +253,8 @@ export const DepositModal = ({ isOpen, onClose, initialAmount = 50000 }) => {
                       type="button"
                       id={`btn-quick-amount-${q}`}
                       onClick={() => setAmount(q)}
-                      style={{
-                        padding: '7px 8px',
-                        background: Number(amount) === q ? 'var(--primary)' : '#FFFFFF',
-                        border: Number(amount) === q ? '1px solid var(--primary)' : '1px solid var(--border-medium)',
-                        borderRadius: 6,
-                        color: Number(amount) === q ? '#FFFFFF' : 'var(--text-main)',
-                        fontSize: '0.82rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        transition: 'all var(--transition-fast)'
-                      }}
+                      className={`quick-chip ${Number(amount) === q ? 'active' : ''}`}
+                      style={{ padding: '6px 8px', fontSize: '0.8rem' }}
                     >
                       +{q.toLocaleString('vi-VN')} đ
                     </button>
@@ -276,14 +262,14 @@ export const DepositModal = ({ isOpen, onClose, initialAmount = 50000 }) => {
                 </div>
               </div>
 
-              {/* Phương thức thanh toán */}
+              {/* Payment Methods */}
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label" style={{ fontSize: '0.84rem' }}>Phương thức thanh toán</label>
+                <label className="form-label" style={{ fontSize: '0.82rem', marginBottom: 6 }}>Phương thức nạp tiền:</label>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {[
-                    { id: 'VietQR Auto', title: 'VietQR Chuyển Khoản Tự Động (Khuyên dùng)', sub: 'Xử lý tự động 24/7 trong vài giây' },
-                    { id: 'MoMo Auto', title: 'Ví Điện Tử MoMo', sub: 'Quét mã MoMo nạp tiền tức thì' },
-                    { id: 'ATM Domestic', title: 'Thẻ ATM / Internet Banking', sub: 'Hỗ trợ các ngân hàng nội địa' }
+                    { id: 'VietQR Auto', title: 'VietQR Chuyển Khoản Tự Động 24/7 (Khuyên Dùng)' },
+                    { id: 'MoMo Auto', title: 'Ví Điện Tử MoMo' },
+                    { id: 'ATM Domestic', title: 'Thẻ ATM Nội Địa / Internet Banking' }
                   ].map((pm) => (
                     <label
                       key={pm.id}
@@ -291,11 +277,12 @@ export const DepositModal = ({ isOpen, onClose, initialAmount = 50000 }) => {
                         display: 'flex',
                         alignItems: 'center',
                         gap: 10,
-                        padding: '9px 12px',
+                        padding: '8px 12px',
                         background: method === pm.id ? 'var(--primary-light)' : '#FFFFFF',
-                        border: method === pm.id ? '1px solid var(--border-active)' : '1px solid var(--border-subtle)',
+                        border: method === pm.id ? '1px solid var(--primary)' : '1px solid var(--border-subtle)',
                         borderRadius: 8,
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        transition: 'all var(--transition-fast)'
                       }}
                     >
                       <input
@@ -306,10 +293,9 @@ export const DepositModal = ({ isOpen, onClose, initialAmount = 50000 }) => {
                         onChange={(e) => setMethod(e.target.value)}
                         style={{ accentColor: 'var(--primary)' }}
                       />
-                      <div>
-                        <div style={{ fontSize: '0.86rem', fontWeight: 600, color: 'var(--text-main)' }}>{pm.title}</div>
-                        <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>{pm.sub}</div>
-                      </div>
+                      <span style={{ fontSize: '0.84rem', fontWeight: method === pm.id ? 700 : 500, color: 'var(--text-main)' }}>
+                        {pm.title}
+                      </span>
                     </label>
                   ))}
                 </div>
@@ -322,6 +308,7 @@ export const DepositModal = ({ isOpen, onClose, initialAmount = 50000 }) => {
                 className="btn btn-secondary"
                 id="btn-cancel-deposit"
                 onClick={onClose}
+                style={{ fontSize: '0.86rem' }}
               >
                 Hủy bỏ
               </button>
@@ -330,6 +317,7 @@ export const DepositModal = ({ isOpen, onClose, initialAmount = 50000 }) => {
                 className="btn btn-primary"
                 id="btn-confirm-deposit"
                 data-testid="btn-confirm-deposit"
+                style={{ fontSize: '0.86rem' }}
               >
                 <ShieldCheck size={16} /> Xác Nhận Nạp Tiền
               </button>

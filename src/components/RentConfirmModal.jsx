@@ -23,7 +23,7 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
     setError('');
 
     if (!agreedTerms) {
-      setError('Bạn cần đồng ý với điều khoản cấm sử dụng hack/tool để tiếp tục.');
+      setError('Bạn cần đồng ý với điều khoản quy định để tiếp tục.');
       return;
     }
 
@@ -49,30 +49,34 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
 
   return (
     <div className="modal-overlay" id="modal-rent-overlay" data-testid="rent-confirm-modal">
-      <div className="modal-card">
+      <div className="modal-card" style={{ maxWidth: 480 }}>
+        {/* Modal Header */}
         <div className="modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ padding: 7, borderRadius: 8, background: 'var(--primary-light)', color: 'var(--primary)' }}>
+            <div style={{ width: 34, height: 34, borderRadius: 8, background: 'var(--primary-light)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Key size={18} />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-main)' }}>
-                {rentResult ? 'Thuê Tài Khoản Thành Công!' : 'Xác Nhận Thuê Tài Khoản'}
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                {rentResult ? 'Thuê Tài Khoản Thành Công' : 'Xác Nhận Thuê Tài Khoản'}
               </h3>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Mã acc: #{account.id}</span>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-subtle)' }}>#{account.id} • {account.gameName}</span>
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
             id="btn-close-rent-modal"
-            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
+            style={{ background: 'none', border: 'none', color: 'var(--text-subtle)', cursor: 'pointer', padding: 4 }}
           >
             <X size={18} />
           </button>
         </div>
 
+        {/* Modal Body */}
         {rentResult ? (
-          <div className="modal-body" style={{ padding: '22px 20px' }}>
+          <div className="modal-body" style={{ padding: '24px' }}>
+            {/* Success Banner */}
             <div
               style={{
                 background: 'var(--accent-green-bg)',
@@ -80,19 +84,19 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
                 padding: 14,
                 borderRadius: 10,
                 textAlign: 'center',
-                marginBottom: 18
+                marginBottom: 16
               }}
             >
-              <div style={{ display: 'inline-flex', padding: 6, borderRadius: '50%', background: 'var(--accent-green)', color: '#FFFFFF', marginBottom: 6 }}>
-                <Check size={20} />
+              <div style={{ display: 'inline-flex', padding: 5, borderRadius: '50%', background: 'var(--accent-green)', color: '#FFFFFF', marginBottom: 6 }}>
+                <Check size={18} />
               </div>
-              <h4 style={{ color: 'var(--accent-green)', fontSize: '1.05rem', fontWeight: 700 }}>Đơn thuê đã được kích hoạt!</h4>
-              <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)' }}>
-                Thời gian thuê: <strong>{hours} Giờ</strong> | Hạn kết thúc được đếm ngược tại mục Đơn thuê.
+              <h4 style={{ color: 'var(--accent-green-text)', fontSize: '1rem', fontWeight: 700 }}>Đã kích hoạt ca thuê!</h4>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                Thời gian thuê: <strong>{hours} Giờ</strong>. Bắt đầu đếm ngược thời gian chơi ngay lập tức.
               </p>
             </div>
 
-            {/* Khung hiển thị thông tin đăng nhập bí mật */}
+            {/* Revealed Credentials Box */}
             <div
               id="revealed-credentials-box"
               style={{
@@ -100,18 +104,18 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
                 border: '1px solid var(--border-subtle)',
                 borderRadius: 10,
                 padding: 14,
-                marginBottom: 18
+                marginBottom: 16
               }}
             >
-              <span style={{ fontSize: '0.78rem', color: 'var(--primary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                Thông tin đăng nhập Game:
+              <span style={{ fontSize: '0.76rem', color: 'var(--primary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Thông tin đăng nhập game:
               </span>
 
-              {/* Tài khoản */}
+              {/* Username */}
               <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#FFFFFF', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-subtle)' }}>
                 <div>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-subtle)', display: 'block' }}>Tài khoản / Tên đăng nhập:</span>
-                  <strong id="revealed-account-name" style={{ color: 'var(--text-main)', fontSize: '0.98rem', fontFamily: 'monospace' }}>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-subtle)', display: 'block' }}>Tài khoản:</span>
+                  <strong id="revealed-account-name" style={{ color: 'var(--text-main)', fontSize: '0.94rem', fontFamily: 'monospace' }}>
                     {rentResult.secretAccount}
                   </strong>
                 </div>
@@ -120,18 +124,18 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
                   id="btn-copy-account"
                   onClick={() => copyToClipboard(rentResult.secretAccount, 'acc')}
                   className="btn btn-secondary"
-                  style={{ padding: '5px 10px', fontSize: '0.78rem' }}
+                  style={{ padding: '4px 10px', fontSize: '0.76rem' }}
                 >
                   {copiedAcc ? <Check size={13} color="var(--accent-green)" /> : <Copy size={13} />}
                   {copiedAcc ? 'Đã chép' : 'Sao chép'}
                 </button>
               </div>
 
-              {/* Mật khẩu */}
+              {/* Password */}
               <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#FFFFFF', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-subtle)' }}>
                 <div>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-subtle)', display: 'block' }}>Mật khẩu đăng nhập:</span>
-                  <strong id="revealed-account-password" style={{ color: 'var(--primary)', fontSize: '0.98rem', fontFamily: 'monospace' }}>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-subtle)', display: 'block' }}>Mật khẩu:</span>
+                  <strong id="revealed-account-password" style={{ color: 'var(--primary)', fontSize: '0.94rem', fontFamily: 'monospace' }}>
                     {rentResult.secretPassword}
                   </strong>
                 </div>
@@ -140,7 +144,7 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
                   id="btn-copy-password"
                   onClick={() => copyToClipboard(rentResult.secretPassword, 'pass')}
                   className="btn btn-secondary"
-                  style={{ padding: '5px 10px', fontSize: '0.78rem' }}
+                  style={{ padding: '4px 10px', fontSize: '0.76rem' }}
                 >
                   {copiedPass ? <Check size={13} color="var(--accent-green)" /> : <Copy size={13} />}
                   {copiedPass ? 'Đã chép' : 'Sao chép'}
@@ -148,38 +152,36 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button
-                type="button"
-                className="btn btn-primary"
-                id="btn-go-to-rentals"
-                onClick={() => {
-                  onClose();
-                  if (onRentSuccess) onRentSuccess();
-                }}
-                style={{ flex: 1, padding: '10px' }}
-              >
-                <ExternalLink size={15} /> Xem Đơn Thuê & Đồng Hồ
-              </button>
-            </div>
+            <button
+              type="button"
+              className="btn btn-primary"
+              id="btn-go-to-rentals"
+              onClick={() => {
+                onClose();
+                if (onRentSuccess) onRentSuccess();
+              }}
+              style={{ width: '100%', padding: '10px' }}
+            >
+              <ExternalLink size={15} /> Đi Đến Trang Đơn Thuê Của Tôi
+            </button>
           </div>
         ) : (
           <form onSubmit={handleConfirmRent}>
-            <div className="modal-body">
-              {/* Thông tin tài khoản */}
-              <div style={{ display: 'flex', gap: 12, marginBottom: 16, background: 'var(--bg-surface)', padding: 10, borderRadius: 8 }}>
+            <div className="modal-body" style={{ padding: '20px 24px' }}>
+              {/* Account Quick Preview */}
+              <div style={{ display: 'flex', gap: 12, marginBottom: 16, background: 'var(--bg-surface)', padding: 10, borderRadius: 10, border: '1px solid var(--border-subtle)' }}>
                 <img
                   src={account.thumbnail}
                   alt={account.title}
-                  style={{ width: 64, height: 64, borderRadius: 6, objectFit: 'cover' }}
+                  style={{ width: 56, height: 56, borderRadius: 8, objectFit: 'cover' }}
                 />
-                <div>
-                  <h4 style={{ fontSize: '0.92rem', fontWeight: 600, color: 'var(--text-main)', lineHeight: 1.4 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {account.title}
                   </h4>
-                  <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
-                    <span className="badge badge-rank">{account.rank}</span>
-                    <span style={{ fontSize: '0.82rem', color: 'var(--primary)', fontWeight: 600 }}>
+                  <div style={{ display: 'flex', gap: 6, marginTop: 4, alignItems: 'center' }}>
+                    <span className="badge badge-rank" style={{ fontSize: '0.7rem' }}>{account.rank}</span>
+                    <span style={{ fontSize: '0.84rem', color: 'var(--primary)', fontWeight: 700 }}>
                       {account.pricePerHour.toLocaleString('vi-VN')} đ/h
                     </span>
                   </div>
@@ -194,24 +196,24 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
                     display: 'flex',
                     alignItems: 'center',
                     gap: 8,
-                    padding: '10px 14px',
+                    padding: '8px 12px',
                     borderRadius: 8,
                     background: 'var(--accent-red-bg)',
                     border: '1px solid var(--accent-red-border)',
-                    color: '#DC2626',
-                    fontSize: '0.85rem',
-                    marginBottom: 14
+                    color: 'var(--accent-red-text)',
+                    fontSize: '0.82rem',
+                    marginBottom: 12
                   }}
                 >
-                  <AlertCircle size={16} />
+                  <AlertCircle size={15} />
                   <span>{error}</span>
                 </div>
               )}
 
-              {/* Chọn số giờ thuê */}
-              <div className="form-group">
-                <label className="form-label" htmlFor="select-rent-duration" style={{ fontSize: '0.85rem' }}>
-                  Thời lượng thuê tài khoản:
+              {/* Choose duration */}
+              <div className="form-group" style={{ marginBottom: 14 }}>
+                <label className="form-label" htmlFor="select-rent-duration" style={{ fontSize: '0.82rem', marginBottom: 6 }}>
+                  Thời lượng thuê:
                 </label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, marginBottom: 8 }}>
                   {[1, 2, 4, 8].map((h) => (
@@ -220,24 +222,16 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
                       type="button"
                       id={`btn-choose-duration-${h}h`}
                       onClick={() => setDurationHours(h)}
-                      style={{
-                        padding: '7px 0',
-                        background: hours === h ? 'var(--primary)' : '#FFFFFF',
-                        border: hours === h ? '1px solid var(--primary)' : '1px solid var(--border-medium)',
-                        borderRadius: 6,
-                        color: hours === h ? '#FFFFFF' : 'var(--text-main)',
-                        fontWeight: 600,
-                        fontSize: '0.84rem',
-                        cursor: 'pointer',
-                        transition: 'all var(--transition-fast)'
-                      }}
+                      className={`quick-chip ${hours === h ? 'active' : ''}`}
+                      style={{ padding: '6px 0', fontSize: '0.82rem' }}
                     >
                       {h} Giờ
                     </button>
                   ))}
                 </div>
+
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Tùy chọn số giờ:</span>
+                  <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Tùy chọn:</span>
                   <input
                     type="number"
                     id="input-rent-duration"
@@ -247,35 +241,32 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
                     value={durationHours}
                     onChange={(e) => setDurationHours(e.target.value)}
                     className="form-input"
-                    style={{ width: 80, padding: '5px 8px', textAlign: 'center', fontSize: '0.88rem' }}
+                    style={{ width: 70, padding: '4px 8px', textAlign: 'center', fontSize: '0.84rem', height: 32 }}
                   />
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-subtle)' }}>(Tối đa 48h)</span>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-subtle)' }}>giờ (1 - 48h)</span>
                 </div>
               </div>
 
-              {/* Bảng tính chi phí */}
+              {/* Total calculation box */}
               <div
                 style={{
                   background: 'var(--bg-surface)',
                   border: '1px solid var(--border-subtle)',
-                  borderRadius: 8,
+                  borderRadius: 10,
                   padding: 12,
                   marginBottom: 14
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: 6 }}>
-                  <span>Chi phí thuê:</span>
-                  <span>{hours}h × {account.pricePerHour.toLocaleString('vi-VN')} đ</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.98rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: 8 }}>
-                  <span>Tổng thanh toán:</span>
-                  <span id="text-total-rent-price" style={{ color: 'var(--primary)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.84rem', color: 'var(--text-muted)', marginBottom: 4 }}>
+                  <span>Chi phí ({hours} giờ × {account.pricePerHour.toLocaleString('vi-VN')} đ):</span>
+                  <span id="text-total-rent-price" style={{ fontWeight: 800, color: 'var(--primary)', fontSize: '0.98rem' }}>
                     {totalPrice.toLocaleString('vi-VN')} đ
                   </span>
                 </div>
-                <div style={{ borderTop: '1px dashed var(--border-medium)', paddingTop: 6, display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
+
+                <div style={{ borderTop: '1px dashed var(--border-medium)', paddingTop: 6, display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
                   <span style={{ color: 'var(--text-subtle)' }}>Số dư ví hiện tại:</span>
-                  <span style={{ fontWeight: 600, color: isEnoughBalance ? 'var(--accent-green)' : 'var(--accent-red)' }}>
+                  <span style={{ fontWeight: 700, color: isEnoughBalance ? 'var(--accent-green-text)' : 'var(--accent-red-text)' }}>
                     {userBalance.toLocaleString('vi-VN')} đ
                   </span>
                 </div>
@@ -285,17 +276,18 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
                     id="warning-insufficient-balance"
                     style={{
                       marginTop: 8,
-                      padding: 8,
+                      padding: '6px 10px',
                       borderRadius: 6,
                       background: 'var(--accent-red-bg)',
-                      color: '#DC2626',
+                      border: '1px solid var(--accent-red-border)',
+                      color: 'var(--accent-red-text)',
                       fontSize: '0.8rem',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between'
                     }}
                   >
-                    <span>Còn thiếu {(totalPrice - userBalance).toLocaleString('vi-VN')} đ</span>
+                    <span>Thiếu {(totalPrice - userBalance).toLocaleString('vi-VN')} đ</span>
                     <button
                       type="button"
                       className="btn btn-primary"
@@ -304,7 +296,7 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
                         onClose();
                         if (onOpenDeposit) onOpenDeposit(totalPrice - userBalance);
                       }}
-                      style={{ padding: '3px 8px', fontSize: '0.74rem' }}
+                      style={{ padding: '3px 8px', fontSize: '0.75rem' }}
                     >
                       + Nạp ngay
                     </button>
@@ -312,18 +304,18 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
                 )}
               </div>
 
-              {/* Cam kết quy tắc */}
-              <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, cursor: 'pointer', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              {/* Terms checkbox */}
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, cursor: 'pointer', fontSize: '0.8rem', color: 'var(--text-muted)', userSelect: 'none' }}>
                 <input
                   type="checkbox"
                   id="checkbox-rent-terms"
                   data-testid="checkbox-rent-terms"
                   checked={agreedTerms}
                   onChange={(e) => setAgreedTerms(e.target.checked)}
-                  style={{ marginTop: 2, accentColor: 'var(--primary)' }}
+                  style={{ marginTop: 2, accentColor: 'var(--primary)', width: 15, height: 15 }}
                 />
                 <span>
-                  Tôi cam kết <strong>không sử dụng hack/cheat/tool</strong>, không đổi thông tin tài khoản và không phá rank.
+                  Tôi cam kết <strong>không sử dụng hack/cheat</strong>, không đổi mật khẩu và tuân thủ quy định sử dụng.
                 </span>
               </label>
             </div>
@@ -334,6 +326,7 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
                 className="btn btn-secondary"
                 id="btn-cancel-rent"
                 onClick={onClose}
+                style={{ fontSize: '0.86rem' }}
               >
                 Hủy bỏ
               </button>
@@ -343,8 +336,9 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
                 id="btn-confirm-rent-action"
                 data-testid="btn-confirm-rent-action"
                 disabled={!isEnoughBalance || !agreedTerms}
+                style={{ fontSize: '0.86rem' }}
               >
-                <Key size={16} /> Xác Nhận Thuê ({totalPrice.toLocaleString('vi-VN')} đ)
+                <Key size={15} /> Xác Nhận Thuê ({totalPrice.toLocaleString('vi-VN')} đ)
               </button>
             </div>
           </form>

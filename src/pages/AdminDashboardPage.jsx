@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Gamepad2, AlertTriangle, ShieldCheck, Plus, Check, X, Trash2, DollarSign, Clock } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
-export const AdminDashboardPage = () => {
+export const AdminDashboardPage = ({ initialTab = 'disputes' }) => {
   const {
     accounts,
     categories,
@@ -15,8 +15,14 @@ export const AdminDashboardPage = () => {
     resolveDispute
   } = useApp();
 
-  const [activeTab, setActiveTab] = useState('accounts'); // 'accounts' | 'disputes' | 'orders'
+  const [activeTab, setActiveTab] = useState(initialTab); // 'accounts' | 'disputes' | 'orders'
   const [isAddingAcc, setIsAddingAcc] = useState(false);
+
+  React.useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
 
   // Form state thêm tài khoản
   const [newGameId, setNewGameId] = useState('lien-quan');
@@ -79,14 +85,14 @@ export const AdminDashboardPage = () => {
   };
 
   return (
-    <div className="container" style={{ padding: '36px 20px 70px 20px' }}>
+    <div className="container" style={{ padding: '20px 20px 60px 20px' }}>
       {/* Header */}
-      <div style={{ marginBottom: 28, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
+      <div style={{ marginBottom: 18, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 6, background: 'var(--primary-light)', color: 'var(--primary)', fontSize: '0.78rem', fontWeight: 600, marginBottom: 6 }}>
-            <ShieldCheck size={14} /> BẢNG ĐIỀU KHIỂN QUẢN TRỊ VIÊN
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '2px 8px', borderRadius: 6, background: 'var(--primary-light)', color: 'var(--primary)', fontSize: '0.72rem', fontWeight: 700, marginBottom: 4 }}>
+            <ShieldCheck size={13} /> QUẢN TRỊ VIÊN HỆ THỐNG
           </div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-main)' }}>Admin Portal</h1>
+          <h1 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--text-main)' }}>Admin Dashboard</h1>
         </div>
 
         <button
@@ -95,145 +101,146 @@ export const AdminDashboardPage = () => {
           data-testid="btn-admin-add-account"
           onClick={() => setIsAddingAcc(true)}
           className="btn btn-primary"
+          style={{ padding: '7px 14px', fontSize: '0.84rem' }}
         >
-          <Plus size={16} /> + Thêm Tài Khoản Mới
+          <Plus size={15} /> Thêm Tài Khoản Mới
         </button>
       </div>
 
-      {/* ================= THỐNG KÊ METRICS ================= */}
+      {/* ================= STATS CARDS ================= */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: 16,
-          marginBottom: 32
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: 12,
+          marginBottom: 20
         }}
       >
-        <div className="glass-panel" style={{ padding: 18, borderRadius: 12, background: '#FFFFFF' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', marginBottom: 8 }}>
-            <span style={{ fontSize: '0.82rem' }}>Doanh Thu Thuê Acc</span>
-            <DollarSign size={18} color="var(--primary)" />
+        <div className="glass-panel" style={{ padding: '14px 16px', borderRadius: 10, background: '#FFFFFF' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', marginBottom: 4 }}>
+            <span style={{ fontSize: '0.78rem', fontWeight: 600 }}>Doanh Thu Thuê</span>
+            <DollarSign size={15} color="var(--primary)" />
           </div>
-          <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--primary)', fontFamily: 'var(--font-heading)' }}>
+          <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--primary)', fontFamily: 'var(--font-heading)' }}>
             {totalRevenue.toLocaleString('vi-VN')} đ
           </div>
         </div>
 
-        <div className="glass-panel" style={{ padding: 18, borderRadius: 12, background: '#FFFFFF' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', marginBottom: 8 }}>
-            <span style={{ fontSize: '0.82rem' }}>Acc Đang Thuê</span>
-            <Clock size={18} color="var(--accent-green)" />
+        <div className="glass-panel" style={{ padding: '14px 16px', borderRadius: 10, background: '#FFFFFF' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', marginBottom: 4 }}>
+            <span style={{ fontSize: '0.78rem', fontWeight: 600 }}>Acc Đang Thuê</span>
+            <Clock size={15} color="var(--accent-green-text)" />
           </div>
-          <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--accent-green)' }}>
+          <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-green-text)' }}>
             {activeRentalsCount} tài khoản
           </div>
         </div>
 
-        <div className="glass-panel" style={{ padding: 18, borderRadius: 12, background: '#FFFFFF' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', marginBottom: 8 }}>
-            <span style={{ fontSize: '0.82rem' }}>Tổng Acc Trong Kho</span>
-            <Gamepad2 size={18} color="var(--primary)" />
+        <div className="glass-panel" style={{ padding: '14px 16px', borderRadius: 10, background: '#FFFFFF' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', marginBottom: 4 }}>
+            <span style={{ fontSize: '0.78rem', fontWeight: 600 }}>Tổng Kho Acc</span>
+            <Gamepad2 size={15} color="var(--text-subtle)" />
           </div>
-          <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--text-main)' }}>
+          <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)' }}>
             {accounts.length} acc
           </div>
         </div>
 
-        <div className="glass-panel" style={{ padding: 18, borderRadius: 12, background: '#FFFFFF' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', marginBottom: 8 }}>
-            <span style={{ fontSize: '0.82rem' }}>Khiếu Nại Chờ Xử Lý</span>
-            <AlertTriangle size={18} color={pendingDisputesCount > 0 ? '#DC2626' : 'var(--accent-green)'} />
+        <div className="glass-panel" style={{ padding: '14px 16px', borderRadius: 10, background: '#FFFFFF' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', marginBottom: 4 }}>
+            <span style={{ fontSize: '0.78rem', fontWeight: 600 }}>Khiếu Nại Chờ Duyệt</span>
+            <AlertTriangle size={15} color={pendingDisputesCount > 0 ? 'var(--accent-red)' : 'var(--accent-green)'} />
           </div>
-          <div style={{ fontSize: '1.6rem', fontWeight: 700, color: pendingDisputesCount > 0 ? '#DC2626' : 'var(--accent-green)' }}>
+          <div style={{ fontSize: '1.4rem', fontWeight: 800, color: pendingDisputesCount > 0 ? 'var(--accent-red)' : 'var(--accent-green)' }}>
             {pendingDisputesCount} đơn
           </div>
         </div>
       </div>
 
       {/* ================= TABS NAVIGATION ================= */}
-      <div style={{ display: 'flex', gap: 8, borderBottom: '1px solid var(--border-subtle)', paddingBottom: 12, marginBottom: 22 }}>
-        <button
-          type="button"
-          id="tab-admin-accounts"
-          onClick={() => setActiveTab('accounts')}
-          className={`btn ${activeTab === 'accounts' ? 'btn-primary' : 'btn-secondary'}`}
-          style={{ padding: '7px 16px', fontSize: '0.86rem' }}
-        >
-          Quản Lý Kho Acc ({accounts.length})
-        </button>
+      <div style={{ marginBottom: 16 }}>
+        <div className="segmented-nav">
+          <button
+            type="button"
+            id="tab-admin-accounts"
+            onClick={() => setActiveTab('accounts')}
+            className={`segmented-nav-btn ${activeTab === 'accounts' ? 'active' : ''}`}
+          >
+            Kho Tài Khoản ({accounts.length})
+          </button>
 
-        <button
-          type="button"
-          id="tab-admin-disputes"
-          onClick={() => setActiveTab('disputes')}
-          className={`btn ${activeTab === 'disputes' ? 'btn-primary' : 'btn-secondary'}`}
-          style={{ padding: '7px 16px', fontSize: '0.86rem', position: 'relative' }}
-        >
-          Xử Lý Khiếu Nại
-          {pendingDisputesCount > 0 && (
-            <span style={{ background: 'var(--accent-red)', color: '#fff', fontSize: '0.68rem', padding: '1px 6px', borderRadius: 6, marginLeft: 6 }}>
-              {pendingDisputesCount}
-            </span>
-          )}
-        </button>
+          <button
+            type="button"
+            id="tab-admin-disputes"
+            onClick={() => setActiveTab('disputes')}
+            className={`segmented-nav-btn ${activeTab === 'disputes' ? 'active' : ''}`}
+            style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', gap: 5 }}
+          >
+            <span>Xử Lý Khiếu Nại</span>
+            {pendingDisputesCount > 0 && (
+              <span style={{ background: 'var(--accent-red)', color: '#fff', fontSize: '0.64rem', fontWeight: 700, padding: '1px 5px', borderRadius: 10 }}>
+                {pendingDisputesCount}
+              </span>
+            )}
+          </button>
 
-        <button
-          type="button"
-          id="tab-admin-orders"
-          onClick={() => setActiveTab('orders')}
-          className={`btn ${activeTab === 'orders' ? 'btn-primary' : 'btn-secondary'}`}
-          style={{ padding: '7px 16px', fontSize: '0.86rem' }}
-        >
-          Giám Sát Đơn Thuê ({rentals.length})
-        </button>
+          <button
+            type="button"
+            id="tab-admin-orders"
+            onClick={() => setActiveTab('orders')}
+            className={`segmented-nav-btn ${activeTab === 'orders' ? 'active' : ''}`}
+          >
+            Giám Sát Đơn ({rentals.length})
+          </button>
+        </div>
       </div>
 
-      {/* ================= TAB 1: QUẢN LÝ KHO ACC ================= */}
+      {/* ================= TAB 1: KHO ACC ================= */}
       {activeTab === 'accounts' && (
-        <div>
-          <div className="glass-panel" style={{ borderRadius: 12, overflowX: 'auto', background: '#FFFFFF' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.86rem' }}>
+        <div className="glass-panel" style={{ borderRadius: 12, overflow: 'hidden', background: '#FFFFFF' }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.84rem' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-secondary)', color: 'var(--text-muted)' }}>
-                  <th style={{ padding: '12px 16px', fontWeight: 600 }}>Mã Acc</th>
-                  <th style={{ padding: '12px 16px', fontWeight: 600 }}>Tựa Game</th>
-                  <th style={{ padding: '12px 16px', fontWeight: 600 }}>Tiêu Đề / Rank</th>
-                  <th style={{ padding: '12px 16px', fontWeight: 600 }}>Giá Thuê/h</th>
-                  <th style={{ padding: '12px 16px', fontWeight: 600 }}>Tài Khoản / Mật Khẩu</th>
-                  <th style={{ padding: '12px 16px', fontWeight: 600 }}>Trạng Thái</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'center', fontWeight: 600 }}>Hành Động</th>
+                <tr style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)', color: 'var(--text-muted)' }}>
+                  <th style={{ padding: '10px 14px', fontWeight: 600 }}>Mã Acc</th>
+                  <th style={{ padding: '10px 14px', fontWeight: 600 }}>Tựa Game</th>
+                  <th style={{ padding: '10px 14px', fontWeight: 600 }}>Tiêu Đề & Rank</th>
+                  <th style={{ padding: '10px 14px', fontWeight: 600 }}>Giá Thuê</th>
+                  <th style={{ padding: '10px 14px', fontWeight: 600 }}>Tài Khoản / Mật Khẩu</th>
+                  <th style={{ padding: '10px 14px', fontWeight: 600 }}>Trạng Thái</th>
+                  <th style={{ padding: '10px 14px', textAlign: 'center', fontWeight: 600 }}>Hành Động</th>
                 </tr>
               </thead>
               <tbody>
                 {accounts.map((acc) => (
                   <tr key={acc.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                    <td style={{ padding: '12px 16px', fontFamily: 'monospace', color: 'var(--primary)', fontWeight: 600 }}>
+                    <td style={{ padding: '10px 14px', fontFamily: 'monospace', color: 'var(--primary)', fontWeight: 600 }}>
                       #{acc.id}
                     </td>
-                    <td style={{ padding: '12px 16px', fontWeight: 600 }}>
+                    <td style={{ padding: '10px 14px', fontWeight: 600 }}>
                       {categories.find(c => c.id === acc.gameId)?.name || acc.gameId}
                     </td>
-                    <td style={{ padding: '12px 16px', maxWidth: 220 }}>
+                    <td style={{ padding: '10px 14px', maxWidth: 220 }}>
                       <div style={{ fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {acc.title}
                       </div>
-                      <span className="badge badge-rank" style={{ marginTop: 4 }}>{acc.rank}</span>
+                      <span className="badge badge-rank" style={{ marginTop: 2 }}>{acc.rank}</span>
                     </td>
-                    <td style={{ padding: '12px 16px', fontWeight: 700, color: 'var(--primary)' }}>
-                      {acc.pricePerHour.toLocaleString('vi-VN')} đ
+                    <td style={{ padding: '10px 14px', fontWeight: 700, color: 'var(--primary)' }}>
+                      {acc.pricePerHour.toLocaleString('vi-VN')} đ/h
                     </td>
-                    <td style={{ padding: '12px 16px', fontFamily: 'monospace', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                    <td style={{ padding: '10px 14px', fontFamily: 'monospace', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
                       <div>User: {acc.secretAccount}</div>
                       <div>Pass: {acc.secretPassword}</div>
                     </td>
-                    <td style={{ padding: '12px 16px' }}>
+                    <td style={{ padding: '10px 14px' }}>
                       <select
                         id={`select-status-${acc.id}`}
                         data-testid={`select-status-${acc.id}`}
                         className="form-select"
                         value={acc.status}
                         onChange={(e) => toggleAccountStatus(acc.id, e.target.value)}
-                        style={{ padding: '4px 8px', fontSize: '0.8rem' }}
+                        style={{ padding: '3px 6px', fontSize: '0.78rem', height: 28 }}
                       >
                         <option value="available">Sẵn sàng</option>
                         <option value="rented">Đang thuê</option>
@@ -241,7 +248,7 @@ export const AdminDashboardPage = () => {
                         <option value="need_change_pass">Cần đổi pass</option>
                       </select>
                     </td>
-                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                    <td style={{ padding: '10px 14px', textAlign: 'center' }}>
                       <button
                         type="button"
                         id={`btn-delete-acc-${acc.id}`}
@@ -252,9 +259,9 @@ export const AdminDashboardPage = () => {
                           }
                         }}
                         className="btn btn-danger"
-                        style={{ padding: '5px 10px', fontSize: '0.78rem' }}
+                        style={{ padding: '3px 8px', fontSize: '0.76rem' }}
                       >
-                        <Trash2 size={13} /> Xóa
+                        <Trash2 size={12} /> Xóa
                       </button>
                     </td>
                   </tr>
@@ -269,13 +276,13 @@ export const AdminDashboardPage = () => {
       {activeTab === 'disputes' && (
         <div>
           {disputes.length === 0 ? (
-            <div className="glass-panel" style={{ textAlign: 'center', padding: '44px 20px', borderRadius: 12, background: '#FFFFFF' }}>
-              <div style={{ fontSize: '2.2rem', marginBottom: 10 }}>🎉</div>
-              <h4 style={{ fontSize: '1.1rem', color: 'var(--text-main)' }}>Không có khiếu nại nào cần xử lý</h4>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>Tất cả các phiên thuê đều diễn ra suôn sẻ!</p>
+            <div className="glass-panel" style={{ textAlign: 'center', padding: '36px 20px', borderRadius: 12, background: '#FFFFFF' }}>
+              <div style={{ fontSize: '1.8rem', marginBottom: 6 }}>✅</div>
+              <h4 style={{ fontSize: '1.05rem', color: 'var(--text-main)', marginBottom: 2 }}>Không có khiếu nại nào</h4>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.84rem' }}>Tất cả các phiên thuê đều hoạt động ổn định!</p>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {disputes.map((disp) => (
                 <div
                   key={disp.id}
@@ -284,17 +291,17 @@ export const AdminDashboardPage = () => {
                   className="glass-panel"
                   style={{
                     background: '#FFFFFF',
-                    borderRadius: 12,
-                    padding: 18,
+                    borderRadius: 10,
+                    padding: 14,
                     border: disp.status === 'pending' ? '1px solid var(--accent-red-border)' : '1px solid var(--border-subtle)'
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                     <div>
-                      <span style={{ fontSize: '0.78rem', color: '#DC2626', fontWeight: 600 }}>
-                        Mã Khiếu Nại: #{disp.id} | Đơn Thuê: #{disp.orderId}
+                      <span style={{ fontSize: '0.74rem', color: 'var(--accent-red-text)', fontWeight: 700 }}>
+                        Khiếu Nại #{disp.id} • Đơn Thuê #{disp.orderId}
                       </span>
-                      <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-main)', marginTop: 2 }}>
+                      <h4 style={{ fontSize: '0.96rem', fontWeight: 700, color: 'var(--text-main)', marginTop: 2 }}>
                         Lý do: {disp.reason}
                       </h4>
                     </div>
@@ -310,24 +317,24 @@ export const AdminDashboardPage = () => {
                     </div>
                   </div>
 
-                  <div style={{ background: 'var(--bg-surface)', padding: 12, borderRadius: 8, fontSize: '0.86rem', color: 'var(--text-muted)', marginBottom: 14 }}>
-                    <strong>Nội dung phản ánh từ khách:</strong> {disp.note}
-                    <div style={{ marginTop: 4, fontSize: '0.8rem', color: 'var(--text-subtle)' }}>
-                      Số tiền yêu cầu hoàn: <strong style={{ color: 'var(--primary)' }}>{disp.amount?.toLocaleString('vi-VN')} đ</strong>
+                  <div style={{ background: 'var(--bg-surface)', padding: 8, borderRadius: 6, fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: 10 }}>
+                    <div><strong>Nội dung:</strong> {disp.note}</div>
+                    <div style={{ marginTop: 2, fontSize: '0.78rem', color: 'var(--text-subtle)' }}>
+                      Số tiền hoàn: <strong style={{ color: 'var(--primary)' }}>{disp.amount?.toLocaleString('vi-VN')} đ</strong>
                     </div>
                   </div>
 
                   {disp.status === 'pending' && (
-                    <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                    <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
                       <button
                         type="button"
                         id={`btn-reject-dispute-${disp.id}`}
                         data-testid={`btn-reject-dispute-${disp.id}`}
                         onClick={() => resolveDispute(disp.id, 'reject')}
                         className="btn btn-secondary"
-                        style={{ fontSize: '0.82rem', padding: '6px 12px' }}
+                        style={{ fontSize: '0.78rem', padding: '4px 10px' }}
                       >
-                        <X size={14} /> Bác Bỏ Khiếu Nại
+                        <X size={13} /> Bác Bỏ
                       </button>
 
                       <button
@@ -336,9 +343,9 @@ export const AdminDashboardPage = () => {
                         data-testid={`btn-refund-dispute-${disp.id}`}
                         onClick={() => resolveDispute(disp.id, 'refund')}
                         className="btn btn-success"
-                        style={{ fontSize: '0.82rem', padding: '6px 12px' }}
+                        style={{ fontSize: '0.78rem', padding: '4px 10px' }}
                       >
-                        <Check size={14} /> Chấp Nhận & Hoàn Tiền 100%
+                        <Check size={13} /> Chấp Nhận & Hoàn 100%
                       </button>
                     </div>
                   )}
@@ -349,61 +356,63 @@ export const AdminDashboardPage = () => {
         </div>
       )}
 
-      {/* ================= TAB 3: GIÁM SÁT ĐƠN THUÊ ================= */}
+      {/* ================= TAB 3: GIÁM SÁT ĐƠN ================= */}
       {activeTab === 'orders' && (
-        <div className="glass-panel" style={{ borderRadius: 12, overflowX: 'auto', background: '#FFFFFF' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.86rem' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-secondary)', color: 'var(--text-muted)' }}>
-                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Mã Đơn</th>
-                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Tài Khoản Game</th>
-                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Người Thuê</th>
-                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Thời Lượng</th>
-                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Tổng Tiền</th>
-                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Trạng Thái</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rentals.map((r) => (
-                <tr key={r.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                  <td style={{ padding: '12px 16px', fontFamily: 'monospace', color: 'var(--primary)', fontWeight: 600 }}>#{r.id}</td>
-                  <td style={{ padding: '12px 16px', fontWeight: 600 }}>{r.accountTitle}</td>
-                  <td style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>{r.userId}</td>
-                  <td style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>{r.durationHours} giờ</td>
-                  <td style={{ padding: '12px 16px', fontWeight: 600, color: 'var(--text-main)' }}>{r.totalPrice.toLocaleString('vi-VN')} đ</td>
-                  <td style={{ padding: '12px 16px' }}>
-                    {r.status === 'active' ? (
-                      <span className="badge badge-rented">Đang chơi</span>
-                    ) : r.status === 'completed' ? (
-                      <span className="badge badge-available">Đã trả</span>
-                    ) : (
-                      <span className="badge badge-maintenance">Khiếu nại</span>
-                    )}
-                  </td>
+        <div className="glass-panel" style={{ borderRadius: 12, overflow: 'hidden', background: '#FFFFFF' }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.84rem' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)', color: 'var(--text-muted)' }}>
+                  <th style={{ padding: '10px 14px', fontWeight: 600 }}>Mã Đơn</th>
+                  <th style={{ padding: '10px 14px', fontWeight: 600 }}>Tài Khoản</th>
+                  <th style={{ padding: '10px 14px', fontWeight: 600 }}>Khách Thuê</th>
+                  <th style={{ padding: '10px 14px', fontWeight: 600 }}>Thời Lượng</th>
+                  <th style={{ padding: '10px 14px', fontWeight: 600 }}>Tổng Tiền</th>
+                  <th style={{ padding: '10px 14px', fontWeight: 600 }}>Trạng Thái</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {rentals.map((r) => (
+                  <tr key={r.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                    <td style={{ padding: '10px 14px', fontFamily: 'monospace', color: 'var(--primary)', fontWeight: 600 }}>#{r.id}</td>
+                    <td style={{ padding: '10px 14px', fontWeight: 600 }}>{r.accountTitle}</td>
+                    <td style={{ padding: '10px 14px', color: 'var(--text-muted)' }}>{r.userId}</td>
+                    <td style={{ padding: '10px 14px', color: 'var(--text-muted)' }}>{r.durationHours} giờ</td>
+                    <td style={{ padding: '10px 14px', fontWeight: 600, color: 'var(--text-main)' }}>{r.totalPrice.toLocaleString('vi-VN')} đ</td>
+                    <td style={{ padding: '10px 14px' }}>
+                      {r.status === 'active' ? (
+                        <span className="badge badge-rented">Đang chơi</span>
+                      ) : r.status === 'completed' ? (
+                        <span className="badge badge-available">Đã trả</span>
+                      ) : (
+                        <span className="badge badge-maintenance">Khiếu nại</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
-      {/* ================= MODAL THÊM MỚI TÀI KHOẢN ================= */}
+      {/* ================= MODAL THÊM MỚI TÀI KHOẢN (UC1) ================= */}
       {isAddingAcc && (
         <div className="modal-overlay" id="modal-add-account-overlay" data-testid="modal-add-account">
-          <div className="modal-card" style={{ maxWidth: 600 }}>
+          <div className="modal-card" style={{ maxWidth: 540 }}>
             <div className="modal-header">
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-main)' }}>Thêm Tài Khoản Mới Vào Kho</h3>
-              <button onClick={() => setIsAddingAcc(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-main)' }}>Thêm Tài Khoản Mới Vào Kho</h3>
+              <button onClick={() => setIsAddingAcc(false)} style={{ background: 'none', border: 'none', color: 'var(--text-subtle)', cursor: 'pointer' }}>
                 <X size={18} />
               </button>
             </div>
 
             <form onSubmit={handleAddAccountSubmit}>
-              <div className="modal-body">
-                {addError && <div className="form-error" style={{ marginBottom: 12 }}>{addError}</div>}
-                {addSuccess && <div style={{ color: 'var(--accent-green)', marginBottom: 12, fontSize: '0.88rem' }}>{addSuccess}</div>}
+              <div className="modal-body" style={{ padding: '18px 22px' }}>
+                {addError && <div className="form-error" style={{ marginBottom: 10 }}>{addError}</div>}
+                {addSuccess && <div style={{ color: 'var(--accent-green-text)', marginBottom: 10, fontSize: '0.84rem', fontWeight: 600 }}>{addSuccess}</div>}
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                   <div className="form-group">
                     <label className="form-label">Tựa Game</label>
                     <select
@@ -424,7 +433,7 @@ export const AdminDashboardPage = () => {
                       id="input-new-rank"
                       data-testid="input-new-rank"
                       className="form-input"
-                      placeholder="VD: Cao Thủ, Radiant, AR 60..."
+                      placeholder="VD: Cao Thủ, Radiant..."
                       value={newRank}
                       onChange={(e) => setNewRank(e.target.value)}
                     />
@@ -445,7 +454,7 @@ export const AdminDashboardPage = () => {
                   />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                   <div className="form-group">
                     <label className="form-label">Giá Thuê / Giờ (VNĐ)</label>
                     <input
@@ -473,21 +482,21 @@ export const AdminDashboardPage = () => {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Danh Sách Skin Nổi Bật (cách nhau bởi dấu phẩy)</label>
+                  <label className="form-label">Danh Sách Skin Nổi Bật</label>
                   <input
                     type="text"
                     id="input-new-skins-list"
                     data-testid="input-new-skins-list"
                     className="form-input"
-                    placeholder="Kuronami Vandal, Reaver Karambit, Prime Phantom..."
+                    placeholder="Kuronami Vandal, Prime Phantom..."
                     value={newSkinsList}
                     onChange={(e) => setNewSkinsList(e.target.value)}
                   />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                   <div className="form-group">
-                    <label className="form-label">Tài Khoản Đăng Nhập Game</label>
+                    <label className="form-label">Tài Khoản Đăng Nhập</label>
                     <input
                       type="text"
                       id="input-new-secret-account"
@@ -501,7 +510,7 @@ export const AdminDashboardPage = () => {
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">Mật Khẩu Đăng Nhập Game</label>
+                    <label className="form-label">Mật Khẩu Đăng Nhập</label>
                     <input
                       type="text"
                       id="input-new-secret-password"
@@ -517,11 +526,11 @@ export const AdminDashboardPage = () => {
               </div>
 
               <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setIsAddingAcc(false)}>
+                <button type="button" className="btn btn-secondary" onClick={() => setIsAddingAcc(false)} style={{ fontSize: '0.84rem' }}>
                   Hủy
                 </button>
-                <button type="submit" id="btn-submit-new-account" data-testid="btn-submit-new-account" className="btn btn-primary">
-                  <Plus size={15} /> Lưu & Đưa Lên Sàn
+                <button type="submit" id="btn-submit-new-account" data-testid="btn-submit-new-account" className="btn btn-primary" style={{ fontSize: '0.84rem' }}>
+                  <Plus size={14} /> Lưu Tài Khoản
                 </button>
               </div>
             </form>

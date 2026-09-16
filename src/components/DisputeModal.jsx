@@ -22,37 +22,37 @@ export const DisputeModal = ({ isOpen, onClose, rental }) => {
 
   return (
     <div className="modal-overlay" id="modal-dispute-overlay" data-testid="dispute-modal">
-      <div className="modal-card">
+      <div className="modal-card" style={{ maxWidth: 440 }}>
         <div className="modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ padding: 7, borderRadius: 8, background: 'var(--accent-red-bg)', color: '#F87171' }}>
+            <div style={{ width: 34, height: 34, borderRadius: 8, background: 'var(--accent-red-bg)', color: 'var(--accent-red-text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <AlertTriangle size={18} />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-main)' }}>Báo Cáo Sự Cố & Khiếu Nại</h3>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Đơn hàng: #{rental.id}</span>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-main)' }}>Báo Lỗi & Khiếu Nại</h3>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-subtle)' }}>Đơn hàng: #{rental.id}</span>
             </div>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+          <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-subtle)', cursor: 'pointer', padding: 4 }}>
             <X size={18} />
           </button>
         </div>
 
         {isSuccess ? (
-          <div className="modal-body" style={{ textAlign: 'center', padding: '26px 20px' }}>
+          <div className="modal-body" style={{ textAlign: 'center', padding: '28px 20px' }}>
             <div style={{ display: 'inline-flex', padding: 8, borderRadius: '50%', background: 'var(--accent-green)', color: '#FFFFFF', marginBottom: 10 }}>
-              <Check size={24} />
+              <Check size={22} />
             </div>
-            <h4 style={{ color: 'var(--accent-green)', fontSize: '1.1rem', fontWeight: 700 }}>Gửi Khiếu Nại Thành Công!</h4>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: 6 }}>
-              Hệ thống sẽ kiểm tra log đăng nhập và hoàn tiền ví cho bạn trong ít phút nếu phát hiện lỗi.
+            <h4 style={{ color: 'var(--accent-green-text)', fontSize: '1.05rem', fontWeight: 700 }}>Đã Gửi Báo Cáo Sự Cố!</h4>
+            <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)', marginTop: 4 }}>
+              Admin sẽ đối chiếu thông tin và hoàn trả 100% tiền vào ví của bạn trong thời gian sớm nhất.
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
-            <div className="modal-body">
+            <div className="modal-body" style={{ padding: '20px 24px' }}>
               <div className="form-group">
-                <label className="form-label" htmlFor="select-dispute-reason" style={{ fontSize: '0.85rem' }}>
+                <label className="form-label" htmlFor="select-dispute-reason" style={{ fontSize: '0.82rem' }}>
                   Lý do khiếu nại:
                 </label>
                 <select
@@ -72,32 +72,32 @@ export const DisputeModal = ({ isOpen, onClose, rental }) => {
               </div>
 
               <div className="form-group">
-                <label className="form-label" htmlFor="textarea-dispute-note" style={{ fontSize: '0.85rem' }}>
-                  Mô tả chi tiết sự cố gặp phải:
+                <label className="form-label" htmlFor="textarea-dispute-note" style={{ fontSize: '0.82rem' }}>
+                  Mô tả chi tiết sự cố:
                 </label>
                 <textarea
                   id="textarea-dispute-note"
                   data-testid="textarea-dispute-note"
                   rows="3"
                   className="form-textarea"
-                  placeholder="Vui lòng nêu rõ tình trạng để Admin hỗ trợ hoàn tiền nhanh nhất..."
+                  placeholder="Mô tả cụ thể lỗi gặp phải..."
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   required
                 />
               </div>
 
-              <div style={{ background: 'var(--accent-red-bg)', padding: 10, borderRadius: 8, border: '1px solid var(--accent-red-border)', fontSize: '0.78rem', color: '#F87171' }}>
-                Lưu ý: Hành vi cố tình vu khống hoặc spam khiếu nại sai sự thật sẽ bị khóa vĩnh viễn tài khoản ví.
+              <div style={{ background: 'var(--accent-red-bg)', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--accent-red-border)', fontSize: '0.76rem', color: 'var(--accent-red-text)' }}>
+                Chính sách: Hệ thống cam kết hoàn 100% tiền đơn thuê nếu acc gặp lỗi thực tế.
               </div>
             </div>
 
             <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" onClick={onClose}>
+              <button type="button" className="btn btn-secondary" onClick={onClose} style={{ fontSize: '0.86rem' }}>
                 Hủy
               </button>
-              <button type="submit" id="btn-submit-dispute" data-testid="btn-submit-dispute" className="btn btn-danger">
-                <Send size={15} /> Gửi Khiếu Nại
+              <button type="submit" id="btn-submit-dispute" data-testid="btn-submit-dispute" className="btn btn-danger" style={{ fontSize: '0.86rem' }}>
+                <Send size={14} /> Gửi Khiếu Nại
               </button>
             </div>
           </form>

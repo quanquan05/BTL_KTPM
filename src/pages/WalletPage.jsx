@@ -26,47 +26,47 @@ export const WalletPage = ({ onOpenDeposit }) => {
     .reduce((sum, t) => sum + t.amount, 0);
 
   return (
-    <div className="container" style={{ padding: '36px 20px 70px 20px' }}>
-      <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-main)' }}>
-          Quản Lý <span style={{ color: 'var(--primary)' }}>Ví Điện Tử</span>
+    <div className="container" style={{ padding: '20px 20px 60px 20px' }}>
+      <div style={{ marginBottom: 18 }}>
+        <h1 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--text-main)' }}>
+          Ví Điện Tử Của Tôi
         </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem' }}>
-          Xem số dư khả dụng, lịch sử nạp tiền và theo dõi các khoản khấu trừ khi thuê tài khoản game.
+        <p style={{ color: 'var(--text-subtle)', fontSize: '0.84rem' }}>
+          Xem số dư khả dụng, lịch sử nạp tiền và các khoản thanh toán ca thuê.
         </p>
       </div>
 
-      {/* ================= WALLET SUMMARY CARDS ================= */}
+      {/* ================= DIGITAL WALLET SUMMARY ================= */}
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))',
-          gap: 16,
-          marginBottom: 32
+          gap: 12,
+          marginBottom: 20
         }}
       >
-        {/* Main Balance Card */}
+        {/* Main Digital Card */}
         <div
           className="glass-panel"
           style={{
-            padding: 22,
-            borderRadius: 14,
-            background: '#FFFFFF',
-            border: '1px solid var(--border-active)',
+            padding: '16px 18px',
+            borderRadius: 12,
+            background: 'linear-gradient(135deg, #FFF7ED 0%, #FFFFFF 100%)',
+            border: '1px solid #FFEDD5',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            boxShadow: '0 4px 14px rgba(249, 115, 22, 0.08)'
+            boxShadow: 'var(--shadow-sm)'
           }}
         >
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-              <span style={{ fontSize: '0.78rem', color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 600 }}>
-                Số dư khả dụng
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+              <span style={{ fontSize: '0.72rem', color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 700 }}>
+                Số Dư Khả Dụng
               </span>
-              <Wallet size={18} color="var(--primary)" />
+              <Wallet size={16} color="var(--primary)" />
             </div>
-            <div id="wallet-balance-big-display" style={{ fontSize: '2.1rem', fontWeight: 800, color: 'var(--primary)', fontFamily: 'var(--font-heading)' }}>
+            <div id="wallet-balance-big-display" style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--primary)', fontFamily: 'var(--font-heading)', lineHeight: 1.2 }}>
               {currentUser?.balance?.toLocaleString('vi-VN')} đ
             </div>
           </div>
@@ -77,141 +77,161 @@ export const WalletPage = ({ onOpenDeposit }) => {
             data-testid="btn-wallet-page-deposit"
             onClick={() => onOpenDeposit()}
             className="btn btn-primary"
-            style={{ marginTop: 18, width: '100%', padding: '10px' }}
+            style={{ marginTop: 12, width: '100%', padding: '8px 12px', fontSize: '0.84rem' }}
           >
-            <PlusCircle size={16} /> Nạp Tiền Vào Ví
+            <PlusCircle size={15} /> Nạp Tiền Vào Ví
           </button>
         </div>
 
         {/* Total Deposited */}
-        <div className="glass-panel" style={{ padding: 20, borderRadius: 14, background: '#FFFFFF' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-            <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Tổng Tiền Đã Nạp</span>
-            <div style={{ padding: 6, borderRadius: 6, background: 'var(--accent-green-bg)', color: 'var(--accent-green)' }}>
-              <ArrowDownLeft size={16} />
+        <div className="glass-panel" style={{ padding: '16px 18px', borderRadius: 12, background: '#FFFFFF' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>Tổng Tiền Đã Nạp</span>
+            <div style={{ padding: '4px 6px', borderRadius: 6, background: 'var(--accent-green-bg)', color: 'var(--accent-green-text)' }}>
+              <ArrowDownLeft size={14} />
             </div>
           </div>
-          <div style={{ fontSize: '1.45rem', fontWeight: 700, color: 'var(--accent-green)' }}>
+          <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--accent-green-text)' }}>
             +{totalDeposited.toLocaleString('vi-VN')} đ
           </div>
-          <span style={{ fontSize: '0.76rem', color: 'var(--text-subtle)', marginTop: 4, display: 'block' }}>
-            Qua VietQR Auto / Thẻ ATM
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-subtle)', marginTop: 2, display: 'block' }}>
+            VietQR tự động & thẻ cào
           </span>
         </div>
 
         {/* Total Spent */}
-        <div className="glass-panel" style={{ padding: 20, borderRadius: 14, background: '#FFFFFF' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-            <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Tổng Chi Thuê Acc</span>
-            <div style={{ padding: 6, borderRadius: 6, background: 'var(--accent-red-bg)', color: 'var(--accent-red)' }}>
-              <ArrowUpRight size={16} />
+        <div className="glass-panel" style={{ padding: '16px 18px', borderRadius: 12, background: '#FFFFFF' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>Chi Phí Đã Thuê</span>
+            <div style={{ padding: '4px 6px', borderRadius: 6, background: 'var(--accent-red-bg)', color: 'var(--accent-red-text)' }}>
+              <ArrowUpRight size={14} />
             </div>
           </div>
-          <div style={{ fontSize: '1.45rem', fontWeight: 700, color: 'var(--accent-red)' }}>
+          <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-main)' }}>
             -{totalSpent.toLocaleString('vi-VN')} đ
           </div>
-          <span style={{ fontSize: '0.76rem', color: 'var(--text-subtle)', marginTop: 4, display: 'block' }}>
-            Khấu trừ theo giờ thuê tài khoản
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-subtle)', marginTop: 2, display: 'block' }}>
+            Phí thuê & gia hạn giờ
           </span>
         </div>
 
         {/* Total Refunded */}
-        <div className="glass-panel" style={{ padding: 20, borderRadius: 14, background: '#FFFFFF' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-            <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Được Hoàn Trả</span>
-            <div style={{ padding: 6, borderRadius: 6, background: 'var(--accent-amber-bg)', color: 'var(--accent-amber)' }}>
-              <RefreshCcw size={16} />
+        <div className="glass-panel" style={{ padding: '16px 18px', borderRadius: 12, background: '#FFFFFF' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>Bồi Hoàn Khiếu Nại</span>
+            <div style={{ padding: '4px 6px', borderRadius: 6, background: 'var(--accent-blue-bg)', color: 'var(--accent-blue-text)' }}>
+              <RefreshCcw size={14} />
             </div>
           </div>
-          <div style={{ fontSize: '1.45rem', fontWeight: 700, color: 'var(--accent-amber)' }}>
+          <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--accent-blue-text)' }}>
             +{totalRefunded.toLocaleString('vi-VN')} đ
           </div>
-          <span style={{ fontSize: '0.76rem', color: 'var(--text-subtle)', marginTop: 4, display: 'block' }}>
-            Tiền bồi hoàn từ khiếu nại sự cố
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-subtle)', marginTop: 2, display: 'block' }}>
+            Bảo hiểm hoàn tiền 100%
           </span>
         </div>
       </div>
 
-      {/* ================= TRANSACTIONS TABLE ================= */}
-      <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14, marginBottom: 18 }}>
-          <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-main)' }}>Biến Động Số Dư & Lịch Sử Giao Dịch</h2>
+      {/* ================= TRANSACTION HISTORY ================= */}
+      <div className="glass-panel" style={{ borderRadius: 12, overflow: 'hidden', background: '#FFFFFF' }}>
+        {/* Table Filter Toolbar */}
+        <div
+          style={{
+            padding: '12px 16px',
+            borderBottom: '1px solid var(--border-subtle)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 10
+          }}
+        >
+          <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-main)' }}>
+            Lịch Sử Biến Động Số Dư ({filteredTransactions.length})
+          </h3>
 
-          {/* Filter Pills */}
-          <div style={{ display: 'flex', gap: 6 }}>
+          <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
             {[
               { id: 'all', label: 'Tất cả' },
               { id: 'deposit', label: 'Nạp tiền' },
-              { id: 'rental_fee', label: 'Thuê acc' },
+              { id: 'rental_fee', label: 'Tiền thuê' },
               { id: 'refund', label: 'Hoàn tiền' }
-            ].map(tab => (
+            ].map(f => (
               <button
-                key={tab.id}
+                key={f.id}
                 type="button"
-                id={`btn-filter-tx-${tab.id}`}
-                onClick={() => setFilterType(tab.id)}
-                className={`btn ${filterType === tab.id ? 'btn-primary' : 'btn-secondary'}`}
-                style={{ padding: '5px 12px', fontSize: '0.8rem' }}
+                onClick={() => setFilterType(f.id)}
+                className={`quick-chip ${filterType === f.id ? 'active' : ''}`}
+                style={{ padding: '3px 8px', fontSize: '0.76rem' }}
               >
-                {tab.label}
+                {f.label}
               </button>
             ))}
           </div>
         </div>
 
-        <div className="glass-panel" style={{ borderRadius: 12, overflowX: 'auto', background: '#FFFFFF' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.86rem' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-secondary)', color: 'var(--text-muted)' }}>
-                <th style={{ padding: '12px 18px', fontWeight: 600 }}>Mã GD</th>
-                <th style={{ padding: '12px 18px', fontWeight: 600 }}>Thời Gian</th>
-                <th style={{ padding: '12px 18px', fontWeight: 600 }}>Nội Dung / Ghi Chú</th>
-                <th style={{ padding: '12px 18px', fontWeight: 600 }}>Phương Thức</th>
-                <th style={{ padding: '12px 18px', textAlign: 'right', fontWeight: 600 }}>Số Tiền</th>
-                <th style={{ padding: '12px 18px', textAlign: 'center', fontWeight: 600 }}>Trạng Thái</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTransactions.map((tx) => {
-                const isPositive = tx.amount > 0;
-                const dateStr = new Date(tx.timestamp).toLocaleString('vi-VN');
-
-                return (
-                  <tr key={tx.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                    <td style={{ padding: '12px 18px', fontFamily: 'monospace', color: 'var(--primary)', fontWeight: 600 }}>
-                      #{tx.id}
-                    </td>
-                    <td style={{ padding: '12px 18px', color: 'var(--text-muted)' }}>
-                      {dateStr}
-                    </td>
-                    <td style={{ padding: '12px 18px', fontWeight: 500, color: 'var(--text-main)' }}>
-                      {tx.note}
-                    </td>
-                    <td style={{ padding: '12px 18px', color: 'var(--text-muted)' }}>
-                      {tx.paymentMethod}
-                    </td>
-                    <td
-                      style={{
-                        padding: '12px 18px',
-                        textAlign: 'right',
-                        fontWeight: 600,
-                        fontSize: '0.92rem',
-                        color: isPositive ? 'var(--accent-green)' : 'var(--accent-red)'
-                      }}
-                    >
-                      {isPositive ? `+${tx.amount.toLocaleString('vi-VN')}` : tx.amount.toLocaleString('vi-VN')} đ
-                    </td>
-                    <td style={{ padding: '12px 18px', textAlign: 'center' }}>
-                      <span className="badge badge-available">
-                        Thành công
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        {/* Table */}
+        {filteredTransactions.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '36px 20px', color: 'var(--text-muted)', fontSize: '0.86rem' }}>
+            Không có giao dịch nào phù hợp với bộ lọc.
+          </div>
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.84rem' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface)', color: 'var(--text-muted)' }}>
+                  <th style={{ padding: '10px 14px', fontWeight: 600 }}>Mã GD</th>
+                  <th style={{ padding: '10px 14px', fontWeight: 600 }}>Thời Gian</th>
+                  <th style={{ padding: '10px 14px', fontWeight: 600 }}>Loại GD</th>
+                  <th style={{ padding: '10px 14px', fontWeight: 600 }}>Mô Tả</th>
+                  <th style={{ padding: '10px 14px', fontWeight: 600, textAlign: 'right' }}>Số Tiền</th>
+                  <th style={{ padding: '10px 14px', fontWeight: 600, textAlign: 'right' }}>Số Dư Sau</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredTransactions.map((tx) => {
+                  const isPositive = tx.amount > 0;
+                  return (
+                    <tr key={tx.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                      <td style={{ padding: '10px 14px', fontFamily: 'monospace', color: 'var(--text-subtle)', fontWeight: 600 }}>
+                        {tx.id}
+                      </td>
+                      <td style={{ padding: '10px 14px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+                        {new Date(tx.createdAt).toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' })}
+                      </td>
+                      <td style={{ padding: '10px 14px' }}>
+                        {tx.type === 'deposit' ? (
+                          <span className="badge badge-available">Nạp tiền</span>
+                        ) : tx.type === 'rental_fee' ? (
+                          <span className="badge" style={{ background: '#F1F5F9', color: '#475569' }}>Thuê acc</span>
+                        ) : (
+                          <span className="badge" style={{ background: 'var(--accent-blue-bg)', color: 'var(--accent-blue-text)' }}>Hoàn tiền</span>
+                        )}
+                      </td>
+                      <td style={{ padding: '10px 14px', color: 'var(--text-main)', fontWeight: 500 }}>
+                        {tx.description}
+                      </td>
+                      <td
+                        style={{
+                          padding: '10px 14px',
+                          textAlign: 'right',
+                          fontWeight: 700,
+                          color: isPositive ? 'var(--accent-green-text)' : 'var(--accent-red-text)',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        {isPositive ? `+${tx.amount.toLocaleString('vi-VN')}` : tx.amount.toLocaleString('vi-VN')} đ
+                      </td>
+                      <td style={{ padding: '10px 14px', textAlign: 'right', color: 'var(--text-main)', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                        {tx.balanceAfter?.toLocaleString('vi-VN')} đ
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

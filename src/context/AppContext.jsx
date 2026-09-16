@@ -26,7 +26,14 @@ export const AppProvider = ({ children }) => {
 
   const [currentUser, setCurrentUser] = useState(() => {
     const saved = localStorage.getItem('gamerent_current_user');
-    return saved ? JSON.parse(saved) : INITIAL_USERS[0]; // Mặc định đăng nhập User Tester ban đầu
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.role === 'admin' || parsed.id === 'ADMIN-01') {
+        return { ...parsed, name: 'Lê Minh Quân', balance: 3000000 };
+      }
+      return parsed;
+    }
+    return INITIAL_USERS[0]; // Mặc định Lê Minh Quân (Admin)
   });
 
   const [rentals, setRentals] = useState(() => {
