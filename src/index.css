@@ -436,6 +436,13 @@ input[type=number] {
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+@keyframes scaleBounce {
+  0% { transform: scale(0.4); opacity: 0; }
+  70% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+
 /* ==========================================================
    APP MASTER DASHBOARD LAYOUT (Theo mẫu ảnh)
    ========================================================== */
@@ -624,35 +631,93 @@ input[type=number] {
   z-index: 40;
 }
 
-.header-search-box {
+/* Header Breadcrumbs & Realtime Status Badge */
+.header-breadcrumb-container {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background-color: #F8FAFC;
-  border: 1px solid var(--border-subtle);
-  border-radius: 24px;
-  padding: 7px 14px;
-  width: 360px;
-  max-width: 100%;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
-.header-search-input {
-  border: none;
-  background: transparent;
-  font-size: 0.82rem;
-  color: var(--text-main);
-  width: 100%;
-  outline: none;
+.header-breadcrumb-main {
+  display: flex;
+  flex-direction: column;
 }
 
-.header-search-badge {
-  font-size: 0.68rem;
-  font-weight: 700;
+.header-breadcrumb-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0F172A;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  line-height: 1.2;
+}
+
+.header-breadcrumb-path {
+  font-size: 0.72rem;
+  font-weight: 600;
   color: #94A3B8;
-  background: #E2E8F0;
-  padding: 2px 6px;
-  border-radius: 6px;
-  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #059669;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  user-select: none;
+}
+
+.header-status-badge:hover {
+  background: #D1FAE5;
+  border-color: #6EE7B7;
+  box-shadow: 0 1px 4px rgba(16, 185, 129, 0.2);
+}
+
+.status-dot-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10B981;
+  animation: statusPulse 1.8s infinite ease-in-out;
+}
+
+@keyframes statusPulse {
+  0% { transform: scale(0.9); opacity: 0.8; box-shadow: 0 0 0 rgba(16, 185, 129, 0.4); }
+  50% { transform: scale(1.15); opacity: 1; box-shadow: 0 0 6px rgba(16, 185, 129, 0.8); }
+  100% { transform: scale(0.9); opacity: 0.8; box-shadow: 0 0 0 rgba(16, 185, 129, 0.4); }
+}
+
+.header-quick-switch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
+  background: #FFFFFF;
+  color: #334155;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.header-quick-switch-btn:hover {
+  background: #F8FAFC;
+  border-color: #CBD5E1;
+  color: #0F172A;
 }
 
 .header-wallet-pill {
@@ -834,7 +899,7 @@ input[type=number] {
 /* 2-Column Main Dashboard Grid */
 .dashboard-content-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.9fr) minmax(0, 1.1fr);
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   gap: 20px;
 }
 
@@ -854,13 +919,11 @@ input[type=number] {
 }
 
 .rental-table-header {
-  padding: 18px 20px;
+  padding: 18px 20px 16px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 14px;
   border-bottom: 1px solid var(--border-subtle);
-  flex-wrap: wrap;
-  gap: 12px;
 }
 
 .rental-table {
@@ -1047,5 +1110,68 @@ input[type=number] {
   font-size: 0.72rem;
   color: #94A3B8;
   font-weight: 600;
+}
+
+/* Custom Segmented Pill Switch */
+.widget-segmented-toggle {
+  display: inline-flex;
+  align-items: center;
+  background: #F1F5F9;
+  padding: 3px;
+  border-radius: 20px;
+  gap: 2px;
+}
+
+.widget-toggle-btn {
+  border: none;
+  background: transparent;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.widget-toggle-btn:hover {
+  color: #0F172A;
+}
+
+.widget-toggle-btn.active {
+  background: #FFFFFF;
+  color: #059669;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Dashboard Interactive Tooltip */
+.widget-hover-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0F172A;
+  color: #FFFFFF;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 50;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.15s ease;
+}
+
+.widget-hover-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 4px;
+  border-style: solid;
+  border-color: #0F172A transparent transparent transparent;
 }
 

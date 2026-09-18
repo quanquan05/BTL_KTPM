@@ -40,7 +40,7 @@ export const DepositModal = ({ isOpen, onClose, initialAmount = 50000 }) => {
       setTimeout(() => {
         setIsSimulatingQR(false);
         onClose();
-      }, 1500);
+      }, 1800);
     }, 1200);
   };
 
@@ -76,33 +76,65 @@ export const DepositModal = ({ isOpen, onClose, initialAmount = 50000 }) => {
               style={{
                 display: 'inline-block',
                 padding: 16,
-                background: '#FFFFFF',
-                borderRadius: 12,
-                border: '1px solid var(--border-subtle)',
-                boxShadow: 'var(--shadow-sm)',
-                marginBottom: 16
+                background: successMsg ? '#F0FDF4' : '#FFFFFF',
+                borderRadius: 14,
+                border: successMsg ? '1.5px solid #86EFAC' : '1px solid var(--border-subtle)',
+                boxShadow: successMsg ? '0 8px 24px rgba(16, 185, 129, 0.18)' : 'var(--shadow-sm)',
+                marginBottom: 16,
+                transition: 'all 0.3s ease'
               }}
             >
-              {/* Giả lập QR Code */}
-              <div
-                style={{
-                  width: 140,
-                  height: 140,
-                  background: 'repeating-linear-gradient(45deg, #0f172a, #0f172a 8px, #ffffff 8px, #ffffff 16px)',
-                  borderRadius: 8,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                <div style={{ background: 'var(--primary)', padding: '5px 10px', borderRadius: 6, color: '#FFFFFF', fontWeight: 700, fontSize: '0.8rem' }}>
-                  VietQR Pay
+              {successMsg ? (
+                /* Tích V màu trắng tròn xanh thay cho cái mã */
+                <div
+                  style={{
+                    width: 140,
+                    height: 140,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <div
+                    id="deposit-success-check-circle"
+                    data-testid="deposit-success-check-circle"
+                    style={{
+                      width: 90,
+                      height: 90,
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '0 8px 24px rgba(16, 185, 129, 0.38)',
+                      animation: 'scaleBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                    }}
+                  >
+                    <Check size={48} color="#FFFFFF" strokeWidth={3.5} />
+                  </div>
                 </div>
-              </div>
+              ) : (
+                /* Giả lập QR Code ban đầu */
+                <div
+                  style={{
+                    width: 140,
+                    height: 140,
+                    background: 'repeating-linear-gradient(45deg, #0f172a, #0f172a 8px, #ffffff 8px, #ffffff 16px)',
+                    borderRadius: 8,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <div style={{ background: 'var(--primary)', padding: '5px 10px', borderRadius: 6, color: '#FFFFFF', fontWeight: 700, fontSize: '0.8rem' }}>
+                    VietQR Pay
+                  </div>
+                </div>
+              )}
             </div>
 
             {successMsg ? (
-              <div id="deposit-success-alert" style={{ color: 'var(--accent-green-text)', fontWeight: 700, fontSize: '0.98rem' }}>
+              <div id="deposit-success-alert" style={{ color: '#047857', fontWeight: 700, fontSize: '1rem', marginTop: 4 }}>
                 <Check size={20} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
                 {successMsg}
               </div>

@@ -8,7 +8,7 @@ export const CATEGORIES = [
     icon: "Shield",
     badgeColor: "#FF8C00",
     ranks: ["Vàng", "Bạch Kim", "Kim Cương", "Tinh Anh", "Cao Thủ", "Chiến Tướng"],
-    banner: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80"
+    banner: "/images/games/lien-quan.jpg"
   },
   {
     id: "valorant",
@@ -17,7 +17,7 @@ export const CATEGORIES = [
     icon: "Crosshair",
     badgeColor: "#FF4655",
     ranks: ["Bạc", "Vàng", "Bạch Kim", "Kim Cương", "Ascendant", "Immortal", "Radiant"],
-    banner: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=800&q=80"
+    banner: "/images/games/valorant.jpg"
   },
   {
     id: "genshin",
@@ -26,7 +26,7 @@ export const CATEGORIES = [
     icon: "Sparkles",
     badgeColor: "#7928CA",
     ranks: ["AR 50", "AR 55", "AR 58", "AR 60 (Max Level)"],
-    banner: "https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?auto=format&fit=crop&w=800&q=80"
+    banner: "/images/games/genshin.jpg"
   },
   {
     id: "fo4",
@@ -35,7 +35,7 @@ export const CATEGORIES = [
     icon: "Trophy",
     badgeColor: "#10B981",
     ranks: ["Nghiệp Dư", "Bán Chuyên", "Chuyên Nghiệp", "Thế Giới", "Tinh Anh", "Siêu Sao"],
-    banner: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80"
+    banner: "/images/games/fo4.jpg"
   },
   {
     id: "pubg",
@@ -44,7 +44,7 @@ export const CATEGORIES = [
     icon: "Flame",
     badgeColor: "#F59E0B",
     ranks: ["Bạc", "Vàng", "Bạch Kim", "Kim Cương", "Cao Thủ"],
-    banner: "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=800&q=80"
+    banner: "/images/games/pubg.jpg"
   },
   {
     id: "toc-chien",
@@ -53,7 +53,7 @@ export const CATEGORIES = [
     icon: "Zap",
     badgeColor: "#00F2FE",
     ranks: ["Vàng", "Bạch Kim", "Kim Cương", "Cao Thủ", "Đại Cao Thủ", "Thách Đấu"],
-    banner: "https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=800&q=80"
+    banner: "/images/games/toc-chien.jpg"
   }
 ];
 
@@ -66,9 +66,21 @@ export const INITIAL_ACCOUNTS = [
     server: "Mặt Trời (VN)",
     skinsCount: 245,
     highlightSkins: ["Florentino Tinh Hệ", "Nakroth Thứ Nguyên Vệ Thần", "Raz Muay Thái", "Tulen Tân Thần Thiên Hà"],
+    skinDetails: [
+      { name: "Florentino Tinh Hệ", tier: "Bậc SSS Hữu Hạn", image: "/images/skins/florentino-tinh-he.jpg" },
+      { name: "Nakroth Thứ Nguyên Vệ Thần", tier: "Bậc SSS Anime Limited", image: "/images/skins/nakroth-thu-nguyen.jpg" },
+      { name: "Raz Muay Thái", tier: "Bậc SS Tuyệt Sắc", image: "/images/skins/raz-muay-thai.jpg" },
+      { name: "Tulen Tân Thần Thiên Hà", tier: "Bậc SSS Huyền Thoại", image: "/images/skins/tulen-thien-ha.jpg" }
+    ],
+    galleryImages: [
+      { id: 0, title: "Florentino Tinh Hệ - Kiếm Sư Vũ Trụ", url: "/images/skins/florentino-tinh-he.jpg" },
+      { id: 1, title: "Nakroth Thứ Nguyên Vệ Thần Anime", url: "/images/skins/nakroth-thu-nguyen.jpg" },
+      { id: 2, title: "Raz Muay Thái & Bộ Ngọc Rừng 90", url: "/images/skins/raz-muay-thai.jpg" },
+      { id: 3, title: "Tulen Tân Thần Thiên Hà & WR 68.5%", url: "/images/skins/tulen-thien-ha.jpg" }
+    ],
     pricePerHour: 15000,
     status: "available", // available | rented | maintenance | need_change_pass
-    thumbnail: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80",
+    thumbnail: "/images/accounts/acc-lq-01.jpg",
     secretAccount: "lq_chientuong_01",
     secretPassword: "GameRentPassLQ@2026",
     winRate: "68.5%",
@@ -83,10 +95,21 @@ export const INITIAL_ACCOUNTS = [
     rank: "Cao Thủ",
     server: "Mặt Trời (VN)",
     skinsCount: 160,
-    highlightSkins: ["Ngộ Không Nhóc Tì Bá Đạo", "Murad Siêu Việt", "Airi Kiem Sakura"],
+    highlightSkins: ["Ngộ Không Nhóc Tì Bá Đạo", "Murad Siêu Việt", "Airi Kiếm Sakura"],
+    skinDetails: [
+      { name: "Ngộ Không Nhóc Tì Bá Đạo", tier: "Bậc SS Tuyệt Sắc", image: "/images/skins/ngo-khong-nhoc-ti.jpg" },
+      { name: "Murad Siêu Việt", tier: "Bậc SSS Công Nghệ", image: "/images/skins/murad-sieu-viet.jpg" },
+      { name: "Airi Kiếm Sakura", tier: "Bậc SS Hữu Hạn", image: "/images/skins/airi-sakura.png" }
+    ],
+    galleryImages: [
+      { id: 0, title: "Ngộ Không Nhóc Tì Bá Đạo Độc Quyền", url: "/images/skins/ngo-khong-nhoc-ti.jpg" },
+      { id: 1, title: "Murad Siêu Việt Cực Phẩm Tàn Ảnh", url: "/images/skins/murad-sieu-viet.jpg" },
+      { id: 2, title: "Airi Kiếm Sakura Hoa Anh Đào", url: "/images/skins/airi-sakura.png" },
+      { id: 3, title: "Chiến Tích Cao Thủ 15 Sao - WR 59.2%", url: "/images/accounts/acc-lq-02.jpg" }
+    ],
     pricePerHour: 10000,
     status: "available",
-    thumbnail: "https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=600&q=80",
+    thumbnail: "/images/accounts/acc-lq-02.jpg",
     secretAccount: "lq_caothu_ngokhong",
     secretPassword: "PassKTPM#LQ99",
     winRate: "59.2%",
@@ -102,9 +125,21 @@ export const INITIAL_ACCOUNTS = [
     server: "Asia / Hong Kong",
     skinsCount: 38,
     highlightSkins: ["Kuronami Vandal", "Reaver Karambit", "Prime Phantom", "Sovereign Ghost"],
+    skinDetails: [
+      { name: "Kuronami Vandal", tier: "Exclusive Edition", image: "/images/skins/kuronami-vandal.png" },
+      { name: "Reaver Karambit", tier: "Premium Melee", image: "/images/skins/reaver-karambit.png" },
+      { name: "Prime Phantom", tier: "Ultra Edition", image: "/images/skins/prime-phantom.png" },
+      { name: "Sovereign Ghost", tier: "Deluxe Edition", image: "/images/skins/sovereign-ghost.png" }
+    ],
+    galleryImages: [
+      { id: 0, title: "Kuronami Bundle - Bộ Nhẫn Giả Sấm Sét", url: "/images/accounts/acc-val-01.png" },
+      { id: 1, title: "Kuronami Vandal - Kết Liễu Bão Nước", url: "/images/skins/kuronami-vandal.png" },
+      { id: 2, title: "Reaver Karambit Múa Dao Vô Cực", url: "/images/skins/reaver-karambit.png" },
+      { id: 3, title: "Prime Phantom & Rank Radiant Top 200", url: "/images/skins/prime-phantom.png" }
+    ],
     pricePerHour: 25000,
     status: "available",
-    thumbnail: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=600&q=80",
+    thumbnail: "/images/accounts/acc-val-01.png",
     secretAccount: "val_radiant_kuronami",
     secretPassword: "VandalKuronami@2026",
     winRate: "72.1%",
@@ -120,9 +155,20 @@ export const INITIAL_ACCOUNTS = [
     server: "Asia / Singapore",
     skinsCount: 22,
     highlightSkins: ["Champions 2023 Vandal", "Oni Katana", "Glitchpop Dagger"],
+    skinDetails: [
+      { name: "Champions 2023 Vandal", tier: "Limited Champions", image: "/images/skins/champions-vandal.png" },
+      { name: "Oni Katana", tier: "Premium Melee", image: "/images/skins/oni-katana.png" },
+      { name: "Glitchpop Dagger", tier: "Ultra Edition", image: "/images/skins/glitchpop-dagger.png" }
+    ],
+    galleryImages: [
+      { id: 0, title: "Champions 2023 Vandal Phát Sáng Hào Quang", url: "/images/skins/champions-vandal.png" },
+      { id: 1, title: "Oni Katana Kiếm Quỷ Đỏ Rực", url: "/images/skins/oni-katana.png" },
+      { id: 2, title: "Glitchpop Dagger Neon Cyberpunk", url: "/images/skins/glitchpop-dagger.png" },
+      { id: 3, title: "Acc Immortal 2 - MMR Tuyển Thủ", url: "/images/accounts/acc-val-02.png" }
+    ],
     pricePerHour: 18000,
     status: "rented", // Đang có người thuê để test hiển thị
-    thumbnail: "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=600&q=80",
+    thumbnail: "/images/accounts/acc-val-02.png",
     secretAccount: "val_immortal_champ",
     secretPassword: "OniKatana#888",
     winRate: "61.4%",
@@ -137,10 +183,22 @@ export const INITIAL_ACCOUNTS = [
     rank: "AR 60 (Max Level)",
     server: "Asia",
     skinsCount: 18,
-    highlightSkins: ["Raiden C2 Trấn", "Furina C6 R1", "Arlecchino Trấn", "Kazuha"],
+    highlightSkins: ["Raiden Shogun C2 Trấn", "Hu Tao Trấn Hộ Ma", "Kamisato Ayaka C6", "Kaedehara Kazuha"],
+    skinDetails: [
+      { name: "Raiden Shogun C2 Trấn", tier: "5 Sao C2 + Trấn R5", image: "/images/skins/raiden-shogun.png" },
+      { name: "Hu Tao Trấn Hộ Ma", tier: "5 Sao Trấn R5", image: "/images/skins/hu-tao.png" },
+      { name: "Kamisato Ayaka C6", tier: "5 Sao C6 Full Trấn", image: "/images/skins/ayaka.png" },
+      { name: "Kaedehara Kazuha", tier: "5 Sao 1000 EM", image: "/images/skins/kazuha.png" }
+    ],
+    galleryImages: [
+      { id: 0, title: "Raiden Shogun Lôi Thần Chém Đứt Không Gian", url: "/images/skins/raiden-shogun.png" },
+      { id: 1, title: "Hu Tao Trấn Hộ Ma Bùng Nổ Sát Thương", url: "/images/skins/hu-tao.png" },
+      { id: 2, title: "Kamisato Ayaka Băng Giá Tuyệt Mỹ", url: "/images/skins/ayaka.png" },
+      { id: 3, title: "Kaedehara Kazuha & 36 Sao La Hoàn", url: "/images/skins/kazuha.png" }
+    ],
     pricePerHour: 20000,
     status: "available",
-    thumbnail: "https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?auto=format&fit=crop&w=600&q=80",
+    thumbnail: "/images/accounts/acc-gen-01.png",
     secretAccount: "genshin_ar60_whale",
     secretPassword: "FurinaWhaleC6@2026",
     winRate: "100% La Hoàn",
@@ -155,10 +213,22 @@ export const INITIAL_ACCOUNTS = [
     rank: "Thế Giới",
     server: "Garena VN",
     skinsCount: 11,
-    highlightSkins: ["Ronaldo BTB +8", "Gullit ICON +5", "Zidane +7", "Courtois 23TS +8"],
+    highlightSkins: ["Ronaldo BTB +8", "Gullit ICON +5", "Zidane ICON +7", "Courtois 23TS +8"],
+    skinDetails: [
+      { name: "Ronaldo BTB +8", tier: "Mạ Vàng Real Madrid", image: "/images/skins/ronaldo-btb.png" },
+      { name: "Gullit ICON +5", tier: "Huyền Thoại Toàn Năng", image: "/images/skins/gullit-icon.png" },
+      { name: "Zidane ICON +7", tier: "Nhạc Trưởng Hào Hoa", image: "/images/skins/zidane-icon.png" },
+      { name: "Courtois 23TS +8", tier: "Thủ Thành Xuất Sắc", image: "/images/skins/courtois-ts.png" }
+    ],
+    galleryImages: [
+      { id: 0, title: "Cristiano Ronaldo BTB +8 Đỉnh Cao Real Madrid", url: "/images/skins/ronaldo-btb.png" },
+      { id: 1, title: "Ruud Gullit ICON +5 Trùm Tuyến Giữa", url: "/images/skins/gullit-icon.png" },
+      { id: 2, title: "Zinedine Zidane ICON +7 Ma Thuật", url: "/images/skins/zidane-icon.png" },
+      { id: 3, title: "Thibaut Courtois 23TS +8 Bắt Dính Mọi Cú Sút", url: "/images/skins/courtois-ts.png" }
+    ],
     pricePerHour: 12000,
     status: "available",
-    thumbnail: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=600&q=80",
+    thumbnail: "/images/accounts/acc-fo4-01.png",
     secretAccount: "fo4_real_250t",
     secretPassword: "GullitRealMadrid@99",
     winRate: "64.0%",
@@ -174,9 +244,20 @@ export const INITIAL_ACCOUNTS = [
     server: "Steam Asia / SEA",
     skinsCount: 45,
     highlightSkins: ["M416 Phượng Hoàng Lv10", "Beryl Bướm Đêm", "Bộ đồ B.Duck"],
+    skinDetails: [
+      { name: "M416 Phượng Hoàng Lv10", tier: "Progressive Max Level", image: "/images/skins/pubg-m416-phoenix.jpg" },
+      { name: "Beryl Bướm Đêm", tier: "Progressive Skin", image: "/images/skins/pubg-beryl-owl.jpg" },
+      { name: "Bộ đồ B.Duck", tier: "Set Trang Phục Hiếm", image: "/images/accounts/acc-pubg-01.jpg" }
+    ],
+    galleryImages: [
+      { id: 0, title: "M416 Phượng Hoàng Lv10 Nâng Cấp Hiệu Ứng Hòm Xác", url: "/images/skins/pubg-m416-phoenix.jpg" },
+      { id: 1, title: "Beryl M762 Bướm Đêm Tia Lửa Tím", url: "/images/skins/pubg-beryl-owl.jpg" },
+      { id: 2, title: "Bộ Đồ Vịt Vàng B.Duck Độc Quyền", url: "/images/accounts/acc-pubg-01.jpg" },
+      { id: 3, title: "Rank Kim Cương - K/D 3.8 Steam SEA", url: "/images/games/pubg.jpg" }
+    ],
     pricePerHour: 15000,
     status: "available",
-    thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80",
+    thumbnail: "/images/accounts/acc-pubg-01.jpg",
     secretAccount: "steam_pubg_phoenix",
     secretPassword: "PubgM416Lv10#2026",
     winRate: "3.8 K/D",
@@ -191,10 +272,22 @@ export const INITIAL_ACCOUNTS = [
     rank: "Thách Đấu",
     server: "VNG Vietnam",
     skinsCount: 88,
-    highlightSkins: ["Yasuo Ma Kiếm", "Yone Hoa Linh", "Zed Tử Thần Không Gian"],
+    highlightSkins: ["Yasuo Ma Kiếm", "Yone Hoa Linh Lục Địa", "Zed Tử Thần Không Gian", "Akali K/DA ALL OUT"],
+    skinDetails: [
+      { name: "Yasuo Ma Kiếm", tier: "Trang Phục Huyền Thoại", image: "/images/skins/yasuo-ma-kiem.jpg" },
+      { name: "Yone Hoa Linh Lục Địa", tier: "Huyền Thoại Song Kiếm", image: "/images/skins/yone-hoa-linh.jpg" },
+      { name: "Zed Tử Thần Không Gian", tier: "Huyền Thoại Vũ Trụ", image: "/images/skins/zed-tu-than.jpg" },
+      { name: "Akali K/DA ALL OUT", tier: "Tuyệt Phẩm Âm Nhạc", image: "/images/skins/akali-kda.jpg" }
+    ],
+    galleryImages: [
+      { id: 0, title: "Yasuo Ma Kiếm Hắc Ám Lốc Xoáy Quỷ", url: "/images/skins/yasuo-ma-kiem.jpg" },
+      { id: 1, title: "Yone Hoa Linh Lục Địa Đoạt Mệnh", url: "/images/skins/yone-hoa-linh.jpg" },
+      { id: 2, title: "Zed Tử Thần Không Gian Sát Thủ", url: "/images/skins/zed-tu-than.jpg" },
+      { id: 3, title: "Akali K/DA ALL OUT & Rank Thách Đấu", url: "/images/skins/akali-kda.jpg" }
+    ],
     pricePerHour: 8000,
     status: "maintenance", // Đang bảo trì để test logic kiểm thử
-    thumbnail: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80",
+    thumbnail: "/images/accounts/acc-tc-01.jpg",
     secretAccount: "tc_thachdau_yasuo",
     secretPassword: "HasagiHasagi@2026",
     winRate: "63.5%",
@@ -229,6 +322,49 @@ export const INITIAL_USERS = [
   }
 ];
 
+export const INITIAL_CUSTOMERS = [
+  {
+    id: 'KH001',
+    name: 'Nguyễn Văn Admin',
+    phone: '0987654321',
+    email: 'admin_kh01@gmail.com',
+    totalOrders: 14,
+    totalSpent: 245000,
+    status: 'active',
+    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=60&q=80'
+  },
+  {
+    id: 'KH002',
+    name: 'Nguyễn Văn Hùng',
+    phone: '0912345678',
+    email: 'hung.nguyen@gmail.com',
+    totalOrders: 8,
+    totalSpent: 120000,
+    status: 'active',
+    avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=60&q=80'
+  },
+  {
+    id: 'KH003',
+    name: 'Trần Phú Gia',
+    phone: '0978112233',
+    email: 'gia.tran@hotmail.com',
+    totalOrders: 19,
+    totalSpent: 380000,
+    status: 'active',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=60&q=80'
+  },
+  {
+    id: 'KH004',
+    name: 'Phạm Tuấn Minh',
+    phone: '0933445566',
+    email: 'minh.tuan@yahoo.com',
+    totalOrders: 5,
+    totalSpent: 75000,
+    status: 'active',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=60&q=80'
+  }
+];
+
 // Dữ liệu đơn thuê mẫu khớp với bảng "Danh sách tài khoản thuê" trong Dashboard
 const now = Date.now();
 export const INITIAL_RENTALS = [
@@ -243,17 +379,17 @@ export const INITIAL_RENTALS = [
     customerCode: "#KH001",
     gameId: "lien-quan",
     userId: "ADMIN-01",
-    startTime: now - (6 * 60 * 1000), // Bắt đầu lúc 18:14
+    startTime: now - (26 * 60 * 60 * 1000),
     rentalTimeFormatted: "2026-09-15 18:14",
     durationHours: 1,
-    endTime: now + (54 * 60 * 1000) + 26000, // Còn lại 00:54:26
+    endTime: now - (25 * 60 * 60 * 1000),
     pricePerHour: 15000,
     totalPrice: 15000,
     secretAccount: "vnt192_garena",
     secretPassword: "PassLienQuan@99",
-    status: "active",
+    status: "completed",
     disputeReason: null,
-    rating: null
+    rating: 5
   },
   {
     id: "RENT-002",
@@ -270,7 +406,7 @@ export const INITIAL_RENTALS = [
     rentalTimeFormatted: "2026-09-14 15:30",
     durationHours: 2,
     endTime: now - (22 * 60 * 60 * 1000),
-    remainingText: "-23:50:12",
+    remainingText: "Đã kết thúc",
     pricePerHour: 10000,
     totalPrice: 20000,
     secretAccount: "vnt192_sub",
@@ -290,17 +426,17 @@ export const INITIAL_RENTALS = [
     customerCode: "#KH003",
     gameId: "valorant",
     userId: "USER-03",
-    startTime: now - (20 * 60 * 1000),
+    startTime: now - (20 * 60 * 60 * 1000),
     rentalTimeFormatted: "2026-09-15 15:30",
     durationHours: 2,
-    endTime: now + (69 * 60 * 1000) + 48000, // Còn lại 01:09:48
+    endTime: now - (18 * 60 * 60 * 1000),
     pricePerHour: 25000,
     totalPrice: 50000,
     secretAccount: "vnt592_riot",
     secretPassword: "ValDiamond#2026",
-    status: "active",
+    status: "completed",
     disputeReason: null,
-    rating: null
+    rating: 5
   },
   {
     id: "RENT-004",
@@ -313,17 +449,17 @@ export const INITIAL_RENTALS = [
     customerCode: "#KH005",
     gameId: "genshin",
     userId: "USER-05",
-    startTime: now - (45 * 60 * 1000),
+    startTime: now - (45 * 60 * 60 * 1000),
     rentalTimeFormatted: "2026-09-15 16:00",
     durationHours: 3,
-    endTime: now + (135 * 60 * 1000),
+    endTime: now - (42 * 60 * 60 * 1000),
     pricePerHour: 20000,
     totalPrice: 60000,
     secretAccount: "genshin_ar60_whale",
     secretPassword: "FurinaWhaleC6@2026",
-    status: "active",
+    status: "completed",
     disputeReason: null,
-    rating: null
+    rating: 5
   },
   {
     id: "RENT-005",
@@ -336,17 +472,17 @@ export const INITIAL_RENTALS = [
     customerCode: "#KH006",
     gameId: "fo4",
     userId: "USER-06",
-    startTime: now - (50 * 60 * 1000),
+    startTime: now - (50 * 60 * 60 * 1000),
     rentalTimeFormatted: "2026-09-15 14:10",
     durationHours: 1,
-    endTime: now + (10 * 60 * 1000), // Sắp hết hạn (10 phút)
+    endTime: now - (49 * 60 * 60 * 1000),
     pricePerHour: 12000,
     totalPrice: 12000,
     secretAccount: "fo4_real_250t",
     secretPassword: "GullitRealMadrid@99",
-    status: "active",
+    status: "completed",
     disputeReason: null,
-    rating: null
+    rating: 5
   },
   {
     id: "RENT-006",
@@ -363,7 +499,7 @@ export const INITIAL_RENTALS = [
     rentalTimeFormatted: "2026-09-15 13:00",
     durationHours: 2,
     endTime: now,
-    remainingText: "00:00:00",
+    remainingText: "Đã kết thúc",
     pricePerHour: 15000,
     totalPrice: 30000,
     secretAccount: "steam_pubg_phoenix",
@@ -383,17 +519,17 @@ export const INITIAL_RENTALS = [
     customerCode: "#KH008",
     gameId: "valorant",
     userId: "USER-08",
-    startTime: now - (15 * 60 * 1000),
+    startTime: now - (15 * 60 * 60 * 1000),
     rentalTimeFormatted: "2026-09-15 17:00",
     durationHours: 2,
-    endTime: now + (105 * 60 * 1000),
+    endTime: now - (13 * 60 * 60 * 1000),
     pricePerHour: 18000,
     totalPrice: 36000,
     secretAccount: "val_immortal_champ",
     secretPassword: "OniKatana#888",
-    status: "active",
+    status: "completed",
     disputeReason: null,
-    rating: null
+    rating: 5
   },
   {
     id: "RENT-008",
@@ -410,7 +546,7 @@ export const INITIAL_RENTALS = [
     rentalTimeFormatted: "2026-09-15 11:30",
     durationHours: 2,
     endTime: now - (1 * 60 * 60 * 1000),
-    remainingText: "-01:00:00",
+    remainingText: "Đã kết thúc",
     pricePerHour: 8000,
     totalPrice: 16000,
     secretAccount: "tc_thachdau_yasuo",

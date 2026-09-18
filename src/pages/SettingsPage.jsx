@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Settings, Save, Shield, Bell, Key, RefreshCw } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { ConfirmModal } from '../components/ConfirmModal';
 
 export const SettingsPage = () => {
   const { currentUser, resetToDefaultData } = useApp();
@@ -8,11 +9,18 @@ export const SettingsPage = () => {
   const [siteSlogan, setSiteSlogan] = useState('Thuê tài khoản game');
   const [autoRefund, setAutoRefund] = useState(true);
   const [savedSuccess, setSavedSuccess] = useState('');
+  const [isConfirmResetOpen, setIsConfirmResetOpen] = useState(false);
 
   const handleSave = (e) => {
     e.preventDefault();
     setSavedSuccess('Lưu cài đặt hệ thống thành công!');
     setTimeout(() => setSavedSuccess(''), 2500);
+  };
+
+  const handleConfirmReset = () => {
+    resetToDefaultData();
+    setSavedSuccess('Đã khôi phục toàn bộ dữ liệu kiểm thử ban đầu thành công!');
+    setTimeout(() => setSavedSuccess(''), 3500);
   };
 
   return (
@@ -80,13 +88,10 @@ export const SettingsPage = () => {
 
             <button
               type="button"
+              id="btn-trigger-reset-data"
+              data-testid="btn-trigger-reset-data"
               className="btn btn-secondary"
-              onClick={() => {
-                if (window.confirm('Khôi phục toàn bộ dữ liệu kiểm thử về mặc định?')) {
-                  resetToDefaultData();
-                  alert('Đã khôi phục dữ liệu ban đầu!');
-                }
-              }}
+              onClick={() => setIsConfirmResetOpen(true)}
               style={{ padding: '8px 18px' }}
             >
               <RefreshCw size={15} /> Khôi Phục Dữ Liệu
@@ -94,6 +99,20 @@ export const SettingsPage = () => {
           </div>
         </form>
       </div>
+
+      {/* Modal Xác Nhận Khôi Phục Dữ Liệu Đồng Bộ */}
+      <ConfirmModal
+        isOpen={isConfirmResetOpen}
+        onClose={() => setIsConfirmResetOpen(false)}
+        onConfirm={handleConfirmReset}
+        title="Khôi Phục Dữ Liệu Mặc Định"
+        message="Bạn có chắc chắn muốn khôi phục toàn bộ dữ liệu kiểm thử về mặc định?"
+        subMessage="Lưu ý: Tất cả tài khoản game, khách hàng, số dư và đơn thuê sẽ được thiết lập lại ban đầu."
+        confirmText="Khôi Phục Dữ Liệu"
+        cancelText="Hủy Bỏ"
+        type="warning"
+        icon={<RefreshCw size={20} strokeWidth={2.4} />}
+      />
     </div>
   );
 };

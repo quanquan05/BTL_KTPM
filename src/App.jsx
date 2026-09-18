@@ -84,6 +84,7 @@ const MainApp = () => {
       <div className="app-main-content">
         {/* Top Header / Navbar */}
         <Navbar
+          currentView={currentView}
           setView={(view) => {
             setCurrentView(view);
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -119,12 +120,14 @@ const MainApp = () => {
               onBack={() => setCurrentView('home')}
               onRentNow={handleTriggerRent}
               onOpenDeposit={handleOpenDeposit}
+              onSelectAccount={handleSelectAccount}
             />
           )}
 
           {currentView === 'my-rentals' && (
             <MyRentalsPage
               onExploreMore={() => setCurrentView('home')}
+              onOpenDeposit={handleOpenDeposit}
             />
           )}
 
@@ -188,10 +191,85 @@ const MainApp = () => {
   );
 };
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
+  }
+
+  handleReset = () => {
+    localStorage.clear();
+    window.location.reload();
+  };
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#0f172a',
+          color: '#f8fafc',
+          padding: '24px',
+          fontFamily: 'Inter, system-ui, sans-serif'
+        }}>
+          <div style={{
+            background: '#1e293b',
+            padding: '32px',
+            borderRadius: '16px',
+            maxWidth: '500px',
+            width: '100%',
+            textAlign: 'center',
+            boxShadow: '0 20px 25px -5px rgba(0,0,0,0.5)'
+          }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
+            <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>
+              Đã xảy ra sự cố hiển thị
+            </h2>
+            <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '24px' }}>
+              Dữ liệu tạm trong bộ nhớ trình duyệt có thể không tương thích. Vui lòng bấm nút dưới đây để làm mới hệ thống.
+            </p>
+            <button
+              type="button"
+              onClick={this.handleReset}
+              style={{
+                background: 'linear-gradient(135deg, #10b981, #059669)',
+                color: 'white',
+                border: 'none',
+                padding: '12px 24px',
+                borderRadius: '8px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                fontSize: '15px'
+              }}
+            >
+              🔄 Khôi Phục Dữ Liệu & Tải Lại Trang
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function App() {
   return (
-    <AppProvider>
-      <MainApp />
-    </AppProvider>
+    <ErrorBoundary>
+      <AppProvider>
+        <MainApp />
+      </AppProvider>
+    </ErrorBoundary>
   );
 }

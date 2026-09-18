@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Search, CheckCircle, Clock, Eye, Key, X } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Search, CheckCircle, Clock, Eye, Key, X, ChevronDown, Check, Tag, Shield } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 export const HomePage = ({ onSelectAccount, onRentAccount }) => {
@@ -9,6 +9,61 @@ export const HomePage = ({ onSelectAccount, onRentAccount }) => {
   const [priceFilter, setPriceFilter] = useState('all'); // 'all' | 'under12' | '12to20' | 'above20'
   const [rankFilter, setRankFilter] = useState('all');
   const [onlyAvailable, setOnlyAvailable] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(null); // 'price' | 'rank' | null
+
+  // Đóng dropdown khi click ngoài hoặc nhấn Escape
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (
+        !e.target.closest('#container-filter-price') &&
+        !e.target.closest('#container-filter-rank')
+      ) {
+        setOpenDropdown(null);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener('click', handleOutsideClick);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('click', handleOutsideClick);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  const PRICE_OPTIONS = [
+    {
+      value: 'all',
+      label: 'Khoảng giá: Tất cả',
+      title: 'Tất cả mức giá',
+      desc: 'Hiển thị mọi phân khúc tài khoản',
+      badge: null
+    },
+    {
+      value: 'under12',
+      label: 'Dưới 12.000 đ/h',
+      title: 'Dưới 12.000 đ/h',
+      desc: 'Tiết kiệm, học sinh - sinh viên',
+      badge: { text: 'Tiết kiệm', bg: '#EFF6FF', color: '#2563EB' }
+    },
+    {
+      value: '12to20',
+      label: '12.000 đ - 20.000 đ/h',
+      title: '12.000 đ - 20.000 đ/h',
+      desc: 'Phổ biến, nhiều skin & tướng hot',
+      badge: { text: 'Phổ biến', bg: '#ECFDF5', color: '#059669' }
+    },
+    {
+      value: 'above20',
+      label: 'Trên 20.000 đ/h',
+      title: 'Trên 20.000 đ/h',
+      desc: 'Acc VIP, full trang phục, rank cao',
+      badge: { text: 'VIP / Cao cấp', bg: '#FEF3C7', color: '#D97706' }
+    }
+  ];
 
   // Lấy danh sách rank của game đang chọn
   const currentCategoryRanks = useMemo(() => {
@@ -111,7 +166,9 @@ export const HomePage = ({ onSelectAccount, onRentAccount }) => {
             justifyContent: 'space-between',
             flexWrap: 'wrap',
             gap: 10,
-            background: '#FFFFFF'
+            background: '#FFFFFF',
+            position: 'relative',
+            zIndex: 30
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', flex: 1 }}>
@@ -157,36 +214,324 @@ export const HomePage = ({ onSelectAccount, onRentAccount }) => {
               )}
             </div>
 
-            {/* Price Filter Dropdown */}
-            <select
-              id="select-filter-price"
-              data-testid="select-filter-price"
-              className="form-select"
-              value={priceFilter}
-              onChange={(e) => setPriceFilter(e.target.value)}
-              style={{ padding: '5px 10px', fontSize: '0.82rem', height: 34 }}
-            >
-              <option value="all">Khoảng giá: Tất cả</option>
-              <option value="under12">Dưới 12.000 đ/h</option>
-              <option value="12to20">12.000 đ - 20.000 đ/h</option>
-              <option value="above20">Trên 20.000 đ/h</option>
-            </select>
-
-            {/* Rank Filter Dropdown (if game selected) */}
-            {currentCategoryRanks.length > 0 && (
-              <select
-                id="select-filter-rank"
-                data-testid="select-filter-rank"
-                className="form-select"
-                value={rankFilter}
-                onChange={(e) => setRankFilter(e.target.value)}
-                style={{ padding: '5px 10px', fontSize: '0.82rem', height: 34 }}
+            {/* Custom Dropdown: Price Filter */}
+            <div id="container-filter-price" style={{ position: 'relative' }}>
+              <button
+                type="button"
+                id="select-filter-price"
+                data-testid="select-filter-price"
+                aria-haspopup="listbox"
+                aria-expanded={openDropdown === 'price'}
+                onClick={() => setOpenDropdown(openDropdown === 'price' ? null : 'price')}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 7,
+                  padding: '5px 12px',
+                  borderRadius: 8,
+                  fontSize: '0.82rem',
+                  fontWeight: priceFilter !== 'all' ? 600 : 500,
+                  border: priceFilter !== 'all' ? '1px solid var(--primary)' : '1px solid var(--border-subtle)',
+                  background: priceFilter !== 'all' ? '#ECFDF5' : '#FFFFFF',
+                  color: priceFilter !== 'all' ? '#059669' : '#334155',
+                  height: 34,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                  boxShadow: openDropdown === 'price' ? '0 0 0 3px rgba(16, 185, 129, 0.15)' : 'none',
+                  whiteSpace: 'nowrap'
+                }}
               >
-                <option value="all">Mức Rank: Tất cả</option>
-                {currentCategoryRanks.map(r => (
-                  <option key={r} value={r}>{r}</option>
-                ))}
-              </select>
+                <Tag size={13} color={priceFilter !== 'all' ? '#10B981' : '#64748B'} />
+                <span>{PRICE_OPTIONS.find(p => p.value === priceFilter)?.label || 'Khoảng giá: Tất cả'}</span>
+                <ChevronDown
+                  size={13}
+                  color={priceFilter !== 'all' ? '#10B981' : '#64748B'}
+                  style={{
+                    transform: openDropdown === 'price' ? 'rotate(180deg)' : 'none',
+                    transition: 'transform 0.18s ease'
+                  }}
+                />
+              </button>
+
+              {openDropdown === 'price' && (
+                <div
+                  role="listbox"
+                  style={{
+                    position: 'absolute',
+                    top: 'calc(100% + 6px)',
+                    left: 0,
+                    width: 270,
+                    background: '#FFFFFF',
+                    border: '1px solid #E2E8F0',
+                    borderRadius: 12,
+                    boxShadow: '0 12px 28px -4px rgba(15, 23, 42, 0.12), 0 4px 10px -2px rgba(15, 23, 42, 0.05)',
+                    padding: '6px',
+                    zIndex: 100,
+                    animation: 'slideUp 0.15s ease'
+                  }}
+                >
+                  <div
+                    style={{
+                      padding: '6px 8px 6px 8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      borderBottom: '1px solid #F1F5F9',
+                      marginBottom: 4
+                    }}
+                  >
+                    <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#94A3B8', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                      Khoảng giá thuê
+                    </span>
+                    {priceFilter !== 'all' && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPriceFilter('all');
+                          setOpenDropdown(null);
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          fontSize: '0.72rem',
+                          color: 'var(--primary)',
+                          cursor: 'pointer',
+                          fontWeight: 600,
+                          padding: 0
+                        }}
+                      >
+                        Đặt lại
+                      </button>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {PRICE_OPTIONS.map((opt) => {
+                      const isSelected = priceFilter === opt.value;
+                      return (
+                        <div
+                          key={opt.value}
+                          id={`option-price-${opt.value}`}
+                          data-testid={`option-price-${opt.value}`}
+                          role="option"
+                          aria-selected={isSelected}
+                          onClick={() => {
+                            setPriceFilter(opt.value);
+                            setOpenDropdown(null);
+                          }}
+                          style={{
+                            padding: '8px 10px',
+                            borderRadius: 8,
+                            background: isSelected ? '#ECFDF5' : 'transparent',
+                            color: isSelected ? '#059669' : '#1E293B',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            transition: 'all 0.12s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!isSelected) e.currentTarget.style.background = '#F8FAFC';
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!isSelected) e.currentTarget.style.background = 'transparent';
+                          }}
+                        >
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <span style={{ fontSize: '0.82rem', fontWeight: isSelected ? 700 : 500 }}>
+                                {opt.title}
+                              </span>
+                              {opt.badge && (
+                                <span
+                                  style={{
+                                    fontSize: '0.66rem',
+                                    fontWeight: 700,
+                                    padding: '1px 6px',
+                                    borderRadius: 4,
+                                    background: opt.badge.bg,
+                                    color: opt.badge.color
+                                  }}
+                                >
+                                  {opt.badge.text}
+                                </span>
+                              )}
+                            </div>
+                            <span style={{ fontSize: '0.72rem', color: isSelected ? '#047857' : '#64748B' }}>
+                              {opt.desc}
+                            </span>
+                          </div>
+                          {isSelected && <Check size={16} color="#10B981" strokeWidth={2.5} />}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Custom Dropdown: Rank Filter (if game selected) */}
+            {currentCategoryRanks.length > 0 && (
+              <div id="container-filter-rank" style={{ position: 'relative' }}>
+                <button
+                  type="button"
+                  id="select-filter-rank"
+                  data-testid="select-filter-rank"
+                  aria-haspopup="listbox"
+                  aria-expanded={openDropdown === 'rank'}
+                  onClick={() => setOpenDropdown(openDropdown === 'rank' ? null : 'rank')}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 7,
+                    padding: '5px 12px',
+                    borderRadius: 8,
+                    fontSize: '0.82rem',
+                    fontWeight: rankFilter !== 'all' ? 600 : 500,
+                    border: rankFilter !== 'all' ? '1px solid var(--primary)' : '1px solid var(--border-subtle)',
+                    background: rankFilter !== 'all' ? '#ECFDF5' : '#FFFFFF',
+                    color: rankFilter !== 'all' ? '#059669' : '#334155',
+                    height: 34,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                    boxShadow: openDropdown === 'rank' ? '0 0 0 3px rgba(16, 185, 129, 0.15)' : 'none',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  <Shield size={13} color={rankFilter !== 'all' ? '#10B981' : '#64748B'} />
+                  <span>{rankFilter === 'all' ? 'Mức Rank: Tất cả' : rankFilter}</span>
+                  <ChevronDown
+                    size={13}
+                    color={rankFilter !== 'all' ? '#10B981' : '#64748B'}
+                    style={{
+                      transform: openDropdown === 'rank' ? 'rotate(180deg)' : 'none',
+                      transition: 'transform 0.18s ease'
+                    }}
+                  />
+                </button>
+
+                {openDropdown === 'rank' && (
+                  <div
+                    role="listbox"
+                    style={{
+                      position: 'absolute',
+                      top: 'calc(100% + 6px)',
+                      left: 0,
+                      minWidth: 200,
+                      maxHeight: 280,
+                      overflowY: 'auto',
+                      background: '#FFFFFF',
+                      border: '1px solid #E2E8F0',
+                      borderRadius: 12,
+                      boxShadow: '0 12px 28px -4px rgba(15, 23, 42, 0.12), 0 4px 10px -2px rgba(15, 23, 42, 0.05)',
+                      padding: '6px',
+                      zIndex: 100,
+                      animation: 'slideUp 0.15s ease'
+                    }}
+                  >
+                    <div
+                      style={{
+                        padding: '6px 8px 6px 8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        borderBottom: '1px solid #F1F5F9',
+                        marginBottom: 4
+                      }}
+                    >
+                      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#94A3B8', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                        Cấp bậc / Rank
+                      </span>
+                      {rankFilter !== 'all' && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setRankFilter('all');
+                            setOpenDropdown(null);
+                          }}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            fontSize: '0.72rem',
+                            color: 'var(--primary)',
+                            cursor: 'pointer',
+                            fontWeight: 600,
+                            padding: 0
+                          }}
+                        >
+                          Đặt lại
+                        </button>
+                      )}
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <div
+                        onClick={() => {
+                          setRankFilter('all');
+                          setOpenDropdown(null);
+                        }}
+                        style={{
+                          padding: '7px 10px',
+                          borderRadius: 8,
+                          fontSize: '0.8rem',
+                          fontWeight: rankFilter === 'all' ? 700 : 500,
+                          background: rankFilter === 'all' ? '#ECFDF5' : 'transparent',
+                          color: rankFilter === 'all' ? '#059669' : '#1E293B',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          transition: 'all 0.12s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (rankFilter !== 'all') e.currentTarget.style.background = '#F8FAFC';
+                        }}
+                        onMouseLeave={(e) => {
+                          if (rankFilter !== 'all') e.currentTarget.style.background = 'transparent';
+                        }}
+                      >
+                        <span>Mức Rank: Tất cả</span>
+                        {rankFilter === 'all' && <Check size={14} color="#10B981" strokeWidth={2.5} />}
+                      </div>
+
+                      {currentCategoryRanks.map((r) => {
+                        const isSelected = rankFilter === r;
+                        return (
+                          <div
+                            key={r}
+                            onClick={() => {
+                              setRankFilter(r);
+                              setOpenDropdown(null);
+                            }}
+                            style={{
+                              padding: '7px 10px',
+                              borderRadius: 8,
+                              fontSize: '0.8rem',
+                              fontWeight: isSelected ? 700 : 500,
+                              background: isSelected ? '#ECFDF5' : 'transparent',
+                              color: isSelected ? '#059669' : '#1E293B',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              transition: 'all 0.12s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!isSelected) e.currentTarget.style.background = '#F8FAFC';
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!isSelected) e.currentTarget.style.background = 'transparent';
+                            }}
+                          >
+                            <span>{r}</span>
+                            {isSelected && <Check size={14} color="#10B981" strokeWidth={2.5} />}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
 
             {/* Only Available Toggle */}

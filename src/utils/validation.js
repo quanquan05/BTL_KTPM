@@ -266,3 +266,38 @@ export function calculateRefundAndExtension(order, action, extraHours = 0) {
 
   return { success: false, error: 'Hành động không hợp lệ' };
 }
+
+/**
+ * 7. F_AUTO_PASS: Tự động sinh mật khẩu ngẫu nhiên bảo mật cao khi thu hồi tài khoản game
+ * - Tiêu chuẩn game: Riot Games, Garena, Steam, HoYoverse
+ * - Độ dài: 12-14 ký tự với tiền tố GameRent@ hoặc tùy biến
+ * - Đảm bảo luôn có chữ hoa, chữ thường, số, ký tự đặc biệt
+ * - Đảm bảo mật khẩu mới không trùng với mật khẩu cũ
+ */
+export function generateRandomPassword(oldPassword = '', prefix = 'GameRent@') {
+  const charsUpper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const charsLower = 'abcdefghijkmnpqrstuvwxyz';
+  const charsDigits = '23456789';
+  const allChars = charsUpper + charsLower + charsDigits;
+
+  let newPass = '';
+  let attempts = 0;
+
+  do {
+    // Sinh 5 ký tự ngẫu nhiên đa dạng
+    let randomPart = '';
+    randomPart += charsUpper[Math.floor(Math.random() * charsUpper.length)];
+    randomPart += charsLower[Math.floor(Math.random() * charsLower.length)];
+    randomPart += charsDigits[Math.floor(Math.random() * charsDigits.length)];
+    for (let i = 0; i < 2; i++) {
+      randomPart += allChars[Math.floor(Math.random() * allChars.length)];
+    }
+
+    // Xáo trộn ngẫu nhiên
+    const shuffled = randomPart.split('').sort(() => 0.5 - Math.random()).join('');
+    newPass = `${prefix}${shuffled}`;
+    attempts++;
+  } while (newPass === oldPassword && attempts < 10);
+
+  return newPass;
+}

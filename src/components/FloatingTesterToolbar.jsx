@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { RefreshCw, PlusCircle, FastForward, UserCheck, ShieldCheck, ChevronUp, ChevronDown, Wrench } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { ConfirmModal } from './ConfirmModal';
 
 export const FloatingTesterToolbar = () => {
   const { currentUser, switchRole, resetToDefaultData, addTestBalance, fastForwardRentalTime, rentals } = useApp();
   const [isOpen, setIsOpen] = useState(false);
   const [notify, setNotify] = useState('');
+  const [isConfirmResetOpen, setIsConfirmResetOpen] = useState(false);
 
   const showToast = (msg) => {
     setNotify(msg);
@@ -134,12 +136,7 @@ export const FloatingTesterToolbar = () => {
             type="button"
             id="btn-tester-reset-db"
             data-testid="btn-tester-reset-db"
-            onClick={() => {
-              if (window.confirm('Khôi phục toàn bộ tài khoản và số dư ví về mặc định?')) {
-                resetToDefaultData();
-                showToast('Đã khôi phục dữ liệu gốc!');
-              }
-            }}
+            onClick={() => setIsConfirmResetOpen(true)}
             className="btn btn-danger"
             style={{ justifyContent: 'flex-start', padding: '6px 10px', fontSize: '0.78rem' }}
           >
@@ -147,6 +144,20 @@ export const FloatingTesterToolbar = () => {
           </button>
         </div>
       )}
+
+      {/* Modern Confirmation Modal */}
+      <ConfirmModal
+        isOpen={isConfirmResetOpen}
+        onClose={() => setIsConfirmResetOpen(false)}
+        onConfirm={() => {
+          resetToDefaultData();
+          showToast('Đã khôi phục dữ liệu gốc!');
+        }}
+        title="Khôi Phục Dữ Liệu Gốc"
+        message="Bạn có chắc chắn muốn khôi phục toàn bộ danh sách tài khoản, khách hàng và số dư ví về trạng thái mẫu ban đầu không?"
+        confirmText="Khôi phục ngay"
+        type="danger"
+      />
     </aside>
   );
 };

@@ -23,7 +23,7 @@ export const Sidebar = ({ currentView, setView, isOpen = true }) => {
   const adminMenuItems = [
     { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
     { id: 'home', label: 'Cửa hàng thuê', icon: Store },
-    { id: 'my-rentals', label: 'Đơn của tôi', icon: Clock },
+    { id: 'my-rentals', label: 'Quản lý đơn thuê', icon: Clock },
     { id: 'wallet', label: 'Ví & Nạp tiền', icon: Wallet },
     { id: 'customers', label: 'Khách hàng', icon: Users },
     { id: 'revenue', label: 'Doanh thu', icon: BarChart3 },

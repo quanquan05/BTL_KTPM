@@ -3,53 +3,80 @@ import {
   CATEGORIES,
   INITIAL_ACCOUNTS,
   INITIAL_USERS,
+  INITIAL_CUSTOMERS,
   INITIAL_RENTALS,
   INITIAL_TRANSACTIONS,
   INITIAL_DISPUTES
 } from '../data/initialData';
+import { generateRandomPassword } from '../utils/validation';
 
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   // 1. Quản lý trạng thái từ LocalStorage hoặc dữ liệu ban đầu
-  const [categories] = useState(CATEGORIES);
+  // Helper đọc LocalStorage an toàn tuyệt đối chống lỗi crash màn hình trắng
+  const safeGetJSON = (key, fallback) => {
+    try {
+      const saved = localStorage.getItem(key);
+      if (!saved || saved === 'undefined' || saved === 'null') return fallback;
+      const parsed = JSON.parse(saved);
+      return parsed !== null && parsed !== undefined ? parsed : fallback;
+    } catch (e) {
+      console.warn(`Lỗi đọc localStorage key "${key}":`, e);
+      return fallback;
+    }
+  };
+
+  const [categories] = useState(() => CATEGORIES);
 
   const [accounts, setAccounts] = useState(() => {
-    const saved = localStorage.getItem('gamerent_accounts');
-    return saved ? JSON.parse(saved) : INITIAL_ACCOUNTS;
+
+    const saved = safeGetJSON('gamerent_accounts', INITIAL_ACCOUNTS);
+    // Luôn đồng bộ thumbnail, skinDetails và galleryImages chân thực từ INITIAL_ACCOUNTS
+    return saved.map(acc => {
+      const init = INITIAL_ACCOUNTS.find(i => i.id === acc.id);
+      if (init) {
+        return {
+          ...acc,
+          thumbnail: init.thumbnail,
+          highlightSkins: init.highlightSkins,
+          skinDetails: init.skinDetails,
+          galleryImages: init.galleryImages
+        };
+      }
+      return acc;
+    });
   });
 
-  const [users, setUsers] = useState(() => {
-    const saved = localStorage.getItem('gamerent_users');
-    return saved ? JSON.parse(saved) : INITIAL_USERS;
-  });
+  const [users, setUsers] = useState(() => safeGetJSON('gamerent_users', INITIAL_USERS));
+
 
   const [currentUser, setCurrentUser] = useState(() => {
-    const saved = localStorage.getItem('gamerent_current_user');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed.role === 'admin' || parsed.id === 'ADMIN-01') {
-        return { ...parsed, name: 'Lê Minh Quân', balance: 3000000 };
+    try {
+      const saved = localStorage.getItem('gamerent_current_user');
+      if (saved && saved !== 'undefined' && saved !== 'null') {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === 'object') {
+          if (parsed.role === 'admin' || parsed.id === 'ADMIN-01') {
+            return { ...parsed, name: 'Lê Minh Quân', balance: 3000000 };
+          }
+          return parsed;
+        }
       }
-      return parsed;
+    } catch (e) {
+      console.warn('Lỗi đọc currentUser:', e);
     }
     return INITIAL_USERS[0]; // Mặc định Lê Minh Quân (Admin)
   });
 
   const [rentals, setRentals] = useState(() => {
-    const saved = localStorage.getItem('gamerent_rentals');
-    return saved ? JSON.parse(saved) : INITIAL_RENTALS;
+    const raw = safeGetJSON('gamerent_rentals', INITIAL_RENTALS);
+    // Đồng bộ đúng thực tế: Nếu đơn đã qua thời gian kết thúc thì trạng thái là completed
+    return raw.map(r => (r.status === 'active' && r.endTime <= Date.now() ? { ...r, status: 'completed' } : r));
   });
-
-  const [transactions, setTransactions] = useState(() => {
-    const saved = localStorage.getItem('gamerent_transactions');
-    return saved ? JSON.parse(saved) : INITIAL_TRANSACTIONS;
-  });
-
-  const [disputes, setDisputes] = useState(() => {
-    const saved = localStorage.getItem('gamerent_disputes');
-    return saved ? JSON.parse(saved) : INITIAL_DISPUTES;
-  });
+  const [transactions, setTransactions] = useState(() => safeGetJSON('gamerent_transactions', INITIAL_TRANSACTIONS));
+  const [disputes, setDisputes] = useState(() => safeGetJSON('gamerent_disputes', INITIAL_DISPUTES));
+  const [customers, setCustomers] = useState(() => safeGetJSON('gamerent_customers', INITIAL_CUSTOMERS));
 
   // Tự động lưu vào LocalStorage khi state thay đổi
   useEffect(() => {
@@ -59,6 +86,10 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('gamerent_users', JSON.stringify(users));
   }, [users]);
+
+  useEffect(() => {
+    localStorage.setItem('gamerent_customers', JSON.stringify(customers));
+  }, [customers]);
 
   useEffect(() => {
     localStorage.setItem('gamerent_current_user', JSON.stringify(currentUser));
@@ -360,24 +391,55 @@ export const AppProvider = ({ children }) => {
   };
 
   // ==========================================
-  // NGHIỆP VỤ 5: TRẢ ACC SỚM & KẾT THÚC ĐƠN
+  // NGHIỆP VỤ 5: THU HỒI / TRẢ ACC SỚM & TỰ ĐỘNG ĐỔI MẬT KHẨU NGẪU NHIÊN
   // ==========================================
   const returnRentalEarly = (rentalId) => {
     const rental = rentals.find(r => r.id === rentalId);
     if (!rental) return { success: false, error: 'Không tìm thấy đơn thuê.' };
 
+    const targetAccount = accounts.find(a => a.id === rental.accountId);
+    const oldPassword = targetAccount ? targetAccount.secretPassword : '';
+    const newPassword = generateRandomPassword(oldPassword);
+
+    // 1. Chuyển trạng thái đơn thuê sang 'completed'
     setRentals(prev =>
       prev.map(r => (r.id === rentalId ? { ...r, status: 'completed' } : r))
     );
 
-    // Chuyển tài khoản sang trạng thái need_change_pass (Cần đổi pass)
+    // 2. Tự động đổi mật khẩu ngẫu nhiên mới và chuyển tài khoản về 'available' (Sẵn sàng)
     setAccounts(prev =>
       prev.map(a =>
-        a.id === rental.accountId ? { ...a, status: 'need_change_pass' } : a
+        a.id === rental.accountId
+          ? {
+              ...a,
+              status: 'available',
+              secretPassword: newPassword,
+              lastPasswordChangedAt: Date.now()
+            }
+          : a
       )
     );
 
-    return { success: true };
+    // 3. Ghi nhận nhật ký bảo mật hệ thống
+    const now = Date.now();
+    const newTx = {
+      id: `TX-${now.toString().slice(-5)}`,
+      userId: currentUser ? currentUser.id : 'SYSTEM',
+      type: 'password_reset',
+      amount: 0,
+      paymentMethod: 'Tự Động Hệ Thống',
+      status: 'completed',
+      timestamp: now,
+      note: `Thu hồi acc #${rental.accountId} & tự động đổi mật khẩu ngẫu nhiên mới bảo vệ tài khoản`
+    };
+    setTransactions(prev => [newTx, ...prev]);
+
+    return {
+      success: true,
+      newPassword,
+      accountId: rental.accountId,
+      accountTitle: targetAccount ? targetAccount.title : rental.accountId
+    };
   };
 
   // ==========================================
@@ -471,6 +533,13 @@ export const AppProvider = ({ children }) => {
     return { success: true, account: newAcc };
   };
 
+  const updateAccount = (accountId, updatedData) => {
+    setAccounts(prev =>
+      prev.map(a => (a.id === accountId ? { ...a, ...updatedData } : a))
+    );
+    return { success: true };
+  };
+
   const toggleAccountStatus = (accountId, newStatus) => {
     setAccounts(prev =>
       prev.map(a => (a.id === accountId ? { ...a, status: newStatus } : a))
@@ -482,20 +551,43 @@ export const AppProvider = ({ children }) => {
   };
 
   // ==========================================
+  // NGHIỆP VỤ 8: QUẢN LÝ KHÁCH HÀNG
+  // ==========================================
+  const addCustomer = (customerData) => {
+    const newCustomer = {
+      ...customerData,
+      id: customerData.id || `KH${String(customers.length + 1).padStart(3, '0')}`,
+      totalOrders: Number(customerData.totalOrders) || 0,
+      totalSpent: Number(customerData.totalSpent) || 0,
+      status: customerData.status || 'active',
+      avatar: customerData.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=60&q=80'
+    };
+    setCustomers(prev => [newCustomer, ...prev]);
+    return { success: true, customer: newCustomer };
+  };
+
+  const updateCustomer = (customerId, updatedData) => {
+    setCustomers(prev =>
+      prev.map(c => (c.id === customerId ? { ...c, ...updatedData } : c))
+    );
+    return { success: true };
+  };
+
+  const deleteCustomer = (customerId) => {
+    setCustomers(prev => prev.filter(c => c.id !== customerId));
+    return { success: true };
+  };
+
+  // ==========================================
   // TESTER UTILITY: HỖ TRỢ KIỂM THỬ 1-CLICK
   // ==========================================
   const resetToDefaultData = () => {
     localStorage.clear();
-    const freshNow = Date.now();
-    const freshRentals = INITIAL_RENTALS.map(r => ({
-      ...r,
-      startTime: freshNow - (45 * 60 * 1000),
-      endTime: freshNow + (75 * 60 * 1000)
-    }));
     setAccounts(INITIAL_ACCOUNTS);
     setUsers(INITIAL_USERS);
+    setCustomers(INITIAL_CUSTOMERS);
     setCurrentUser(INITIAL_USERS[0]);
-    setRentals(freshRentals);
+    setRentals(INITIAL_RENTALS.map(r => ({ ...r, status: 'completed' })));
     setTransactions(INITIAL_TRANSACTIONS);
     setDisputes(INITIAL_DISPUTES);
   };
@@ -525,6 +617,7 @@ export const AppProvider = ({ children }) => {
         categories,
         accounts,
         users,
+        customers,
         currentUser,
         rentals,
         transactions,
@@ -540,8 +633,12 @@ export const AppProvider = ({ children }) => {
         fileDispute,
         resolveDispute,
         addAccount,
+        updateAccount,
         toggleAccountStatus,
         deleteAccount,
+        addCustomer,
+        updateCustomer,
+        deleteCustomer,
         resetToDefaultData,
         addTestBalance,
         fastForwardRentalTime
