@@ -20,7 +20,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Shield,
-  Zap,
   Info,
   CheckCircle,
   HelpCircle,

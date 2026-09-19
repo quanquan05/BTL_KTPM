@@ -683,6 +683,7 @@ export const HomePage = ({ onSelectAccount, onRentAccount }) => {
 
                 {/* Body Content */}
                 <div style={{ padding: '12px 14px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+
                   <h3
                     title={acc.title}
                     style={{

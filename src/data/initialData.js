@@ -300,7 +300,7 @@ export const INITIAL_ACCOUNTS = [
 export const INITIAL_USERS = [
   {
     id: "ADMIN-01",
-    name: "Lê Minh Quân",
+    name: "Quản Lý",
     email: "admin@gamerent.vn",
     password: "admin123",
     role: "admin",
@@ -308,62 +308,10 @@ export const INITIAL_USERS = [
     isBlocked: false,
     phone: "0909999999",
     avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"
-  },
-  {
-    id: "USER-01",
-    name: "Nguyễn Văn Admin",
-    email: "user@demo.com",
-    password: "password123",
-    role: "renter",
-    balance: 150000,
-    isBlocked: false,
-    phone: "0987654321",
-    avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80"
   }
 ];
 
-export const INITIAL_CUSTOMERS = [
-  {
-    id: 'KH001',
-    name: 'Nguyễn Văn Admin',
-    phone: '0987654321',
-    email: 'admin_kh01@gmail.com',
-    totalOrders: 14,
-    totalSpent: 245000,
-    status: 'active',
-    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=60&q=80'
-  },
-  {
-    id: 'KH002',
-    name: 'Nguyễn Văn Hùng',
-    phone: '0912345678',
-    email: 'hung.nguyen@gmail.com',
-    totalOrders: 8,
-    totalSpent: 120000,
-    status: 'active',
-    avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=60&q=80'
-  },
-  {
-    id: 'KH003',
-    name: 'Trần Phú Gia',
-    phone: '0978112233',
-    email: 'gia.tran@hotmail.com',
-    totalOrders: 19,
-    totalSpent: 380000,
-    status: 'active',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=60&q=80'
-  },
-  {
-    id: 'KH004',
-    name: 'Phạm Tuấn Minh',
-    phone: '0933445566',
-    email: 'minh.tuan@yahoo.com',
-    totalOrders: 5,
-    totalSpent: 75000,
-    status: 'active',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=60&q=80'
-  }
-];
+export const INITIAL_CUSTOMERS = [];
 
 // Dữ liệu đơn thuê mẫu khớp với bảng "Danh sách tài khoản thuê" trong Dashboard
 const now = Date.now();

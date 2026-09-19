@@ -5,9 +5,16 @@ describe('Module Quản Lý CRUD Kho Tài Khoản & Khách Hàng', () => {
   let accounts;
   let customers;
 
+  const SAMPLE_CUSTOMERS = [
+    { id: 'KH001', name: 'Nguyễn Văn Admin', phone: '0987654321', email: 'admin_kh01@gmail.com', totalOrders: 14, totalSpent: 245000, status: 'active' },
+    { id: 'KH002', name: 'Nguyễn Văn Hùng', phone: '0912345678', email: 'hung.nguyen@gmail.com', totalOrders: 8, totalSpent: 120000, status: 'active' },
+    { id: 'KH003', name: 'Trần Phú Gia', phone: '0978112233', email: 'gia.tran@hotmail.com', totalOrders: 19, totalSpent: 380000, status: 'active' },
+    { id: 'KH004', name: 'Phạm Tuấn Minh', phone: '0933445566', email: 'minh.tuan@yahoo.com', totalOrders: 5, totalSpent: 75000, status: 'active' }
+  ];
+
   beforeEach(() => {
     accounts = [...INITIAL_ACCOUNTS];
-    customers = [...INITIAL_CUSTOMERS];
+    customers = [...SAMPLE_CUSTOMERS];
   });
 
   it('Thêm khách hàng mới với đầy đủ thông tin chuẩn hóa', () => {
@@ -31,7 +38,7 @@ describe('Module Quản Lý CRUD Kho Tài Khoản & Khách Hàng', () => {
 
     customers = [newCustomer, ...customers];
 
-    expect(customers.length).toBe(INITIAL_CUSTOMERS.length + 1);
+    expect(customers.length).toBe(SAMPLE_CUSTOMERS.length + 1);
     expect(customers[0].id).toBe('KH005');
     expect(customers[0].name).toBe('Nguyễn Văn Test');
     expect(customers[0].totalSpent).toBe(50000);
@@ -79,5 +86,33 @@ describe('Module Quản Lý CRUD Kho Tài Khoản & Khách Hàng', () => {
     expect(updated.pricePerHour).toBe(28000);
     expect(updated.rank).toBe('Thách Đấu');
     expect(updated.secretPassword).toBe('NewPassword@2026');
+  });
+
+  it('Tự động thêm hồ sơ khách hàng mới vào danh sách Quản trị khi người dùng đăng ký', () => {
+    let customerList = [];
+    const registeredUser = {
+      id: 'USER-9999',
+      name: 'Quân Quân',
+      email: 'quanquan@gamerent.vn',
+      role: 'renter',
+      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=60&q=80'
+    };
+
+    const newCust = {
+      id: `KH${String(customerList.length + 1).padStart(3, '0')}`,
+      name: registeredUser.name,
+      phone: '0901234567',
+      email: registeredUser.email,
+      totalOrders: 0,
+      totalSpent: 0,
+      status: 'active',
+      avatar: registeredUser.avatar
+    };
+    customerList = [newCust, ...customerList];
+
+    expect(customerList.length).toBe(1);
+    expect(customerList[0].name).toBe('Quân Quân');
+    expect(customerList[0].id).toBe('KH001');
+    expect(customerList[0].email).toBe('quanquan@gamerent.vn');
   });
 });

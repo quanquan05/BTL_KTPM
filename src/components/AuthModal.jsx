@@ -3,7 +3,7 @@ import { X, LogIn, UserPlus, AlertCircle, Shield } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 export const AuthModal = ({ isOpen, onClose }) => {
-  const { login, register } = useApp();
+  const { users, login, register } = useApp();
   const [tab, setTab] = useState('login'); // 'login' | 'register'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -42,8 +42,13 @@ export const AuthModal = ({ isOpen, onClose }) => {
   const fillQuickAccount = (role) => {
     setError('');
     if (role === 'user') {
-      setEmail('user@demo.com');
-      setPassword('password123');
+      const renter = users?.find(u => u.role === 'renter');
+      if (renter) {
+        setEmail(renter.email);
+        setPassword(renter.password || '123456');
+      } else {
+        setError('Chưa có tài khoản khách nào. Vui lòng chuyển sang tab "Đăng Ký" để tạo tài khoản mới!');
+      }
     } else {
       setEmail('admin@gamerent.vn');
       setPassword('admin123');

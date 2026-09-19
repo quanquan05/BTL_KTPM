@@ -8,9 +8,7 @@ import {
   BarChart3,
   FileText,
   Settings,
-  Gamepad2,
-  ThumbsUp,
-  ArrowRight
+  Gamepad2
 } from 'lucide-react';
 
 import { useApp } from '../context/AppContext';
@@ -88,28 +86,6 @@ export const Sidebar = ({ currentView, setView, isOpen = true }) => {
           );
         })}
       </nav>
-
-      {/* Bottom Promo Card */}
-      <div className="sidebar-promo-card">
-        <div className="sidebar-promo-icon">
-          <ThumbsUp size={22} fill="#FFFFFF" strokeWidth={1.5} />
-        </div>
-        <div className="sidebar-promo-title">Thuê tài khoản game</div>
-        <div className="sidebar-promo-desc">Chơi ngay - Không lo chi phí!</div>
-        <button
-          type="button"
-          id="btn-sidebar-explore"
-          data-testid="btn-sidebar-explore"
-          className="sidebar-promo-btn"
-          onClick={() => {
-            setView('home');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }}
-        >
-          <span>Khám phá ngay</span>
-          <ArrowRight size={13} />
-        </button>
-      </div>
 
       {/* Version Tag */}
       <div className="sidebar-version">v1.0.0</div>

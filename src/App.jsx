@@ -22,10 +22,8 @@ const MainApp = () => {
   const { currentUser } = useApp();
   const isAdmin = currentUser?.role === 'admin';
 
-  // Khách thuê mặc định vào Cửa hàng thuê ('home'), Admin mặc định vào Tổng quan ('overview')
-  const [currentView, setCurrentView] = useState(() => {
-    return currentUser?.role === 'admin' ? 'overview' : 'home';
-  }); 
+  // Khởi động mặc định vào Cửa hàng thuê ('home')
+  const [currentView, setCurrentView] = useState('home'); 
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 

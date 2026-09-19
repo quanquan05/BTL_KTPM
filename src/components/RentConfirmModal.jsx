@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Check, Copy, Key, ExternalLink, AlertCircle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
@@ -10,6 +10,23 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
   const [rentResult, setRentResult] = useState(null);
   const [copiedAcc, setCopiedAcc] = useState(false);
   const [copiedPass, setCopiedPass] = useState(false);
+
+  // Tự động làm mới trạng thái modal mỗi khi mở đơn mới để không bị kẹt kết quả cũ
+  useEffect(() => {
+    if (isOpen) {
+      setRentResult(null);
+      setError('');
+      setDurationHours(2);
+      setCopiedAcc(false);
+      setCopiedPass(false);
+    }
+  }, [isOpen, account?.id]);
+
+  const handleClose = () => {
+    setRentResult(null);
+    setError('');
+    onClose();
+  };
 
   if (!isOpen || !account) return null;
 
@@ -31,6 +48,10 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
     if (!res.success) {
       setError(res.error);
       return;
+    }
+
+    if (currentUser?.role === 'admin' || currentUser?.id === 'ADMIN-01') {
+      localStorage.setItem('gamerent_admin_preferred_tab', 'my-active');
     }
 
     setRentResult(res);
@@ -65,7 +86,7 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             id="btn-close-rent-modal"
             style={{ background: 'none', border: 'none', color: 'var(--text-subtle)', cursor: 'pointer', padding: 4 }}
           >
@@ -157,7 +178,7 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
               className="btn btn-primary"
               id="btn-go-to-rentals"
               onClick={() => {
-                onClose();
+                handleClose();
                 if (onRentSuccess) onRentSuccess();
               }}
               style={{ width: '100%', padding: '10px' }}
@@ -325,7 +346,7 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
                 type="button"
                 className="btn btn-secondary"
                 id="btn-cancel-rent"
-                onClick={onClose}
+                onClick={handleClose}
                 style={{ fontSize: '0.86rem' }}
               >
                 Hủy bỏ

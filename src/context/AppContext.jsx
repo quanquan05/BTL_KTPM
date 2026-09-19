@@ -30,10 +30,14 @@ export const AppProvider = ({ children }) => {
   const [categories] = useState(() => CATEGORIES);
 
   const [accounts, setAccounts] = useState(() => {
-
-    const saved = safeGetJSON('gamerent_accounts', INITIAL_ACCOUNTS);
+    const saved = safeGetJSON('gamerent_accounts', INITIAL_ACCOUNTS).filter(a => a.id !== 'ACC-LQ-REAL');
+    const existingIds = new Set(saved.map(a => a.id));
+    const merged = [
+      ...INITIAL_ACCOUNTS.filter(init => !existingIds.has(init.id)),
+      ...saved
+    ];
     // Luôn đồng bộ thumbnail, skinDetails và galleryImages chân thực từ INITIAL_ACCOUNTS
-    return saved.map(acc => {
+    return merged.map(acc => {
       const init = INITIAL_ACCOUNTS.find(i => i.id === acc.id);
       if (init) {
         return {
@@ -48,25 +52,18 @@ export const AppProvider = ({ children }) => {
     });
   });
 
-  const [users, setUsers] = useState(() => safeGetJSON('gamerent_users', INITIAL_USERS));
+  const [users, setUsers] = useState(() => {
+    const rawUsers = safeGetJSON('gamerent_users', INITIAL_USERS);
+    const cleaned = rawUsers
+      .filter(u => u.email !== 'user@demo.com' && u.id !== 'USER-01')
+      .map(u => (u.id === 'ADMIN-01' ? { ...u, name: 'Quản Lý' } : u));
+    return cleaned.length > 0 ? cleaned : INITIAL_USERS;
+  });
 
 
   const [currentUser, setCurrentUser] = useState(() => {
-    try {
-      const saved = localStorage.getItem('gamerent_current_user');
-      if (saved && saved !== 'undefined' && saved !== 'null') {
-        const parsed = JSON.parse(saved);
-        if (parsed && typeof parsed === 'object') {
-          if (parsed.role === 'admin' || parsed.id === 'ADMIN-01') {
-            return { ...parsed, name: 'Lê Minh Quân', balance: 3000000 };
-          }
-          return parsed;
-        }
-      }
-    } catch (e) {
-      console.warn('Lỗi đọc currentUser:', e);
-    }
-    return INITIAL_USERS[0]; // Mặc định Lê Minh Quân (Admin)
+    // Yêu cầu 4: Khởi động trang web ở trạng thái chưa đăng nhập tài khoản admin hay khách
+    return null;
   });
 
   const [rentals, setRentals] = useState(() => {
@@ -76,7 +73,12 @@ export const AppProvider = ({ children }) => {
   });
   const [transactions, setTransactions] = useState(() => safeGetJSON('gamerent_transactions', INITIAL_TRANSACTIONS));
   const [disputes, setDisputes] = useState(() => safeGetJSON('gamerent_disputes', INITIAL_DISPUTES));
-  const [customers, setCustomers] = useState(() => safeGetJSON('gamerent_customers', INITIAL_CUSTOMERS));
+  const [customers, setCustomers] = useState(() => {
+    const saved = safeGetJSON('gamerent_customers', INITIAL_CUSTOMERS);
+    const sampleEmails = ['admin_kh01@gmail.com', 'hung.nguyen@gmail.com', 'gia.tran@hotmail.com', 'minh.tuan@yahoo.com'];
+    return saved.filter(c => !sampleEmails.includes(c.email));
+  });
+  const [notifications, setNotifications] = useState(() => safeGetJSON('gamerent_notifications', []));
 
   // Tự động lưu vào LocalStorage khi state thay đổi
   useEffect(() => {
@@ -107,6 +109,10 @@ export const AppProvider = ({ children }) => {
     localStorage.setItem('gamerent_disputes', JSON.stringify(disputes));
   }, [disputes]);
 
+  useEffect(() => {
+    localStorage.setItem('gamerent_notifications', JSON.stringify(notifications));
+  }, [notifications]);
+
   // Cập nhật số dư currentUser khi users thay đổi
   useEffect(() => {
     if (currentUser) {
@@ -116,6 +122,123 @@ export const AppProvider = ({ children }) => {
       }
     }
   }, [users]);
+
+  // ==========================================
+  // HỆ THỐNG TỰ ĐỘNG THU HỒI & ĐỔI MẬT KHẨU KHI HẾT GIỜ (REALTIME CRON)
+  // ==========================================
+  const autoExpireAndResetPassword = (rentalId) => {
+    setRentals(prevRentals => {
+      const rental = prevRentals.find(r => r.id === rentalId);
+      if (!rental || rental.status !== 'active') return prevRentals;
+
+      const targetAccount = accounts.find(a => a.id === rental.accountId);
+      const oldPassword = targetAccount ? targetAccount.secretPassword : (rental.secretPassword || '');
+      const newPassword = generateRandomPassword(oldPassword);
+      const now = Date.now();
+
+      // 1. Chuyển trạng thái đơn thuê sang 'completed' (đã thu hồi)
+      const updatedRentals = prevRentals.map(r =>
+        r.id === rentalId
+          ? {
+              ...r,
+              status: 'completed',
+              isRevoked: true,
+              revokedAt: now,
+              revocationReason: 'expired_auto',
+              previousPassword: oldPassword
+            }
+          : r
+      );
+
+      // 2. Tự động đổi mật khẩu ngẫu nhiên mới và chuyển tài khoản về 'available'
+      setAccounts(prevAccs =>
+        prevAccs.map(a =>
+          a.id === rental.accountId
+            ? {
+                ...a,
+                status: 'available',
+                secretPassword: newPassword,
+                previousPassword: oldPassword,
+                lastPasswordChangedAt: now
+              }
+            : a
+        )
+      );
+
+      // 3. Ghi log kiểm toán bảo mật
+      const newTx = {
+        id: `TX-REVOKE-${now.toString().slice(-5)}`,
+        userId: 'SYSTEM',
+        type: 'password_reset',
+        amount: 0,
+        paymentMethod: 'Tự Động Hệ Thống',
+        status: 'completed',
+        timestamp: now,
+        note: `Hết hạn thuê: Tự động thu hồi acc #${rental.accountId} (${targetAccount?.secretAccount || rental.secretAccount}) & đổi mật khẩu mới`
+      };
+      setTransactions(prevTx => [newTx, ...prevTx]);
+
+      // 4. Lưu vết thông báo vào chuông thông báo cho khách hàng
+      const accTitle = targetAccount?.title || rental.accountTitle || 'Tài khoản game';
+      const secAcc = targetAccount?.secretAccount || rental.secretAccount || 'acc_game';
+      const newNotification = {
+        id: `NOTIF-${now}-${Math.floor(100 + Math.random() * 900)}`,
+        userId: rental.userId,
+        rentalId: rental.id,
+        accountId: rental.accountId,
+        accountTitle: accTitle,
+        secretAccount: secAcc,
+        oldPassword,
+        newPassword,
+        type: 'rental_expired_auto',
+        title: 'Ca thuê đã hết giờ & Hệ thống tự động thu hồi',
+        message: `Ca thuê "${accTitle}" (${secAcc}) đã hết thời gian thuê. Hệ thống đã tự động thu hồi tài khoản, vô hiệu mật khẩu cũ (${oldPassword}) và cập nhật mật khẩu mới (${newPassword}).`,
+        timestamp: now,
+        isRead: false
+      };
+
+      setNotifications(prevNotifs => {
+        if (prevNotifs.some(n => n.rentalId === rental.id && n.type === 'rental_expired_auto')) {
+          return prevNotifs;
+        }
+        return [newNotification, ...prevNotifs];
+      });
+
+      // Bắn Custom Event để UI nhận thông báo ngay
+      window.dispatchEvent(
+        new CustomEvent('gamerent_account_revoked', {
+          detail: {
+            rentalId,
+            accountId: rental.accountId,
+            accountTitle: targetAccount?.title || rental.accountTitle,
+            secretAccount: targetAccount?.secretAccount || rental.secretAccount,
+            oldPassword,
+            newPassword,
+            rentalUserId: rental.userId,
+            reason: 'expired_auto'
+          }
+        })
+      );
+
+      return updatedRentals;
+    });
+  };
+
+  // Quét các đơn thuê hết hạn theo thời gian thực (chu kỳ 1 giây)
+  useEffect(() => {
+    const checkExpiredRentals = () => {
+      const now = Date.now();
+      const expiredList = rentals.filter(r => r.status === 'active' && r.endTime <= now);
+      if (expiredList.length === 0) return;
+
+      expiredList.forEach(expiredRental => {
+        autoExpireAndResetPassword(expiredRental.id);
+      });
+    };
+
+    const timer = setInterval(checkExpiredRentals, 1000);
+    return () => clearInterval(timer);
+  }, [rentals, accounts]);
 
   // ==========================================
   // NGHIỆP VỤ 1: XÁC THỰC & ĐĂNG NHẬP (AUTH)
@@ -162,8 +285,8 @@ export const AppProvider = ({ children }) => {
 
     const newUser = {
       id: `USER-${Date.now().toString().slice(-4)}`,
-      name,
-      email,
+      name: name.trim(),
+      email: email.trim(),
       password,
       role: 'renter',
       balance: 50000, // Tặng 50.000 VNĐ cho tài khoản mới trải nghiệm test
@@ -172,6 +295,22 @@ export const AppProvider = ({ children }) => {
     };
 
     setUsers(prev => [newUser, ...prev]);
+
+    // Yêu cầu 3: Tự động thêm khách hàng mới vào danh sách quản trị (CRM)
+    const customerCode = `KH${String(customers.length + 1).padStart(3, '0')}`;
+    const newCustomer = {
+      id: customerCode,
+      name: newUser.name,
+      phone: '09' + Math.floor(10000000 + Math.random() * 90000000),
+      email: newUser.email,
+      totalOrders: 0,
+      totalSpent: 0,
+      status: 'active',
+      avatar: newUser.avatar,
+      createdAt: Date.now()
+    };
+    setCustomers(prev => [newCustomer, ...prev]);
+
     setCurrentUser(newUser);
     return { success: true, user: newUser };
   };
@@ -274,6 +413,7 @@ export const AppProvider = ({ children }) => {
         u.id === currentUser.id ? { ...u, balance: u.balance - totalPrice } : u
       )
     );
+    setCurrentUser(prev => (prev ? { ...prev, balance: prev.balance - totalPrice } : prev));
 
     // 2. Chuyển trạng thái tài khoản sang rented
     setAccounts(prev =>
@@ -285,12 +425,19 @@ export const AppProvider = ({ children }) => {
     );
 
     // 3. Tạo đơn thuê
+    const randomSuffix = Math.floor(10 + Math.random() * 90);
+    const isAdminUser = currentUser.role === 'admin' || currentUser.id === 'ADMIN-01';
+    const matchingCustomer = customers.find(c => c.email && c.email.toLowerCase() === (currentUser.email || '').toLowerCase());
+    const assignedCode = isAdminUser ? '#ADMIN-01' : (matchingCustomer ? `#${matchingCustomer.id}` : '#KH001');
+
     const newOrder = {
-      id: `ORDER-${account.gameId.toUpperCase()}-${Date.now().toString().slice(-4)}`,
+      id: `ORDER-${account.gameId.toUpperCase()}-${Date.now().toString().slice(-4)}${randomSuffix}`,
       accountId: account.id,
       accountTitle: account.title,
       gameId: account.gameId,
       userId: currentUser.id,
+      customerName: isAdminUser ? (currentUser.name || 'Quản Lý (Admin)') : (currentUser.name || 'Khách Hàng'),
+      customerCode: assignedCode,
       startTime: now,
       durationHours: hours,
       endTime,
@@ -304,6 +451,21 @@ export const AppProvider = ({ children }) => {
     };
 
     setRentals(prev => [newOrder, ...prev]);
+
+    // Tự động cập nhật số đơn và chi tiêu cho khách hàng trong CRM
+    if (!isAdminUser && matchingCustomer) {
+      setCustomers(prev =>
+        prev.map(c =>
+          c.id === matchingCustomer.id
+            ? {
+                ...c,
+                totalOrders: (c.totalOrders || 0) + 1,
+                totalSpent: (c.totalSpent || 0) + totalPrice
+              }
+            : c
+        )
+      );
+    }
 
     // 4. Ghi nhận giao dịch trừ tiền
     const newTx = {
@@ -398,12 +560,25 @@ export const AppProvider = ({ children }) => {
     if (!rental) return { success: false, error: 'Không tìm thấy đơn thuê.' };
 
     const targetAccount = accounts.find(a => a.id === rental.accountId);
-    const oldPassword = targetAccount ? targetAccount.secretPassword : '';
+    const oldPassword = targetAccount ? targetAccount.secretPassword : (rental.secretPassword || '');
     const newPassword = generateRandomPassword(oldPassword);
+    const now = Date.now();
+    const isByAdmin = currentUser?.role === 'admin';
 
     // 1. Chuyển trạng thái đơn thuê sang 'completed'
     setRentals(prev =>
-      prev.map(r => (r.id === rentalId ? { ...r, status: 'completed' } : r))
+      prev.map(r =>
+        r.id === rentalId
+          ? {
+              ...r,
+              status: 'completed',
+              isRevoked: true,
+              revokedAt: now,
+              revocationReason: isByAdmin ? 'admin_revoked' : 'user_returned_early',
+              previousPassword: oldPassword
+            }
+          : r
+      )
     );
 
     // 2. Tự động đổi mật khẩu ngẫu nhiên mới và chuyển tài khoản về 'available' (Sẵn sàng)
@@ -414,31 +589,70 @@ export const AppProvider = ({ children }) => {
               ...a,
               status: 'available',
               secretPassword: newPassword,
-              lastPasswordChangedAt: Date.now()
+              previousPassword: oldPassword,
+              lastPasswordChangedAt: now
             }
           : a
       )
     );
 
     // 3. Ghi nhận nhật ký bảo mật hệ thống
-    const now = Date.now();
     const newTx = {
       id: `TX-${now.toString().slice(-5)}`,
       userId: currentUser ? currentUser.id : 'SYSTEM',
       type: 'password_reset',
       amount: 0,
-      paymentMethod: 'Tự Động Hệ Thống',
+      paymentMethod: isByAdmin ? 'Quản Trị Viên Thu Hồi' : 'Khách Trả Sớm',
       status: 'completed',
       timestamp: now,
-      note: `Thu hồi acc #${rental.accountId} & tự động đổi mật khẩu ngẫu nhiên mới bảo vệ tài khoản`
+      note: `${isByAdmin ? 'Admin thu hồi' : 'Khách trả sớm'} acc #${rental.accountId} (${targetAccount?.secretAccount || rental.secretAccount}) & tự động đổi mật khẩu mới bảo vệ tài khoản`
     };
     setTransactions(prev => [newTx, ...prev]);
 
+    // Lưu vết thông báo vào chuông nếu Admin thu hồi tài khoản của khách
+    if (isByAdmin && rental.userId) {
+      const accTitle = targetAccount?.title || rental.accountTitle || 'Tài khoản game';
+      const secAcc = targetAccount?.secretAccount || rental.secretAccount || 'acc_game';
+      const adminNotif = {
+        id: `NOTIF-${now}-${Math.floor(100 + Math.random() * 900)}`,
+        userId: rental.userId,
+        rentalId: rental.id,
+        accountId: rental.accountId,
+        accountTitle: accTitle,
+        secretAccount: secAcc,
+        oldPassword,
+        newPassword,
+        type: 'rental_revoked_by_admin',
+        title: 'Quản trị viên đã thu hồi ca thuê',
+        message: `Ca thuê "${accTitle}" (${secAcc}) đã được quản trị viên thu hồi. Mật khẩu cũ (${oldPassword}) đã bị vô hiệu hóa.`,
+        timestamp: now,
+        isRead: false
+      };
+      setNotifications(prevNotifs => [adminNotif, ...prevNotifs]);
+    }
+
+    window.dispatchEvent(
+      new CustomEvent('gamerent_account_revoked', {
+        detail: {
+          rentalId,
+          accountId: rental.accountId,
+          accountTitle: targetAccount ? targetAccount.title : rental.accountTitle,
+          secretAccount: targetAccount ? targetAccount.secretAccount : rental.secretAccount,
+          oldPassword,
+          newPassword,
+          rentalUserId: rental.userId,
+          reason: isByAdmin ? 'admin_revoked' : 'user_returned_early'
+        }
+      })
+    );
+
     return {
       success: true,
+      oldPassword,
       newPassword,
       accountId: rental.accountId,
-      accountTitle: targetAccount ? targetAccount.title : rental.accountId
+      accountTitle: targetAccount ? targetAccount.title : rental.accountTitle,
+      secretAccount: targetAccount ? targetAccount.secretAccount : rental.secretAccount
     };
   };
 
@@ -579,6 +793,33 @@ export const AppProvider = ({ children }) => {
   };
 
   // ==========================================
+  // QUẢN LÝ THÔNG BÁO (NOTIFICATIONS)
+  // ==========================================
+  const addNotification = (notif) => {
+    setNotifications(prev => [notif, ...prev]);
+  };
+
+  const markNotificationAsRead = (notificationId) => {
+    setNotifications(prev =>
+      prev.map(n => (n.id === notificationId ? { ...n, isRead: true } : n))
+    );
+  };
+
+  const markAllNotificationsAsRead = (userId) => {
+    setNotifications(prev =>
+      prev.map(n => (n.userId === userId ? { ...n, isRead: true } : n))
+    );
+  };
+
+  const deleteNotification = (notificationId) => {
+    setNotifications(prev => prev.filter(n => n.id !== notificationId));
+  };
+
+  const clearUserNotifications = (userId) => {
+    setNotifications(prev => prev.filter(n => n.userId !== userId));
+  };
+
+  // ==========================================
   // TESTER UTILITY: HỖ TRỢ KIỂM THỬ 1-CLICK
   // ==========================================
   const resetToDefaultData = () => {
@@ -586,10 +827,11 @@ export const AppProvider = ({ children }) => {
     setAccounts(INITIAL_ACCOUNTS);
     setUsers(INITIAL_USERS);
     setCustomers(INITIAL_CUSTOMERS);
-    setCurrentUser(INITIAL_USERS[0]);
+    setCurrentUser(null);
     setRentals(INITIAL_RENTALS.map(r => ({ ...r, status: 'completed' })));
     setTransactions(INITIAL_TRANSACTIONS);
     setDisputes(INITIAL_DISPUTES);
+    setNotifications([]);
   };
 
   const addTestBalance = (amount = 200000) => {
@@ -622,6 +864,12 @@ export const AppProvider = ({ children }) => {
         rentals,
         transactions,
         disputes,
+        notifications,
+        addNotification,
+        markNotificationAsRead,
+        markAllNotificationsAsRead,
+        deleteNotification,
+        clearUserNotifications,
         login,
         logout,
         register,
@@ -630,6 +878,7 @@ export const AppProvider = ({ children }) => {
         rentAccount,
         extendRental,
         returnRentalEarly,
+        autoExpireAndResetPassword,
         fileDispute,
         resolveDispute,
         addAccount,

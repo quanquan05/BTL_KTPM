@@ -248,7 +248,7 @@ export const OverviewDashboard = ({ onNavigate, onSelectAccount }) => {
       <div className="dashboard-banner">
         <div>
           <h1 className="dashboard-title">
-            Chào mừng trở lại, {currentUser?.name || 'Lê Minh Quân'} 👋
+            Chào mừng trở lại, {currentUser?.name || 'Quản Lý'} 👋
           </h1>
           <p className="dashboard-subtitle">
             Quản lý tài khoản thuê game một cách dễ dàng, nhanh chóng và hiệu quả.
@@ -428,7 +428,7 @@ export const OverviewDashboard = ({ onNavigate, onSelectAccount }) => {
       {/* ================= 2-COLUMN MAIN DASHBOARD GRID ================= */}
       <div className="dashboard-content-grid">
         {/* ================= LEFT COLUMN: DANH SÁCH TÀI KHOẢN THUÊ ================= */}
-        <div className="rental-table-card">
+        <div className="rental-table-card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           {/* Table Card Header */}
           <div className="rental-table-header">
             {/* Top row: Title and description */}
@@ -683,8 +683,8 @@ export const OverviewDashboard = ({ onNavigate, onSelectAccount }) => {
           </div>
 
           {/* Data Table */}
-          <div style={{ overflowX: 'auto' }}>
-            <table className="rental-table" id="dashboard-rental-table">
+          <div style={{ overflowX: 'auto', flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <table className="rental-table" id="dashboard-rental-table" style={{ width: '100%' }}>
               <thead>
                 <tr>
                   <th style={{ width: 40 }}>#</th>
@@ -748,8 +748,8 @@ export const OverviewDashboard = ({ onNavigate, onSelectAccount }) => {
                                 : row.gameName.includes('Valorant')
                                 ? '#EF4444'
                                 : row.gameName.includes('Genshin')
-                                ? '#06B6D4'
-                                : row.gameName.includes('Online') || row.gameName.includes('FO4')
+                                ? '#8B5CF6'
+                                : row.gameName.includes('FC') || row.gameName.includes('FO4')
                                 ? '#10B981'
                                 : row.gameName.includes('PUBG')
                                 ? '#F59E0B'
@@ -758,28 +758,21 @@ export const OverviewDashboard = ({ onNavigate, onSelectAccount }) => {
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              fontSize: '0.7rem',
-                              fontWeight: 800,
+                              fontSize: '0.74rem',
+                              fontWeight: 700,
                               flexShrink: 0
                             }}
                           >
-                            {row.gameName.includes('Liên Quân')
-                              ? 'C'
-                              : row.gameName.includes('Valorant')
-                              ? 'V'
-                              : row.gameName.includes('Genshin')
-                              ? 'G'
-                              : row.gameName.includes('Online') || row.gameName.includes('FO4')
-                              ? 'F'
-                              : row.gameName.includes('PUBG')
-                              ? 'P'
-                              : 'T'}
+                            {row.gameName.slice(0, 1).toUpperCase()}
                           </div>
                           <div>
-                            <div style={{ fontWeight: 700, color: '#0F172A', fontSize: '0.84rem' }}>
-                              {row.gameName}
+                            <div style={{ fontWeight: 600, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 4 }}>
+                              <span>{row.gameName}</span>
+                              <span style={{ fontSize: '0.64rem', color: '#94A3B8', background: '#F1F5F9', padding: '1px 5px', borderRadius: 4 }}>
+                                {row.rank}
+                              </span>
                             </div>
-                            <div style={{ fontSize: '0.72rem', color: '#94A3B8' }}>
+                            <div style={{ fontSize: '0.72rem', color: '#64748B' }}>
                               {row.publisher}
                             </div>
                           </div>
@@ -788,11 +781,11 @@ export const OverviewDashboard = ({ onNavigate, onSelectAccount }) => {
 
                       {/* TÀI KHOẢN */}
                       <td>
-                        <div style={{ fontWeight: 700, color: '#0F172A', fontSize: '0.82rem' }}>
+                        <div style={{ fontWeight: 700, color: '#0F172A', fontFamily: 'monospace', fontSize: '0.85rem' }}>
                           {row.accountCode}
                         </div>
-                        <div style={{ fontSize: '0.72rem', color: '#94A3B8' }}>
-                          {row.rank}
+                        <div style={{ fontSize: '0.72rem', color: '#64748B' }}>
+                          Mật khẩu: ••••••••
                         </div>
                       </td>
 
@@ -801,7 +794,7 @@ export const OverviewDashboard = ({ onNavigate, onSelectAccount }) => {
                         <div style={{ fontWeight: 700, color: '#0F172A', fontSize: '0.82rem' }}>
                           {row.customerName}
                         </div>
-                        <div style={{ fontSize: '0.72rem', color: '#94A3B8' }}>
+                        <div style={{ fontSize: '0.72rem', color: '#64748B' }}>
                           {row.customerCode}
                         </div>
                       </td>
@@ -890,12 +883,30 @@ export const OverviewDashboard = ({ onNavigate, onSelectAccount }) => {
                     </tr>
                   ))
                 )}
+                {/* Giữ nguyên khung cố định đủ 5 hàng khi trang có ít hơn 5 tài khoản */}
+                {pagedRows.length > 0 && pagedRows.length < PAGE_SIZE && (
+                  Array.from({ length: PAGE_SIZE - pagedRows.length }).map((_, idx) => (
+                    <tr
+                      key={`empty-filler-row-${idx}`}
+                      className="rental-table-filler-row"
+                      style={{
+                        height: 64,
+                        pointerEvents: 'none',
+                        background: 'transparent'
+                      }}
+                    >
+                      <td colSpan={7} style={{ height: 64, padding: '14px 14px', borderBottom: idx === PAGE_SIZE - pagedRows.length - 1 ? 'none' : '1px solid var(--border-subtle)', color: 'transparent', userSelect: 'none' }}>
+                        &nbsp;
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
 
-          {/* Table Pagination */}
-          <div className="table-pagination">
+          {/* Table Pagination: Cố định vị trí đáy */}
+          <div className="table-pagination" style={{ marginTop: 'auto', borderTop: '1px solid var(--border-subtle)', background: '#FFFFFF' }}>
             <span>
               {filteredRows.length === 0 ? (
                 selectedStatusFilter === 'active' ? '0 tài khoản đang thuê' : '0 ca thuê'
@@ -1386,7 +1397,7 @@ export const OverviewDashboard = ({ onNavigate, onSelectAccount }) => {
                   <Gamepad2 size={13} />
                 </div>
                 <div style={{ flex: 1, fontSize: '0.78rem', color: '#334155', lineHeight: 1.4 }}>
-                  <strong>Lê Minh Quân</strong> - Thuê tài khoản #ACC-LIE-709 (4h)
+                  <strong>Quản Lý</strong> - Thuê tài khoản #ACC-LIE-709 (4h)
                   <div style={{ fontSize: '0.7rem', color: '#64748B' }}>Liên Quân Mobile - 60.000đ</div>
                 </div>
                 <div style={{ fontSize: '0.72rem', color: '#94A3B8', whiteSpace: 'nowrap' }}>

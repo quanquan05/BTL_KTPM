@@ -18,12 +18,26 @@ import {
   Activity,
   CheckCircle2,
   Wifi,
-  ChevronRight
+  ChevronRight,
+  Trash2,
+  CheckCheck
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 export const Navbar = ({ currentView = 'overview', setView, onOpenDeposit, onOpenAuth, onToggleSidebar }) => {
-  const { currentUser, logout, switchRole, disputes, accounts, rentals, returnRentalEarly } = useApp();
+  const {
+    currentUser,
+    logout,
+    switchRole,
+    disputes,
+    accounts,
+    rentals,
+    returnRentalEarly,
+    notifications,
+    deleteNotification,
+    clearUserNotifications,
+    markNotificationAsRead
+  } = useApp();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showServerStatus, setShowServerStatus] = useState(false);
@@ -222,9 +236,10 @@ export const Navbar = ({ currentView = 'overview', setView, onOpenDeposit, onOpe
               const myRentals = rentals ? rentals.filter(r => r.userId === currentUser?.id) : [];
               const myActiveRentals = myRentals.filter(r => r.status === 'active');
               const myActiveSorted = [...myActiveRentals].sort((a, b) => a.endTime - b.endTime);
-              const myExpiredRentals = myActiveSorted.filter(r => r.endTime <= now);
               const myExpiringSoonRentals = myActiveSorted.filter(r => r.endTime > now && (r.endTime - now <= 60 * 60 * 1000));
-              const myAlertRentals = [...myExpiredRentals, ...myExpiringSoonRentals];
+
+              // Thông báo lưu vết trong chuông (khi tài khoản hết giờ và hệ thống tự động thu hồi)
+              const myStoredNotifications = notifications ? notifications.filter(n => n.userId === currentUser?.id) : [];
 
               // Xác định cấp độ cảnh báo (Severity) & số lượng cảnh báo
               let severity = 'green';
@@ -234,9 +249,9 @@ export const Navbar = ({ currentView = 'overview', setView, onOpenDeposit, onOpe
                 severity = adminRedCount > 0 ? 'red' : adminYellowCount > 0 ? 'yellow' : 'green';
                 totalAlerts = adminRedCount > 0 ? adminRedCount : adminYellowCount;
               } else {
-                if (myExpiredRentals.length > 0) {
+                if (myStoredNotifications.length > 0) {
                   severity = 'red';
-                  totalAlerts = myAlertRentals.length;
+                  totalAlerts = myStoredNotifications.length;
                 } else if (myExpiringSoonRentals.length > 0) {
                   severity = 'yellow';
                   totalAlerts = myExpiringSoonRentals.length;
@@ -254,9 +269,11 @@ export const Navbar = ({ currentView = 'overview', setView, onOpenDeposit, onOpe
 
               const buttonTitle = isAdmin
                 ? `Thông báo hệ thống: Mức ${severity === 'red' ? 'Đỏ (Khẩn cấp)' : severity === 'yellow' ? 'Vàng (Cảnh báo)' : 'Xanh (An toàn)'}`
+                : myStoredNotifications.length > 0
+                ? `Bạn có ${myStoredNotifications.length} thông báo thu hồi tài khoản đã lưu tại chuông (nhấp để đọc và xóa)`
                 : totalAlerts > 0
-                ? `Bạn có ${totalAlerts} đơn thuê cần chú ý (sắp hết hạn hoặc đã hết giờ)`
-                : 'Thông báo: Tất cả đơn thuê đang hoạt động bình thường';
+                ? `Bạn có ${totalAlerts} đơn thuê sắp hết hạn`
+                : 'Thông báo: Không có thông báo mới';
 
               return (
                 <div style={{ position: 'relative' }}>
@@ -292,7 +309,7 @@ export const Navbar = ({ currentView = 'overview', setView, onOpenDeposit, onOpe
                         position: 'absolute',
                         top: '115%',
                         right: -10,
-                        width: 360,
+                        width: 375,
                         background: '#FFFFFF',
                         border: '1px solid var(--border-subtle)',
                         borderRadius: 16,
@@ -315,105 +332,220 @@ export const Navbar = ({ currentView = 'overview', setView, onOpenDeposit, onOpe
                             }}
                           />
                           <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0F172A' }}>
-                            {isAdmin ? 'Thông Báo Hệ Thống' : 'Thông Báo Đơn Thuê'}
+                            {isAdmin ? 'Thông Báo Hệ Thống' : 'Thông Báo Đơn Thuê & Thu Hồi'}
                           </div>
                         </div>
 
-                        <span
-                          style={{
-                            fontSize: '0.7rem',
-                            fontWeight: 700,
-                            padding: '3px 8px',
-                            borderRadius: 20,
-                            background: bellColors.bg,
-                            color: bellColors.color,
-                            border: `1px solid ${bellColors.border}`
-                          }}
-                        >
-                          {isAdmin ? (
-                            severity === 'red' ? '🔴 Mức Đỏ: Khẩn cấp' : severity === 'yellow' ? '🟡 Mức Vàng: Cảnh báo' : '🟢 Mức Xanh: An toàn'
-                          ) : (
-                            myExpiredRentals.length > 0 ? '🔴 Đã hết giờ' : myExpiringSoonRentals.length > 0 ? '🟡 Sắp hết hạn' : '🟢 Đang an toàn'
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          {!isAdmin && myStoredNotifications.length > 0 && (
+                            <button
+                              type="button"
+                              id="btn-clear-all-notifs"
+                              data-testid="btn-clear-all-notifs"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                clearUserNotifications(currentUser?.id);
+                              }}
+                              title="Xóa tất cả thông báo thu hồi"
+                              style={{
+                                background: 'transparent',
+                                border: 'none',
+                                color: '#64748B',
+                                fontSize: '0.72rem',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                padding: '2px 6px',
+                                borderRadius: 4,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 3
+                              }}
+                              onMouseEnter={(e) => { e.currentTarget.style.color = '#DC2626'; e.currentTarget.style.backgroundColor = '#FEF2F2'; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.color = '#64748B'; e.currentTarget.style.backgroundColor = 'transparent'; }}
+                            >
+                              <Trash2 size={12} />
+                              <span>Xóa tất cả</span>
+                            </button>
                           )}
-                        </span>
+
+                          <span
+                            style={{
+                              fontSize: '0.7rem',
+                              fontWeight: 700,
+                              padding: '3px 8px',
+                              borderRadius: 20,
+                              background: bellColors.bg,
+                              color: bellColors.color,
+                              border: `1px solid ${bellColors.border}`
+                            }}
+                          >
+                            {isAdmin ? (
+                              severity === 'red' ? '🔴 Mức Đỏ: Khẩn cấp' : severity === 'yellow' ? '🟡 Mức Vàng: Cảnh báo' : '🟢 Mức Xanh: An toàn'
+                            ) : (
+                              myStoredNotifications.length > 0
+                                ? `🔴 ${myStoredNotifications.length} thông báo`
+                                : myExpiringSoonRentals.length > 0
+                                ? '🟡 Sắp hết hạn'
+                                : '🟢 Đang an toàn'
+                            )}
+                          </span>
+                        </div>
                       </div>
 
                       {/* Notification Items List */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 350, overflowY: 'auto', paddingRight: 2 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 370, overflowY: 'auto', paddingRight: 2 }}>
                         {/* ================= GIAO DIỆN KHÁCH HÀNG ================= */}
                         {!isAdmin && (
                           <>
-                            {myAlertRentals.length > 0 ? (
-                              myAlertRentals.map(r => {
-                                const remainingMs = Math.max(0, r.endTime - now);
-                                const remainingMins = Math.floor(remainingMs / (1000 * 60));
-                                const isExpired = remainingMs === 0;
+                            {/* 1. CÁC THÔNG BÁO THU HỒI TỰ ĐỘNG ĐÃ LƯU TRONG CHUÔNG */}
+                            {myStoredNotifications.length > 0 && (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '2px 4px' }}>
+                                  <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#991B1B', textTransform: 'uppercase', letterSpacing: '0.03em', display: 'flex', alignItems: 'center', gap: 5 }}>
+                                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#DC2626' }} />
+                                    Tự động thu hồi do hết giờ ({myStoredNotifications.length})
+                                  </span>
+                                  <span style={{ fontSize: '0.68rem', color: '#64748B' }}>
+                                    Lưu lại đến khi xóa
+                                  </span>
+                                </div>
 
-                                return (
-                                  <div
-                                    key={r.id}
-                                    style={{
-                                      background: isExpired ? '#FEF2F2' : '#FFFBEB',
-                                      border: `1px solid ${isExpired ? '#FECDD3' : '#FDE68A'}`,
-                                      borderRadius: 10,
-                                      padding: '11px 12px',
-                                      fontSize: '0.78rem',
-                                      transition: 'all 0.15s ease'
-                                    }}
-                                  >
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                                      <span style={{ color: isExpired ? '#DC2626' : '#D97706', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 5 }}>
-                                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: isExpired ? '#EF4444' : '#F59E0B' }} />
-                                        {isExpired ? 'Đơn thuê đã hết giờ' : 'Đơn thuê sắp hết giờ'}
-                                      </span>
-                                      <span style={{ fontSize: '0.7rem', color: isExpired ? '#991B1B' : '#B45309', fontWeight: 800 }}>
-                                        {isExpired ? 'Đã hết giờ' : `Còn ${remainingMins} phút`}
-                                      </span>
+                                {myStoredNotifications.map(notif => {
+                                  const timeFormatted = notif.timestamp
+                                    ? new Date(notif.timestamp).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' • ' + new Date(notif.timestamp).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })
+                                    : 'Vừa xong';
+
+                                  return (
+                                    <div
+                                      key={notif.id}
+                                      id={`notif-item-${notif.id}`}
+                                      data-testid={`notif-item-${notif.id}`}
+                                      style={{
+                                        background: '#FFFFFF',
+                                        border: '1px solid #E2E8F0',
+                                        borderLeft: '4px solid #EF4444',
+                                        borderRadius: 8,
+                                        padding: '9px 12px',
+                                        fontSize: '0.78rem',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 3,
+                                        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)'
+                                      }}
+                                    >
+                                      {/* Dòng 1: Tiêu đề, giờ & Nút Xóa */}
+                                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <span style={{ color: '#DC2626', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.76rem' }}>
+                                          <span>⏱️</span>
+                                          <span>Ca thuê đã hết giờ</span>
+                                        </span>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                          <span style={{ fontSize: '0.68rem', color: '#94A3B8' }}>
+                                            {timeFormatted}
+                                          </span>
+                                          <button
+                                            type="button"
+                                            id={`btn-delete-notif-${notif.id}`}
+                                            data-testid={`btn-delete-notif-${notif.id}`}
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              deleteNotification(notif.id);
+                                            }}
+                                            title="Xóa thông báo này"
+                                            style={{
+                                              background: '#FEE2E2',
+                                              border: '1px solid #FECDD3',
+                                              color: '#DC2626',
+                                              borderRadius: 4,
+                                              padding: '2px 6px',
+                                              fontSize: '0.68rem',
+                                              fontWeight: 700,
+                                              cursor: 'pointer',
+                                              display: 'flex',
+                                              alignItems: 'center',
+                                              gap: 3
+                                            }}
+                                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#FCA5A5'; }}
+                                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#FEE2E2'; }}
+                                          >
+                                            <Trash2 size={11} />
+                                            <span>Xóa</span>
+                                          </button>
+                                        </div>
+                                      </div>
+
+                                      {/* Dòng 2: Mã đơn & Tên acc */}
+                                      <div style={{ color: '#0F172A', fontWeight: 700, fontSize: '0.76rem' }}>
+                                        Đơn #{notif.rentalId} • {notif.accountTitle}
+                                      </div>
+
+                                      {/* Dòng 3: Tóm tắt đơn giản */}
+                                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 }}>
+                                        <span style={{ color: '#64748B', fontSize: '0.72rem' }}>
+                                          Hệ thống đã tự động thu hồi tài khoản.
+                                        </span>
+                                        <button
+                                          type="button"
+                                          id={`btn-goto-history-${notif.rentalId}`}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleNavigateToRental(notif.rentalId);
+                                          }}
+                                          style={{
+                                            background: 'transparent',
+                                            border: 'none',
+                                            color: '#2563EB',
+                                            fontSize: '0.7rem',
+                                            fontWeight: 600,
+                                            cursor: 'pointer',
+                                            padding: 0
+                                          }}
+                                        >
+                                          Xem đơn →
+                                        </button>
+                                      </div>
                                     </div>
+                                  );
+                                })}
+                              </div>
+                            )}
 
-                                    <div style={{ color: '#0F172A', fontWeight: 700, marginBottom: 3 }}>
-                                      Đơn #{r.id} • {r.accountTitle || r.accountCode}
-                                    </div>
+                            {/* 2. CÁC CA THUÊ ĐANG CHƠI SẮP HẾT HẠN (DƯỚI 1 GIỜ) */}
+                            {myExpiringSoonRentals.length > 0 && (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: myStoredNotifications.length > 0 ? 6 : 0 }}>
+                                <div style={{ fontSize: '0.72rem', color: '#D97706', fontWeight: 800, padding: '2px 4px', textTransform: 'uppercase', letterSpacing: '0.03em', display: 'flex', alignItems: 'center', gap: 5 }}>
+                                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#F59E0B' }} />
+                                  Ca thuê sắp hết giờ ({myExpiringSoonRentals.length})
+                                </div>
+                                {myExpiringSoonRentals.map(r => {
+                                  const remainingMs = Math.max(0, r.endTime - now);
+                                  const remainingMins = Math.floor(remainingMs / (1000 * 60));
 
-                                    <div style={{ color: '#64748B', fontSize: '0.73rem', marginBottom: 8, lineHeight: 1.35 }}>
-                                      {isExpired
-                                        ? 'Thời gian thuê đã hết. Vui lòng vào trang Đơn của tôi để gia hạn thêm giờ hoặc trả tài khoản.'
-                                        : 'Thời gian chơi sắp hết! Nhấp vào để gia hạn thêm giờ, trả acc sớm hoặc báo lỗi nếu gặp sự cố.'}
-                                    </div>
-
-                                    {isExpired ? (
-                                      <button
-                                        type="button"
-                                        id={`btn-revoke-my-rental-${r.id}`}
-                                        data-testid={`btn-revoke-my-rental-${r.id}`}
-                                        onClick={() => {
-                                          returnRentalEarly(r.id);
-                                          setShowNotifications(false);
-                                          localStorage.setItem('gamerent_highlight_order', r.id);
-                                          window.dispatchEvent(new CustomEvent('gamerent_highlight_order_changed', { detail: { orderId: r.id } }));
-                                          setView('my-rentals');
-                                        }}
-                                        style={{
-                                          width: '100%',
-                                          padding: '7px 10px',
-                                          borderRadius: 6,
-                                          background: '#DC2626',
-                                          color: '#FFFFFF',
-                                          border: 'none',
-                                          fontSize: '0.74rem',
-                                          fontWeight: 700,
-                                          cursor: 'pointer',
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                          gap: 5,
-                                          boxShadow: '0 1px 3px rgba(220, 38, 38, 0.25)'
-                                        }}
-                                      >
-                                        <LogOut size={13} color="#FFFFFF" />
-                                        <span>Thu hồi acc</span>
-                                      </button>
-                                    ) : (
+                                  return (
+                                    <div
+                                      key={r.id}
+                                      style={{
+                                        background: '#FFFBEB',
+                                        border: '1px solid #FDE68A',
+                                        borderRadius: 10,
+                                        padding: '11px 12px',
+                                        fontSize: '0.78rem'
+                                      }}
+                                    >
+                                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                                        <span style={{ color: '#D97706', fontWeight: 700 }}>
+                                          Đơn thuê sắp hết giờ
+                                        </span>
+                                        <span style={{ fontSize: '0.7rem', color: '#B45309', fontWeight: 800 }}>
+                                          Còn {remainingMins} phút
+                                        </span>
+                                      </div>
+                                      <div style={{ color: '#0F172A', fontWeight: 700, marginBottom: 3 }}>
+                                        Đơn #{r.id} • {r.accountTitle || r.accountCode}
+                                      </div>
+                                      <div style={{ color: '#64748B', fontSize: '0.73rem', marginBottom: 8 }}>
+                                        Thời gian chơi sắp hết. Nhấp vào để gia hạn thêm giờ hoặc trả sớm.
+                                      </div>
                                       <button
                                         type="button"
                                         id={`btn-goto-my-rental-${r.id}`}
@@ -431,72 +563,19 @@ export const Navbar = ({ currentView = 'overview', setView, onOpenDeposit, onOpe
                                           display: 'flex',
                                           alignItems: 'center',
                                           justifyContent: 'center',
-                                          gap: 5,
-                                          boxShadow: '0 1px 3px rgba(245, 158, 11, 0.25)'
+                                          gap: 5
                                         }}
                                       >
-                                        <span>Xem đơn (Gia hạn / Trả sớm / Báo lỗi)</span>
-                                        <span>→</span>
-                                      </button>
-                                    )}
-                                  </div>
-                                );
-                              })
-                            ) : myActiveSorted.length > 0 ? (
-                              <>
-                                <div style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 600, padding: '2px 4px' }}>
-                                  Đơn đang thuê hoạt động bình thường:
-                                </div>
-                                {myActiveSorted.map(r => {
-                                  const remainingMs = Math.max(0, r.endTime - now);
-                                  const remainingHours = Math.floor(remainingMs / (1000 * 60 * 60));
-                                  const remainingMins = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
-
-                                  return (
-                                    <div
-                                      key={r.id}
-                                      style={{
-                                        background: '#F0FDF4',
-                                        border: '1px solid #BBF7D0',
-                                        borderRadius: 10,
-                                        padding: '10px 12px',
-                                        fontSize: '0.78rem'
-                                      }}
-                                    >
-                                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }}>
-                                        <span style={{ color: '#16A34A', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 5 }}>
-                                          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22C55E' }} />
-                                          Đang chơi ổn định
-                                        </span>
-                                        <span style={{ fontSize: '0.7rem', color: '#15803D', fontWeight: 700 }}>
-                                          Còn {remainingHours}h {remainingMins}p
-                                        </span>
-                                      </div>
-                                      <div style={{ color: '#0F172A', fontWeight: 600, marginBottom: 4 }}>
-                                        Đơn #{r.id} • {r.accountTitle || r.accountCode}
-                                      </div>
-                                      <button
-                                        type="button"
-                                        onClick={() => handleNavigateToRental(r.id)}
-                                        style={{
-                                          width: '100%',
-                                          padding: '5px',
-                                          borderRadius: 6,
-                                          background: '#10B981',
-                                          color: '#FFFFFF',
-                                          border: 'none',
-                                          fontSize: '0.72rem',
-                                          fontWeight: 700,
-                                          cursor: 'pointer'
-                                        }}
-                                      >
-                                        Vào xem thông tin đăng nhập & đơn thuê →
+                                        <span>Gia hạn thêm giờ / Trả sớm →</span>
                                       </button>
                                     </div>
                                   );
                                 })}
-                              </>
-                            ) : (
+                              </div>
+                            )}
+
+                            {/* 3. KHÔNG CÓ THÔNG BÁO NÀO */}
+                            {myStoredNotifications.length === 0 && myExpiringSoonRentals.length === 0 && (
                               <div
                                 style={{
                                   background: '#ECFDF5',
@@ -506,12 +585,12 @@ export const Navbar = ({ currentView = 'overview', setView, onOpenDeposit, onOpe
                                   textAlign: 'center'
                                 }}
                               >
-                                <div style={{ fontSize: '24px', marginBottom: 6 }}>🎮</div>
+                                <div style={{ fontSize: '24px', marginBottom: 6 }}>🔔</div>
                                 <div style={{ color: '#065F46', fontWeight: 800, fontSize: '0.84rem', marginBottom: 4 }}>
-                                  Không Có Đơn Sắp Hết Hạn
+                                  Không Có Thông Báo Mới
                                 </div>
                                 <div style={{ color: '#047857', fontSize: '0.76rem', lineHeight: 1.4, marginBottom: 10 }}>
-                                  Bạn hiện không có ca thuê nào sắp hết giờ. Hãy khám phá thêm các tài khoản game vip giá rẻ!
+                                  Bạn hiện không có ca thuê nào sắp hết giờ hoặc thông báo thu hồi chưa xóa.
                                 </div>
                                 <button
                                   type="button"

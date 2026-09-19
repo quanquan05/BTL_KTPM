@@ -602,10 +602,12 @@ input[type=number] {
 }
 
 .sidebar-version {
+  margin-top: auto;
   text-align: center;
   font-size: 0.7rem;
   color: #94A3B8;
-  padding-bottom: 12px;
+  padding-top: 12px;
+  padding-bottom: 14px;
 }
 
 /* Main Content Area */
@@ -951,8 +953,12 @@ input[type=number] {
   vertical-align: middle;
 }
 
-.rental-table tr:hover {
+.rental-table tr:hover:not(.rental-table-filler-row) {
   background-color: #F8FAFC;
+}
+
+.rental-table tr.rental-table-filler-row:hover {
+  background-color: transparent !important;
 }
 
 .table-time-pill {

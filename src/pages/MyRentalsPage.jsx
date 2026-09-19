@@ -7,7 +7,7 @@ import { ReturnEarlyModal } from '../components/ReturnEarlyModal';
 import { ExtendRentalModal } from '../components/ExtendRentalModal';
 
 export const MyRentalsPage = ({ onExploreMore, onOpenDeposit }) => {
-  const { rentals, currentUser, returnRentalEarly } = useApp();
+  const { rentals, currentUser, returnRentalEarly, users } = useApp();
   const isAdmin = currentUser?.role === 'admin';
 
   const [selectedRentalForExtend, setSelectedRentalForExtend] = useState(null);
@@ -17,14 +17,36 @@ export const MyRentalsPage = ({ onExploreMore, onOpenDeposit }) => {
   const [copiedId, setCopiedId] = useState(null);
   const [actionError, setActionError] = useState('');
 
-  // Tab cho Admin: 'all-active' (Tất cả đơn khách hàng) | 'my-active' (Đơn cá nhân) | 'all-history' (Lịch sử)
-  // Tab cho Renter: 'active' | 'history'
-  const [activeTab, setActiveTab] = useState(isAdmin ? 'all-active' : 'active');
+  // Tab cho Admin: 'all-active' (Đơn của khách hàng) | 'my-active' (Đơn của tôi) | 'all-history' (Lịch sử hệ thống)
+  // Tab cho Renter: 'active' (Đang chơi) | 'history' (Lịch sử thuê)
+  const [activeTab, setActiveTab] = useState(() => {
+    if (isAdmin) {
+      const preferred = localStorage.getItem('gamerent_admin_preferred_tab');
+      if (preferred) {
+        localStorage.removeItem('gamerent_admin_preferred_tab');
+        return preferred;
+      }
+      return 'all-active';
+    }
+    return 'active';
+  });
 
   // Nhận biết đơn cần highlight khi chuyển từ thông báo Navbar
   const [highlightOrderId, setHighlightOrderId] = useState(() => {
     return localStorage.getItem('gamerent_highlight_order') || null;
   });
+
+  // Phân biệt đơn do Admin thuê (đơn cá nhân) vs đơn do Khách Hàng thuê
+  const isAdminRental = (r) => {
+    if (!r) return false;
+    if (r.userId === 'ADMIN-01' || r.userId === 'admin') return true;
+    if (currentUser?.role === 'admin' && r.userId === currentUser?.id) return true;
+    const orderUser = users?.find(u => u.id === r.userId);
+    if (orderUser && orderUser.role === 'admin') return true;
+    return false;
+  };
+
+  const isCustomerRental = (r) => !isAdminRental(r);
 
   // Lắng nghe sự kiện highlight kể cả khi người dùng đang ở sẵn trên trang MyRentalsPage
   useEffect(() => {
@@ -32,7 +54,12 @@ export const MyRentalsPage = ({ onExploreMore, onOpenDeposit }) => {
       const orderId = e?.detail?.orderId || localStorage.getItem('gamerent_highlight_order');
       if (orderId) {
         setHighlightOrderId(orderId);
-        setActiveTab(isAdmin ? 'all-active' : 'active');
+        if (isAdmin) {
+          const target = rentals.find(r => r.id === orderId);
+          setActiveTab(target && isAdminRental(target) ? 'my-active' : 'all-active');
+        } else {
+          setActiveTab('active');
+        }
         setTimeout(() => {
           const el = document.getElementById(`rental-card-${orderId}`);
           if (el) {
@@ -42,44 +69,75 @@ export const MyRentalsPage = ({ onExploreMore, onOpenDeposit }) => {
       }
     };
 
+    // Lắng nghe sự kiện thu hồi / đổi mật khẩu thời gian thực
+    const handleAccountRevoked = (e) => {
+      const { rentalUserId, secretAccount, reason } = e.detail || {};
+      // 1. Loại bỏ hoàn toàn dòng thông báo xanh khi hệ thống tự động thu hồi do hết giờ (thông báo đã lưu ở chuông)
+      if (reason === 'expired_auto') return;
+
+      // 2. Tách riêng rõ ràng giữa admin và khách: chỉ hiện toast trả sớm nếu đúng đơn của tài khoản đang đăng nhập
+      if (rentalUserId && rentalUserId !== currentUser?.id && !isAdmin) return;
+
+      setSuccessToast(`🔒 Đã thu hồi acc "${secretAccount}" thành công!`);
+      setTimeout(() => setSuccessToast(''), 4000);
+    };
+
     window.addEventListener('gamerent_highlight_order_changed', handleHighlightEvent);
+    window.addEventListener('gamerent_account_revoked', handleAccountRevoked);
     window.addEventListener('storage', handleHighlightEvent);
 
     return () => {
       window.removeEventListener('gamerent_highlight_order_changed', handleHighlightEvent);
+      window.removeEventListener('gamerent_account_revoked', handleAccountRevoked);
       window.removeEventListener('storage', handleHighlightEvent);
     };
-  }, [isAdmin]);
+  }, [isAdmin, rentals, currentUser?.id, users]);
 
+  // Tự động xóa highlight sau 6s
   useEffect(() => {
     if (highlightOrderId) {
-      localStorage.removeItem('gamerent_highlight_order');
-      setActiveTab(isAdmin ? 'all-active' : 'active');
-      setTimeout(() => {
-        const el = document.getElementById(`rental-card-${highlightOrderId}`);
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 120);
-      const timer = setTimeout(() => setHighlightOrderId(null), 12000);
+      const timer = setTimeout(() => {
+        setHighlightOrderId(null);
+        localStorage.removeItem('gamerent_highlight_order');
+      }, 6000);
       return () => clearTimeout(timer);
     }
   }, [highlightOrderId, isAdmin]);
 
-  // Đơn cá nhân của user đăng nhập
+  // Đơn của khách hàng (loại trừ hoàn toàn các đơn do Admin thuê)
+  const customerActiveRentals = rentals.filter(r => r.status === 'active' && isCustomerRental(r));
+  const customerPastRentals = rentals.filter(r => r.status !== 'active' && isCustomerRental(r));
+
+  // Đơn cá nhân của Admin (khi Admin tự thuê acc để chơi hoặc test)
+  const adminActiveRentals = rentals.filter(r => r.status === 'active' && isAdminRental(r));
+  const adminPastRentals = rentals.filter(r => r.status !== 'active' && isAdminRental(r));
+
+  // Đơn cá nhân của user thông thường (khi là Renter đăng nhập)
   const userRentals = rentals.filter(r => r.userId === currentUser?.id);
   const userActiveRentals = userRentals.filter(r => r.status === 'active');
   const userPastRentals = userRentals.filter(r => r.status !== 'active');
 
-  // Đơn toàn hệ thống dành cho Admin
-  const allActiveRentals = rentals.filter(r => r.status === 'active');
+  // Đơn lịch sử toàn hệ thống dành cho Admin
   const allPastRentals = rentals.filter(r => r.status !== 'active');
 
   // Xác định danh sách đơn đang hiển thị
-  const isViewingAll = isAdmin && activeTab === 'all-active';
+  const isViewingCustomers = isAdmin && activeTab === 'all-active';
+  const isViewingAdminSelf = isAdmin && activeTab === 'my-active';
   const isViewingHistory = activeTab === 'history' || activeTab === 'all-history';
   
-  let activeList = isViewingAll ? allActiveRentals : userActiveRentals;
+  let activeList = [];
+  if (isAdmin) {
+    if (activeTab === 'all-active') {
+      activeList = customerActiveRentals;
+    } else if (activeTab === 'my-active') {
+      activeList = adminActiveRentals;
+    } else {
+      activeList = customerActiveRentals;
+    }
+  } else {
+    activeList = userActiveRentals;
+  }
+
   // Ưu tiên đưa đơn được highlight (từ thông báo) lên đầu danh sách
   if (highlightOrderId) {
     activeList = [
@@ -103,11 +161,11 @@ export const MyRentalsPage = ({ onExploreMore, onOpenDeposit }) => {
   const handleConfirmReturnEarly = (rentalId) => {
     const res = returnRentalEarly(rentalId);
     if (res && res.newPassword) {
-      setSuccessToast(`Đã thu hồi acc #${res.accountId} & tự động đổi pass mới: ${res.newPassword} (Tài khoản đã chuyển sang Sẵn sàng).`);
+      setSuccessToast(`Đã thu hồi acc #${res.accountId} (${res.secretAccount || ''}) & tự động đổi pass mới: ${res.newPassword} (Tài khoản đã chuyển sang Sẵn sàng).`);
     } else {
       setSuccessToast('Đã kết thúc ca thuê và thu hồi thông tin tài khoản thành công.');
     }
-    setTimeout(() => setSuccessToast(''), 5000);
+    setTimeout(() => setSuccessToast(''), 7000);
   };
 
   return (
@@ -144,7 +202,7 @@ export const MyRentalsPage = ({ onExploreMore, onOpenDeposit }) => {
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}
               >
                 <Clock size={14} />
-                <span>Tất Cả Đơn Khách Hàng ({allActiveRentals.length})</span>
+                <span>Đơn Của Khách Hàng ({customerActiveRentals.length})</span>
               </button>
               <button
                 type="button"
@@ -154,7 +212,7 @@ export const MyRentalsPage = ({ onExploreMore, onOpenDeposit }) => {
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}
               >
                 <User size={14} />
-                <span>Đơn Của Tôi ({userActiveRentals.length})</span>
+                <span>Đơn Của Tôi ({adminActiveRentals.length})</span>
               </button>
               <button
                 type="button"
@@ -240,11 +298,17 @@ export const MyRentalsPage = ({ onExploreMore, onOpenDeposit }) => {
             <div className="glass-panel" style={{ textAlign: 'center', padding: '44px 20px', borderRadius: 12 }}>
               <div style={{ fontSize: '2.2rem', marginBottom: 8 }}>🎮</div>
               <h3 style={{ fontSize: '1.05rem', color: 'var(--text-main)', marginBottom: 4 }}>
-                {isViewingAll ? 'Hệ thống hiện không có ca thuê nào đang hoạt động' : 'Bạn không có ca thuê cá nhân nào đang hoạt động'}
+                {isAdmin 
+                  ? (activeTab === 'all-active' 
+                      ? 'Hiện không có đơn thuê nào của khách hàng đang hoạt động' 
+                      : 'Bạn chưa có đơn thuê cá nhân nào đang hoạt động')
+                  : 'Bạn không có ca thuê cá nhân nào đang hoạt động'}
               </h3>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.84rem', marginBottom: 16 }}>
-                {isViewingAll 
-                  ? 'Khi khách hàng thuê tài khoản từ cửa hàng, ca thuê sẽ xuất hiện tại đây theo thời gian thực.'
+                {isAdmin 
+                  ? (activeTab === 'all-active'
+                      ? 'Khi khách hàng thuê tài khoản từ cửa hàng, ca thuê sẽ xuất hiện tại đây theo thời gian thực.'
+                      : 'Khám phá kho acc game và nhận mật khẩu chơi ngay trong 30 giây!')
                   : 'Khám phá kho acc game và nhận mật khẩu chơi ngay trong 30 giây!'}
               </p>
               <button type="button" onClick={onExploreMore} className="btn btn-primary" style={{ fontSize: '0.84rem' }}>
@@ -252,7 +316,7 @@ export const MyRentalsPage = ({ onExploreMore, onOpenDeposit }) => {
               </button>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
               {activeList.map((rental) => {
                 const isHighlighted = rental.id === highlightOrderId;
                 const nowMs = Date.now();
@@ -265,250 +329,301 @@ export const MyRentalsPage = ({ onExploreMore, onOpenDeposit }) => {
                     key={rental.id}
                     id={`rental-card-${rental.id}`}
                     data-testid={`rental-card-${rental.id}`}
-                    className="glass-panel"
                     style={{
-                      borderRadius: 12,
-                      padding: '16px 18px',
+                      borderRadius: 16,
+                      background: isExpired ? '#FFFBFB' : isHighlighted ? '#FFFDF5' : '#FFFFFF',
                       border: isExpired
                         ? '2px solid #EF4444'
                         : isHighlighted 
                         ? '2px solid #F59E0B' 
                         : isExpiringSoon 
-                        ? '1px solid #FDE68A' 
-                        : '1px solid var(--border-subtle)',
-                      background: isExpired ? '#FEF2F2' : isHighlighted ? '#FFFDF5' : '#FFFFFF',
+                        ? '2px solid #F59E0B' 
+                        : '1.5px solid #CBD5E1',
+                      borderLeft: isExpired
+                        ? '6px solid #DC2626'
+                        : isHighlighted
+                        ? '6px solid #F59E0B'
+                        : isExpiringSoon
+                        ? '6px solid #D97706'
+                        : '6px solid #0284C7',
                       boxShadow: isExpired 
-                        ? '0 0 20px rgba(239, 68, 68, 0.22)' 
+                        ? '0 10px 25px -5px rgba(239, 68, 68, 0.18), 0 4px 6px -2px rgba(239, 68, 68, 0.08)' 
                         : isHighlighted 
-                        ? '0 0 20px rgba(245, 158, 11, 0.22)' 
-                        : 'var(--shadow-sm)',
-                      transition: 'all 0.2s ease'
+                        ? '0 10px 25px -5px rgba(245, 158, 11, 0.18), 0 4px 6px -2px rgba(245, 158, 11, 0.08)' 
+                        : '0 6px 20px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04)',
+                      transition: 'all 0.2s ease',
+                      overflow: 'hidden'
                     }}
                   >
-                    {/* Banner cảnh báo đỏ khi hết hạn hoặc vàng khi sắp hết hạn */}
-                    {isExpired ? (
-                      <div
-                        style={{
-                          background: '#FEE2E2',
-                          border: '1px solid #FECDD3',
-                          color: '#991B1B',
-                          padding: '7px 12px',
-                          borderRadius: 6,
-                          fontSize: '0.76rem',
-                          fontWeight: 700,
-                          marginBottom: 12,
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 6
-                        }}
-                      >
-                        <AlertTriangle size={15} color="#DC2626" />
-                        <span>
-                          {isAdmin 
-                            ? <>Cảnh báo đỏ: Ca thuê của khách hàng <strong>{rental.customerName || rental.userId}</strong> đã hết hạn thời gian thuê! Vui lòng bấm <strong>&quot;Thu Hồi Acc&quot;</strong> để đổi mật khẩu bảo vệ tài khoản.</>
-                            : <>Cảnh báo đỏ: Ca thuê này đã hết hạn thời gian thuê! Vui lòng bấm <strong>&quot;Thu Hồi Acc&quot;</strong> bên dưới để hoàn tất ca thuê.</>
-                          }
-                        </span>
-                      </div>
-                    ) : isHighlighted && (
-                      <div
-                        style={{
-                          background: '#FEF3C7',
-                          color: '#B45309',
-                          padding: '5px 12px',
-                          borderRadius: 6,
-                          fontSize: '0.74rem',
-                          fontWeight: 700,
-                          marginBottom: 12,
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 6
-                        }}
-                      >
-                        <AlertTriangle size={14} color="#D97706" />
-                        <span>
-                          {isAdmin 
-                            ? <>Ca thuê bạn vừa chọn từ thông báo: Khách hàng <strong>{rental.customerName || rental.userId}</strong> sắp hết hạn!</>
-                            : <>Đơn thuê này sắp hết giờ! Bạn có thể nhấn <strong>&quot;Gia Hạn&quot;</strong> để chơi tiếp, <strong>&quot;Trả Sớm&quot;</strong> hoặc <strong>&quot;Báo Lỗi&quot;</strong> ngay bên dưới.</>
-                          }
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Card Header */}
+                    {/* Card Header Bar: Đậm nét, có nền phân biệt rõ ranh giới */}
                     <div
                       style={{
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         flexWrap: 'wrap',
-                        gap: 10,
-                        paddingBottom: 12,
-                        borderBottom: '1px solid var(--border-subtle)',
-                        marginBottom: 14
+                        gap: 12,
+                        padding: '14px 20px',
+                        background: isExpired
+                          ? '#FEE2E2'
+                          : isHighlighted
+                          ? '#FEF3C7'
+                          : isExpiringSoon
+                          ? '#FFFBEB'
+                          : '#F8FAFC',
+                        borderBottom: isExpired
+                          ? '1px solid #FECDD3'
+                          : isHighlighted
+                          ? '1px solid #FDE68A'
+                          : isExpiringSoon
+                          ? '1px solid #FDE68A'
+                          : '1px solid #E2E8F0'
                       }}
                     >
                       <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 700, background: 'var(--primary-light)', padding: '2px 6px', borderRadius: 4 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: '0.72rem', color: '#0369A1', fontWeight: 800, background: '#E0F2FE', border: '1px solid #BAE6FD', padding: '3px 8px', borderRadius: 6, letterSpacing: '0.3px' }}>
                             ĐƠN #{rental.id}
                           </span>
-                          <span style={{ fontSize: '0.76rem', color: 'var(--text-subtle)' }}>
+                          <span style={{ fontSize: '0.74rem', color: '#475569', fontWeight: 600, background: '#FFFFFF', border: '1px solid #CBD5E1', padding: '3px 8px', borderRadius: 6 }}>
                             Thuê {rental.durationHours} giờ
                           </span>
-                          {/* Badge người thuê cho Admin */}
-                          {(isAdmin || isViewingAll) && (
-                            <span style={{ fontSize: '0.72rem', background: '#F1F5F9', color: '#0F172A', border: '1px solid #E2E8F0', padding: '2px 8px', borderRadius: 6, fontWeight: 700 }}>
-                              Khách hàng: {rental.customerName || rental.userId} ({rental.customerCode || '#KH001'})
+                          {/* Badge người thuê cho Admin / Khách */}
+                          {isAdmin && activeTab === 'my-active' ? (
+                            <span style={{ fontSize: '0.74rem', background: '#FEF3C7', color: '#92400E', border: '1px solid #FCD34D', padding: '3px 8px', borderRadius: 6, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                              <User size={12} /> Đơn cá nhân của Admin
                             </span>
-                          )}
+                          ) : (isAdmin || isViewingCustomers) ? (
+                            <span style={{ fontSize: '0.74rem', background: '#EFF6FF', color: '#1E40AF', border: '1px solid #BFDBFE', padding: '3px 8px', borderRadius: 6, fontWeight: 700 }}>
+                              Khách hàng: {rental.customerName || (rental.userId === 'USER-01' ? 'Nguyễn Văn Khách' : rental.userId)} ({rental.customerCode || '#KH001'})
+                            </span>
+                          ) : null}
                           {isExpired ? (
-                            <span style={{ fontSize: '0.7rem', background: '#FEE2E2', color: '#DC2626', border: '1px solid #FECDD3', padding: '2px 7px', borderRadius: 6, fontWeight: 700 }}>
+                            <span style={{ fontSize: '0.72rem', background: '#DC2626', color: '#FFFFFF', padding: '3px 8px', borderRadius: 6, fontWeight: 700 }}>
                               ⚠️ Đã hết hạn thuê
                             </span>
                           ) : isExpiringSoon ? (
-                            <span style={{ fontSize: '0.7rem', background: '#FFFBEB', color: '#D97706', border: '1px solid #FDE68A', padding: '2px 7px', borderRadius: 6, fontWeight: 700 }}>
+                            <span style={{ fontSize: '0.72rem', background: '#D97706', color: '#FFFFFF', padding: '3px 8px', borderRadius: 6, fontWeight: 700 }}>
                               ⏳ Sắp hết hạn (&lt; 1h)
                             </span>
                           ) : null}
                         </div>
-                        <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-main)', marginTop: 4, marginBottom: 0 }}>
+                        <h3 style={{ fontSize: '1.08rem', fontWeight: 800, color: '#0F172A', marginTop: 6, marginBottom: 0 }}>
                           {rental.accountTitle}
                         </h3>
                       </div>
 
-                      {/* Realtime Countdown */}
-                      <div style={{ textAlign: 'right' }}>
-                        <span style={{ fontSize: '0.68rem', color: 'var(--text-subtle)', textTransform: 'uppercase', display: 'block' }}>
+                      {/* Realtime Countdown Box */}
+                      <div style={{ textAlign: 'right', background: '#FFFFFF', padding: '6px 14px', borderRadius: 10, border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                        <span style={{ fontSize: '0.66rem', color: '#64748B', textTransform: 'uppercase', display: 'block', fontWeight: 700, letterSpacing: '0.4px', marginBottom: 2 }}>
                           Thời gian còn lại:
                         </span>
                         <CountdownTimer endTime={rental.endTime} />
                       </div>
                     </div>
 
-                    {/* Secret Credentials Box */}
-                    <div
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-                        gap: 10,
-                        background: 'var(--bg-surface)',
-                        border: '1px solid var(--border-subtle)',
-                        borderRadius: 8,
-                        padding: 10,
-                        marginBottom: 14
-                      }}
-                    >
-                      {/* Username */}
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#FFFFFF', padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-subtle)' }}>
-                        <div>
-                          <span style={{ fontSize: '0.68rem', color: 'var(--text-subtle)', display: 'block' }}>Tài khoản:</span>
-                          <strong id={`account-user-${rental.id}`} style={{ color: 'var(--text-main)', fontSize: '0.9rem', fontFamily: 'monospace' }}>
-                            {rental.secretAccount}
-                          </strong>
-                        </div>
-                        <button
-                          type="button"
-                          id={`btn-copy-acc-${rental.id}`}
-                          data-testid={`btn-copy-acc-${rental.id}`}
-                          onClick={() => copyText(rental.secretAccount, `acc-${rental.id}`)}
-                          className="btn btn-secondary"
-                          style={{ padding: '3px 8px', fontSize: '0.74rem' }}
+                    {/* Card Body: Chứa thông tin đăng nhập và các tác vụ */}
+                    <div style={{ padding: '16px 20px' }}>
+                      {/* Banner cảnh báo đỏ khi hết hạn hoặc vàng khi sắp hết hạn */}
+                      {isExpired ? (
+                        <div
+                          style={{
+                            background: '#FEE2E2',
+                            border: '1px solid #FECDD3',
+                            color: '#991B1B',
+                            padding: '8px 14px',
+                            borderRadius: 8,
+                            fontSize: '0.78rem',
+                            fontWeight: 700,
+                            marginBottom: 14,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8
+                          }}
                         >
-                          {copiedId === `acc-${rental.id}` ? <Check size={12} color="var(--accent-green)" /> : <Copy size={12} />}
-                          {copiedId === `acc-${rental.id}` ? 'Đã chép' : 'Sao chép'}
-                        </button>
-                      </div>
-
-                      {/* Password */}
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#FFFFFF', padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-subtle)' }}>
-                        <div>
-                          <span style={{ fontSize: '0.68rem', color: 'var(--text-subtle)', display: 'block' }}>Mật khẩu:</span>
-                          <strong id={`account-pass-${rental.id}`} style={{ color: 'var(--primary)', fontSize: '0.9rem', fontFamily: 'monospace' }}>
-                            {rental.secretPassword}
-                          </strong>
+                          <AlertTriangle size={16} color="#DC2626" />
+                          <span>
+                            {isAdmin 
+                              ? (activeTab === 'my-active'
+                                  ? <>Cảnh báo đỏ: Ca thuê của bạn đã hết hạn thời gian chơi! Vui lòng bấm <strong>&quot;Thu Hồi Acc&quot;</strong> để kết thúc ca thuê.</>
+                                  : <>Cảnh báo đỏ: Ca thuê của khách hàng <strong>{rental.customerName || rental.userId}</strong> đã hết hạn thời gian thuê! Vui lòng bấm <strong>&quot;Thu Hồi Acc&quot;</strong> để đổi mật khẩu bảo vệ tài khoản.</>)
+                              : <>Cảnh báo đỏ: Ca thuê này đã hết hạn thời gian thuê! Vui lòng bấm <strong>&quot;Thu Hồi Acc&quot;</strong> bên dưới để hoàn tất ca thuê.</>
+                            }
+                          </span>
                         </div>
-                        <button
-                          type="button"
-                          id={`btn-copy-pass-${rental.id}`}
-                          data-testid={`btn-copy-pass-${rental.id}`}
-                          onClick={() => copyText(rental.secretPassword, `pass-${rental.id}`)}
-                          className="btn btn-secondary"
-                          style={{ padding: '3px 8px', fontSize: '0.74rem' }}
+                      ) : isHighlighted && (
+                        <div
+                          style={{
+                            background: '#FEF3C7',
+                            color: '#B45309',
+                            padding: '6px 14px',
+                            borderRadius: 8,
+                            fontSize: '0.76rem',
+                            fontWeight: 700,
+                            marginBottom: 14,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8
+                          }}
                         >
-                          {copiedId === `pass-${rental.id}` ? <Check size={12} color="var(--accent-green)" /> : <Copy size={12} />}
-                          {copiedId === `pass-${rental.id}` ? 'Đã chép' : 'Sao chép'}
-                        </button>
-                      </div>
-                    </div>
+                          <AlertTriangle size={15} color="#D97706" />
+                          <span>
+                            {isAdmin 
+                              ? (activeTab === 'my-active'
+                                  ? <>Ca thuê của bạn vừa chọn từ thông báo!</>
+                                  : <>Ca thuê bạn vừa chọn từ thông báo: Khách hàng <strong>{rental.customerName || rental.userId}</strong> sắp hết hạn!</>)
+                              : <>Đơn thuê này sắp hết giờ! Bạn có thể nhấn <strong>&quot;Gia Hạn&quot;</strong> để chơi tiếp, <strong>&quot;Trả Sớm&quot;</strong> hoặc <strong>&quot;Báo Lỗi&quot;</strong> ngay bên dưới.</>
+                            }
+                          </span>
+                        </div>
+                      )}
 
-                    {/* Actions Footer */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-                      <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                        Tổng tiền: <strong style={{ color: 'var(--text-main)' }}>{rental.totalPrice.toLocaleString('vi-VN')} đ</strong>
-                      </div>
-
-                      <div style={{ display: 'flex', gap: 6 }}>
-                        {isExpired ? (
-                          /* Khi đơn thuê hết hạn thời gian thuê: CẢNH BÁO ĐỎ VÀ CHỈ CÓ 1 NÚT THU HỒI ACC */
+                      {/* Secret Credentials Box */}
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                          gap: 12,
+                          background: '#F8FAFC',
+                          border: '1.5px solid #E2E8F0',
+                          borderRadius: 10,
+                          padding: 12,
+                          marginBottom: 14
+                        }}
+                      >
+                        {/* Username */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#FFFFFF', padding: '8px 12px', borderRadius: 8, border: '1px solid #CBD5E1' }}>
+                          <div>
+                            <span style={{ fontSize: '0.68rem', color: '#64748B', display: 'block', fontWeight: 600 }}>Tài khoản:</span>
+                            <strong id={`account-user-${rental.id}`} style={{ color: '#0F172A', fontSize: '0.94rem', fontFamily: 'monospace' }}>
+                              {rental.secretAccount}
+                            </strong>
+                          </div>
                           <button
                             type="button"
-                            id={`btn-return-early-${rental.id}`}
-                            data-testid={`btn-return-early-${rental.id}`}
-                            onClick={() => handleReturnEarly(rental)}
-                            className="btn btn-danger"
-                            style={{
-                              fontSize: '0.8rem',
-                              padding: '6px 14px',
-                              background: '#DC2626',
-                              borderColor: '#DC2626',
-                              color: '#FFFFFF',
-                              fontWeight: 700,
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: 6,
-                              boxShadow: '0 2px 6px rgba(220, 38, 38, 0.3)'
-                            }}
+                            id={`btn-copy-acc-${rental.id}`}
+                            data-testid={`btn-copy-acc-${rental.id}`}
+                            onClick={() => copyText(rental.secretAccount, `acc-${rental.id}`)}
+                            className="btn btn-secondary"
+                            style={{ padding: '4px 10px', fontSize: '0.76rem' }}
                           >
-                            <LogOut size={14} color="#FFFFFF" />
-                            <span>Thu Hồi Acc</span>
+                            {copiedId === `acc-${rental.id}` ? <Check size={12} color="var(--accent-green)" /> : <Copy size={12} />}
+                            {copiedId === `acc-${rental.id}` ? 'Đã chép' : 'Sao chép'}
                           </button>
-                        ) : (
-                          <>
-                            <button
-                              type="button"
-                              id={`btn-trigger-extend-${rental.id}`}
-                              data-testid={`btn-trigger-extend-${rental.id}`}
-                              onClick={() => setSelectedRentalForExtend(rental)}
-                              className="btn btn-secondary"
-                              style={{ fontSize: '0.78rem', padding: '5px 10px' }}
-                            >
-                              <RefreshCw size={12} /> {isAdmin ? 'Gia Hạn / Bù Giờ' : 'Gia Hạn'}
-                            </button>
+                        </div>
 
+                        {/* Password */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#FFFFFF', padding: '8px 12px', borderRadius: 8, border: '1px solid #CBD5E1' }}>
+                          <div>
+                            <span style={{ fontSize: '0.68rem', color: isExpired ? '#DC2626' : '#64748B', display: 'block', fontWeight: isExpired ? 700 : 600 }}>
+                              {isExpired ? 'Mật khẩu (Đã vô hiệu hóa):' : 'Mật khẩu:'}
+                            </span>
+                            {isExpired ? (
+                              <strong id={`account-pass-${rental.id}`} style={{ color: '#DC2626', fontSize: '0.9rem', fontFamily: 'monospace', textDecoration: 'line-through' }}>
+                                •••••••• (Hết hạn)
+                              </strong>
+                            ) : (
+                              <strong id={`account-pass-${rental.id}`} style={{ color: 'var(--primary)', fontSize: '0.94rem', fontFamily: 'monospace' }}>
+                                {rental.secretPassword}
+                              </strong>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            id={`btn-copy-pass-${rental.id}`}
+                            data-testid={`btn-copy-pass-${rental.id}`}
+                            onClick={() => {
+                              if (isExpired) {
+                                setActionError('Mật khẩu ca thuê này đã hết hiệu lực. Hệ thống đã tự động đổi mật khẩu mới để thu hồi tài khoản.');
+                                setTimeout(() => setActionError(''), 4000);
+                                return;
+                              }
+                              copyText(rental.secretPassword, `pass-${rental.id}`);
+                            }}
+                            className={`btn ${isExpired ? 'btn-danger' : 'btn-secondary'}`}
+                            style={{ padding: '4px 10px', fontSize: '0.76rem', opacity: isExpired ? 0.7 : 1 }}
+                            title={isExpired ? 'Mật khẩu đã bị vô hiệu hóa do hết hạn' : 'Sao chép mật khẩu'}
+                          >
+                            {isExpired ? (
+                              <span>Vô hiệu</span>
+                            ) : copiedId === `pass-${rental.id}` ? (
+                              <Check size={12} color="var(--accent-green)" />
+                            ) : (
+                              <Copy size={12} />
+                            )}
+                            {!isExpired && (copiedId === `pass-${rental.id}` ? 'Đã chép' : 'Sao chép')}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Actions Footer: Rõ ràng và tách bạch */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, borderTop: '1px solid #E2E8F0', paddingTop: 14, marginTop: 6 }}>
+                        <div style={{ fontSize: '0.86rem', color: '#64748B' }}>
+                          Tổng tiền: <strong style={{ color: '#0F172A', fontSize: '1rem', fontWeight: 800 }}>{rental.totalPrice.toLocaleString('vi-VN')} đ</strong>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          {isExpired ? (
+                            /* Khi đơn thuê hết hạn thời gian thuê: CẢNH BÁO ĐỎ VÀ CHỈ CÓ 1 NÚT THU HỒI ACC */
                             <button
                               type="button"
                               id={`btn-return-early-${rental.id}`}
                               data-testid={`btn-return-early-${rental.id}`}
                               onClick={() => handleReturnEarly(rental)}
-                              className="btn btn-secondary"
-                              style={{ fontSize: '0.78rem', padding: '5px 10px' }}
-                            >
-                              {isAdmin ? 'Thu Hồi Sớm' : 'Trả Sớm'}
-                            </button>
-
-                            <button
-                              type="button"
-                              id={`btn-dispute-${rental.id}`}
-                              data-testid={`btn-dispute-${rental.id}`}
-                              onClick={() => setSelectedRentalForDispute(rental)}
                               className="btn btn-danger"
-                              style={{ fontSize: '0.78rem', padding: '5px 10px' }}
+                              style={{
+                                fontSize: '0.82rem',
+                                padding: '6px 16px',
+                                background: '#DC2626',
+                                borderColor: '#DC2626',
+                                color: '#FFFFFF',
+                                fontWeight: 700,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 6,
+                                boxShadow: '0 2px 6px rgba(220, 38, 38, 0.3)'
+                              }}
                             >
-                              <ShieldAlert size={12} /> Báo Lỗi
+                              <LogOut size={14} color="#FFFFFF" />
+                              <span>Thu Hồi Acc</span>
                             </button>
-                          </>
-                        )}
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                id={`btn-trigger-extend-${rental.id}`}
+                                data-testid={`btn-trigger-extend-${rental.id}`}
+                                onClick={() => setSelectedRentalForExtend(rental)}
+                                className="btn btn-secondary"
+                                style={{ fontSize: '0.78rem', padding: '6px 12px', borderColor: '#CBD5E1' }}
+                              >
+                                <RefreshCw size={12} /> {isAdmin && activeTab === 'all-active' ? 'Gia Hạn / Bù Giờ' : 'Gia Hạn'}
+                              </button>
+
+                              <button
+                                type="button"
+                                id={`btn-return-early-${rental.id}`}
+                                data-testid={`btn-return-early-${rental.id}`}
+                                onClick={() => handleReturnEarly(rental)}
+                                className="btn btn-secondary"
+                                style={{ fontSize: '0.78rem', padding: '6px 12px', borderColor: '#CBD5E1' }}
+                              >
+                                {isAdmin && activeTab === 'all-active' ? 'Thu Hồi Sớm' : 'Trả Sớm'}
+                              </button>
+
+                              <button
+                                type="button"
+                                id={`btn-dispute-${rental.id}`}
+                                data-testid={`btn-dispute-${rental.id}`}
+                                onClick={() => setSelectedRentalForDispute(rental)}
+                                className="btn btn-danger"
+                                style={{ fontSize: '0.78rem', padding: '6px 12px' }}
+                              >
+                                <ShieldAlert size={12} /> Báo Lỗi
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
