@@ -74,17 +74,65 @@ export const AppProvider = ({ children }) => {
 
   const [rentals, setRentals] = useState(() => {
     const raw = safeGetJSON('gamerent_rentals', INITIAL_RENTALS);
-    // Đồng bộ đúng thực tế: Nếu đơn đã qua thời gian kết thúc thì trạng thái là completed
-    return raw.map(r => (r.status === 'active' && r.endTime <= Date.now() ? { ...r, status: 'completed' } : r));
+    const now = Date.now();
+    let list = raw.map(r => (r.status === 'active' && r.endTime <= now ? { ...r, status: 'completed' } : r));
+
+    // Đảm bảo các đơn active mẫu trong INITIAL_RENTALS luôn tồn tại nếu chưa có đơn active cho acc đó
+    const initialActiveRentals = INITIAL_RENTALS.filter(r => r.status === 'active');
+    initialActiveRentals.forEach(initOrder => {
+      const hasActiveForAcc = list.some(r => r.accountId === initOrder.accountId && r.status === 'active');
+      if (!hasActiveForAcc) {
+        list = list.filter(r => r.id !== initOrder.id);
+        list.unshift({
+          ...initOrder,
+          startTime: now - (initOrder.durationHours >= 3 ? 45 * 60 * 1000 : 30 * 60 * 1000),
+          endTime: initOrder.id === 'RENT-002' 
+            ? now + (45 * 60 * 1000) // 45 phút cho đơn sắp hết hạn (mức vàng)
+            : now + (initOrder.durationHours * 3600 * 1000 - 45 * 60 * 1000)
+        });
+      }
+    });
+
+    return list;
   });
+
   const [transactions, setTransactions] = useState(() => safeGetJSON('gamerent_transactions', INITIAL_TRANSACTIONS));
   const [disputes, setDisputes] = useState(() => safeGetJSON('gamerent_disputes', INITIAL_DISPUTES));
   const [customers, setCustomers] = useState(() => {
     const saved = safeGetJSON('gamerent_customers', INITIAL_CUSTOMERS);
-    const sampleEmails = ['admin_kh01@gmail.com', 'hung.nguyen@gmail.com', 'gia.tran@hotmail.com', 'minh.tuan@yahoo.com'];
-    return saved.filter(c => !sampleEmails.includes(c.email));
+    const existingIds = new Set(saved.map(c => c.id));
+    const merged = [
+      ...saved,
+      ...INITIAL_CUSTOMERS.filter(c => !existingIds.has(c.id))
+    ];
+    return merged;
   });
   const [notifications, setNotifications] = useState(() => safeGetJSON('gamerent_notifications', []));
+
+  // Tự động đồng bộ hai chiều giữa trạng thái kho accounts và danh sách rentals
+  useEffect(() => {
+    const activeAccountIds = new Set(
+      rentals.filter(r => r.status === 'active').map(r => r.accountId)
+    );
+
+    setAccounts(prevAccounts => {
+      let changed = false;
+      const next = prevAccounts.map(acc => {
+        if (activeAccountIds.has(acc.id)) {
+          if (acc.status !== 'rented') {
+            changed = true;
+            return { ...acc, status: 'rented' };
+          }
+        } else if (acc.status === 'rented') {
+          // Tài khoản không còn trong đơn active nào -> tự động trả về available
+          changed = true;
+          return { ...acc, status: 'available' };
+        }
+        return acc;
+      });
+      return changed ? next : prevAccounts;
+    });
+  }, [rentals]);
 
   // Tự động lưu vào LocalStorage khi state thay đổi
   useEffect(() => {

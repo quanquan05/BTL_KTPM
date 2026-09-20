@@ -79,7 +79,7 @@ export const INITIAL_ACCOUNTS = [
       { id: 3, title: "Tulen Tân Thần Thiên Hà & WR 68.5%", url: "/images/skins/tulen-thien-ha.jpg" }
     ],
     pricePerHour: 15000,
-    status: "available", // available | rented | maintenance | need_change_pass
+    status: "rented", // Đang có khách thuê
     thumbnail: "/images/accounts/acc-lq-01.jpg",
     secretAccount: "lq_chientuong_01",
     secretPassword: "GameRentPassLQ@2026",
@@ -108,7 +108,7 @@ export const INITIAL_ACCOUNTS = [
       { id: 3, title: "Chiến Tích Cao Thủ 15 Sao - WR 59.2%", url: "/images/accounts/acc-lq-02.jpg" }
     ],
     pricePerHour: 10000,
-    status: "available",
+    status: "rented", // Đang có khách thuê
     thumbnail: "/images/accounts/acc-lq-02.jpg",
     secretAccount: "lq_caothu_ngokhong",
     secretPassword: "PassKTPM#LQ99",
@@ -311,7 +311,41 @@ export const INITIAL_USERS = [
   }
 ];
 
-export const INITIAL_CUSTOMERS = [];
+export const INITIAL_CUSTOMERS = [
+  {
+    id: "KH002",
+    name: "Nguyễn Văn Hùng",
+    phone: "0912345678",
+    email: "hung.nguyen@gmail.com",
+    totalOrders: 8,
+    totalSpent: 165000,
+    status: "active",
+    avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=60&q=80",
+    createdAt: Date.now() - 15 * 86400000
+  },
+  {
+    id: "KH004",
+    name: "Phạm Tuấn Minh",
+    phone: "0933445566",
+    email: "minh.tuan@yahoo.com",
+    totalOrders: 5,
+    totalSpent: 95000,
+    status: "active",
+    avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=60&q=80",
+    createdAt: Date.now() - 10 * 86400000
+  },
+  {
+    id: "KH008",
+    name: "Vũ Thành Long",
+    phone: "0988776655",
+    email: "long.vu@gmail.com",
+    totalOrders: 4,
+    totalSpent: 112000,
+    status: "active",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=60&q=80",
+    createdAt: Date.now() - 5 * 86400000
+  }
+];
 
 // Dữ liệu đơn thuê mẫu khớp với bảng "Danh sách tài khoản thuê" trong Dashboard
 const now = Date.now();
@@ -319,49 +353,49 @@ export const INITIAL_RENTALS = [
   {
     id: "RENT-001",
     accountId: "ACC-LQ-01",
-    accountCode: "VNT#192",
-    accountTitle: "Liên Quân Mobile",
+    accountCode: "ACC-LQ-01",
+    accountTitle: "Acc Chiến Tướng 50 Sao - Full Tướng - Flo Tinh Hệ + Nak Thứ Nguyên Vệ Thần",
     publisher: "Garena",
-    rank: "Cao Thủ",
-    customerName: "Nguyễn Văn Admin",
-    customerCode: "#KH001",
+    rank: "Chiến Tướng",
+    customerName: "Nguyễn Văn Hùng",
+    customerCode: "#KH002",
     gameId: "lien-quan",
-    userId: "ADMIN-01",
-    startTime: now - (26 * 60 * 60 * 1000),
-    rentalTimeFormatted: "2026-09-15 18:14",
-    durationHours: 1,
-    endTime: now - (25 * 60 * 60 * 1000),
+    userId: "USER-02",
+    startTime: now - (45 * 60 * 1000),
+    rentalTimeFormatted: new Date(now - 45 * 60 * 1000).toISOString().slice(0, 16).replace('T', ' '),
+    durationHours: 3,
+    endTime: now + (2 * 60 * 60 * 1000 + 15 * 60 * 1000), // Còn 2h15m (màu xanh lá)
     pricePerHour: 15000,
-    totalPrice: 15000,
-    secretAccount: "vnt192_garena",
-    secretPassword: "PassLienQuan@99",
-    status: "completed",
+    totalPrice: 45000,
+    secretAccount: "lq_chientuong_01",
+    secretPassword: "GameRentPassLQ@2026",
+    status: "active",
     disputeReason: null,
-    rating: 5
+    rating: null
   },
   {
     id: "RENT-002",
     accountId: "ACC-LQ-02",
-    accountCode: "VNT#192",
-    accountTitle: "Liên Quân Mobile",
+    accountCode: "ACC-LQ-02",
+    accountTitle: "Acc Cao Thủ 15 Sao - Ngộ Không Nhóc Tì + All Tướng Sát Thủ",
     publisher: "Garena",
     rank: "Cao Thủ",
     customerName: "Phạm Tuấn Minh",
     customerCode: "#KH004",
     gameId: "lien-quan",
     userId: "USER-04",
-    startTime: now - (24 * 60 * 60 * 1000),
-    rentalTimeFormatted: "2026-09-14 15:30",
+    startTime: now - (75 * 60 * 1000),
+    rentalTimeFormatted: new Date(now - 75 * 60 * 1000).toISOString().slice(0, 16).replace('T', ' '),
     durationHours: 2,
-    endTime: now - (22 * 60 * 60 * 1000),
-    remainingText: "Đã kết thúc",
+    endTime: now + (45 * 60 * 1000), // Còn 45m (màu vàng cam: sắp hết hạn < 1h)
+    remainingText: null,
     pricePerHour: 10000,
     totalPrice: 20000,
-    secretAccount: "vnt192_sub",
-    secretPassword: "PassSub@123",
-    status: "completed",
+    secretAccount: "lq_caothu_ngokhong",
+    secretPassword: "PassKTPM#LQ99",
+    status: "active",
     disputeReason: null,
-    rating: 5
+    rating: null
   },
   {
     id: "RENT-003",
@@ -459,25 +493,25 @@ export const INITIAL_RENTALS = [
   {
     id: "RENT-007",
     accountId: "ACC-VAL-02",
-    accountCode: "VNT#703",
-    accountTitle: "Valorant",
+    accountCode: "ACC-VAL-02",
+    accountTitle: "Acc Immortal 2 - Champion 2023 Vandal + Oni 2.0 Katana",
     publisher: "Riot Games",
     rank: "Immortal",
     customerName: "Vũ Thành Long",
     customerCode: "#KH008",
     gameId: "valorant",
     userId: "USER-08",
-    startTime: now - (15 * 60 * 60 * 1000),
-    rentalTimeFormatted: "2026-09-15 17:00",
+    startTime: now - (30 * 60 * 1000),
+    rentalTimeFormatted: new Date(now - 30 * 60 * 1000).toISOString().slice(0, 16).replace('T', ' '),
     durationHours: 2,
-    endTime: now - (13 * 60 * 60 * 1000),
+    endTime: now + (90 * 60 * 1000), // Còn 1h30m (màu xanh lá)
     pricePerHour: 18000,
     totalPrice: 36000,
     secretAccount: "val_immortal_champ",
     secretPassword: "OniKatana#888",
-    status: "completed",
+    status: "active",
     disputeReason: null,
-    rating: 5
+    rating: null
   },
   {
     id: "RENT-008",
