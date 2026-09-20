@@ -175,12 +175,12 @@ GameRent Application Architecture
 
 ## 🧪 6. Báo Cáo Bộ Kiểm Thử Tự Động (Automated Test Suite)
 
-Dự án tích hợp sẵn **86 bài kiểm thử tự động (Unit & Integration Tests)** sử dụng framework **Vitest**, bao phủ toàn diện các ca kiểm thử quy định trong đề cương môn học:
+Dự án tích hợp sẵn **89 bài kiểm thử tự động (Unit & Integration Tests)** sử dụng framework **Vitest**, bao phủ toàn diện các ca kiểm thử quy định trong đề cương môn học:
 
 ```powershell
  RUN  v5.0.1 E:/BTL_KTPM
 
- ✓ src/__tests__/unit/auth.test.js (22 tests)
+ ✓ src/__tests__/unit/auth.test.js (25 tests)
  ✓ src/__tests__/unit/rental.test.js (10 tests)
  ✓ src/__tests__/unit/autoPasswordReset.test.js (10 tests)
  ✓ src/__tests__/unit/productUC1.test.js (15 tests)
@@ -190,12 +190,12 @@ Dự án tích hợp sẵn **86 bài kiểm thử tự động (Unit & Integrati
  ✓ src/__tests__/unit/crudManagement.test.js (5 tests)
 
  Test Files  8 passed (8)
-      Tests  86 passed (86)
-   Duration  980ms
+      Tests  89 passed (89)
+   Duration  1.20s
 ```
 
 ### Chi tiết 8 bộ kiểm thử:
-1. **`auth.test.js` (22 tests)**: Kiểm thử BVA và EP cho họ tên, email hợp lệ/không hợp lệ, mật khẩu biên dưới (6 ký tự), kiểm tra trùng email, chặn tài khoản bị khóa (`isBlocked`).
+1. **`auth.test.js` (25 tests)**: Kiểm thử BVA và EP cho họ tên, email hợp lệ/không hợp lệ, mật khẩu biên dưới (6 ký tự), kiểm tra trùng email, chặn tài khoản bị khóa (`isBlocked`), khôi phục và duy trì phiên đăng nhập khi reload trang.
 2. **`rental.test.js` (10 tests)**: Kiểm thử nghiệp vụ thuê acc, BVA thời lượng 1h - 48h, Decision Table kiểm tra số dư ví, trừ tiền ví và chuyển trạng thái sang `rented`.
 3. **`autoPasswordReset.test.js` (10 tests)**: Kiểm thử quy trình tự động thu hồi tài khoản khi hết giờ, sinh mật khẩu ngẫu nhiên mới và gửi thông báo cho khách.
 4. **`productUC1.test.js` (15 tests)**: Kiểm thử form Thêm tài khoản game mới chuẩn đặc tả `UC1_Add New Product`: BVA tiêu đề (5 - 100 ký tự), giá thuê (1k - 200k), các trường bắt buộc.
