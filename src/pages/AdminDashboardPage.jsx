@@ -45,8 +45,22 @@ export const AdminDashboardPage = ({ initialTab = 'disputes' }) => {
   } = useApp();
 
   const [activeTab, setActiveTab] = useState(() => {
-    return localStorage.getItem('gamerent_admin_initial_tab') || initialTab;
+    return initialTab || localStorage.getItem('gamerent_admin_initial_tab') || 'accounts';
   });
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('gamerent_admin_initial_tab', activeTab);
+    } catch {
+      // ignore
+    }
+  }, [activeTab]);
   const [accountToDelete, setAccountToDelete] = useState(null);
   const [isAddingAcc, setIsAddingAcc] = useState(false);
 

@@ -2,6 +2,7 @@ import React from 'react';
 import {
   LayoutDashboard,
   Store,
+  Layers,
   Clock,
   Wallet,
   Users,
@@ -21,11 +22,12 @@ export const Sidebar = ({ currentView, setView, isOpen = true }) => {
   const adminMenuItems = [
     { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
     { id: 'home', label: 'Cửa hàng thuê', icon: Store },
+    { id: 'admin', label: 'Kho tài khoản', icon: Layers },
     { id: 'my-rentals', label: 'Quản lý đơn thuê', icon: Clock },
     { id: 'wallet', label: 'Ví & Nạp tiền', icon: Wallet },
     { id: 'customers', label: 'Khách hàng', icon: Users },
     { id: 'revenue', label: 'Doanh thu', icon: BarChart3 },
-    { id: 'reports', label: 'Báo cáo', icon: FileText },
+    { id: 'reports', label: 'Báo cáo & Khiếu nại', icon: FileText },
     { id: 'settings', label: 'Cài đặt', icon: Settings },
   ];
 

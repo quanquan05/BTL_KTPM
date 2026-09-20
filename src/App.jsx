@@ -19,7 +19,7 @@ import { RevenuePage } from './pages/RevenuePage';
 import { SettingsPage } from './pages/SettingsPage';
 
 const MainApp = () => {
-  const { currentUser } = useApp();
+  const { currentUser, accounts } = useApp();
   const isAdmin = currentUser?.role === 'admin';
 
   // Khởi động mặc định vào Cửa hàng thuê ('home') nếu mở mới; giữ view qua sessionStorage khi reload trang
@@ -30,7 +30,17 @@ const MainApp = () => {
       return 'home';
     }
   }); 
-  const [selectedAccount, setSelectedAccount] = useState(null);
+  const [selectedAccount, setSelectedAccount] = useState(() => {
+    try {
+      const savedId = sessionStorage.getItem('gamerent_selected_acc_id');
+      if (savedId && Array.isArray(accounts)) {
+        return accounts.find(a => a.id === savedId) || null;
+      }
+    } catch {
+      return null;
+    }
+    return null;
+  });
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   // Lưu view hiện tại vào sessionStorage
@@ -50,12 +60,22 @@ const MainApp = () => {
     }
   }, [isAdmin, currentView]);
 
-  // Nếu đang ở view 'detail' mà không có selectedAccount (ví dụ do reload trang), tự chuyển về 'home'
+  // Nếu đang ở view 'detail' mà không có selectedAccount (ví dụ do reload trang), tự khôi phục từ accounts hoặc quay về 'home'
   React.useEffect(() => {
-    if (currentView === 'detail' && !selectedAccount) {
-      setCurrentView('home');
+    if (currentView === 'detail') {
+      if (!selectedAccount) {
+        const savedId = sessionStorage.getItem('gamerent_selected_acc_id');
+        if (savedId && Array.isArray(accounts) && accounts.length > 0) {
+          const matched = accounts.find(a => a.id === savedId);
+          if (matched) {
+            setSelectedAccount(matched);
+            return;
+          }
+        }
+        setCurrentView('home');
+      }
     }
-  }, [currentView, selectedAccount]);
+  }, [currentView, selectedAccount, accounts]);
 
   // Modals state
   const [isDepositOpen, setIsDepositOpen] = useState(false);
@@ -75,6 +95,13 @@ const MainApp = () => {
 
   const handleSelectAccount = (account) => {
     setSelectedAccount(account);
+    try {
+      if (account?.id) {
+        sessionStorage.setItem('gamerent_selected_acc_id', account.id);
+      }
+    } catch {
+      // ignore
+    }
     setCurrentView('detail');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -166,11 +193,11 @@ const MainApp = () => {
           )}
 
           {currentView === 'reports' && (
-            <AdminDashboardPage initialTab="disputes" />
+            <AdminDashboardPage key="reports" initialTab="disputes" />
           )}
 
           {currentView === 'admin' && (
-            <AdminDashboardPage initialTab="accounts" />
+            <AdminDashboardPage key="admin" initialTab="accounts" />
           )}
 
           {currentView === 'settings' && (
