@@ -112,12 +112,24 @@ export const OverviewDashboard = ({ onNavigate, onSelectAccount }) => {
   const alertSeverity = redCount > 0 ? 'red' : yellowCount > 0 ? 'yellow' : 'green';
   const urgentCount = redCount > 0 ? redCount : yellowCount;
 
-  // Live timer tick so remaining times update every second
-  const [, setTick] = useState(0);
+  // Đồng hồ thời gian thực cập nhật từng giây (Real-time live clock)
+  const [currentDateTime, setCurrentDateTime] = useState(() => new Date());
   useEffect(() => {
-    const timer = setInterval(() => setTick(t => t + 1), 1000);
+    const timer = setInterval(() => setCurrentDateTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  const formatRealtimeDate = (date) => {
+    const days = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+    const dayName = days[date.getDay()];
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    const h = String(date.getHours()).padStart(2, '0');
+    const m = String(date.getMinutes()).padStart(2, '0');
+    const s = String(date.getSeconds()).padStart(2, '0');
+    return `${dayName}, ${day} tháng ${month}, ${year} · ${h}:${m}:${s}`;
+  };
 
   // Format remaining time nicely
   const formatRemaining = (endTime, defaultText, status) => {
@@ -255,9 +267,9 @@ export const OverviewDashboard = ({ onNavigate, onSelectAccount }) => {
           </p>
         </div>
 
-        <div className="dashboard-date-badge">
+        <div className="dashboard-date-badge" id="dashboard-realtime-badge" data-testid="dashboard-realtime-badge">
           <Calendar size={16} color="#10B981" />
-          <span>Thứ 7, 14 tháng 6, 2025 · 22:37</span>
+          <span>{formatRealtimeDate(currentDateTime)}</span>
         </div>
       </div>
 
