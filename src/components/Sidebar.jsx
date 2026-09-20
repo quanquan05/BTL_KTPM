@@ -14,7 +14,7 @@ import {
 import { useApp } from '../context/AppContext';
 
 export const Sidebar = ({ currentView, setView, isOpen = true }) => {
-  const { currentUser } = useApp();
+  const { currentUser, systemSettings } = useApp();
   const isAdmin = currentUser?.role === 'admin';
 
   // Menu dành riêng cho Admin và Khách thuê
@@ -58,8 +58,8 @@ export const Sidebar = ({ currentView, setView, isOpen = true }) => {
           <Gamepad2 size={22} strokeWidth={2.2} />
         </div>
         <div>
-          <div className="sidebar-brand-name">GameRent</div>
-          <div className="sidebar-brand-sub">Thuê tài khoản game</div>
+          <div className="sidebar-brand-name">{systemSettings?.siteName || 'GameRent'}</div>
+          <div className="sidebar-brand-sub">{systemSettings?.siteSlogan || 'Thuê tài khoản game'}</div>
         </div>
       </div>
 

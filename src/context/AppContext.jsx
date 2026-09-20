@@ -109,6 +109,29 @@ export const AppProvider = ({ children }) => {
   });
   const [notifications, setNotifications] = useState(() => safeGetJSON('gamerent_notifications', []));
 
+  const DEFAULT_SETTINGS = {
+    siteName: 'GameRent',
+    siteSlogan: 'Thuê tài khoản game',
+    supportHotline: '1900 6868',
+    supportEmail: 'hotro@gamerent.vn',
+    minDeposit: 10000,
+    maxDeposit: 5000000,
+    minRentalHours: 1,
+    maxRentalHours: 48,
+    warningThresholdMins: 60,
+    autoRevokeOnExpiry: true,
+    autoRefundFirst15m: true,
+    maintenanceMode: false
+  };
+
+  const [systemSettings, setSystemSettings] = useState(() => {
+    return safeGetJSON('gamerent_system_settings', DEFAULT_SETTINGS);
+  });
+
+  useEffect(() => {
+    localStorage.setItem('gamerent_system_settings', JSON.stringify(systemSettings));
+  }, [systemSettings]);
+
   // Tự động đồng bộ hai chiều giữa trạng thái kho accounts và danh sách rentals
   useEffect(() => {
     const activeAccountIds = new Set(
@@ -883,7 +906,7 @@ export const AppProvider = ({ children }) => {
   };
 
   // ==========================================
-  // TESTER UTILITY: HỖ TRỢ KIỂM THỬ 1-CLICK
+  // TESTER UTILITY: HỖ TRỢ KIỂM THỬ 1-CLICK & BACKUP
   // ==========================================
   const resetToDefaultData = () => {
     localStorage.clear();
@@ -891,10 +914,55 @@ export const AppProvider = ({ children }) => {
     setUsers(INITIAL_USERS);
     setCustomers(INITIAL_CUSTOMERS);
     setCurrentUser(null);
-    setRentals(INITIAL_RENTALS.map(r => ({ ...r, status: 'completed' })));
+    setRentals(INITIAL_RENTALS);
     setTransactions(INITIAL_TRANSACTIONS);
     setDisputes(INITIAL_DISPUTES);
     setNotifications([]);
+    setSystemSettings(DEFAULT_SETTINGS);
+  };
+
+  const updateSystemSettings = (newSettings) => {
+    setSystemSettings(prev => ({ ...prev, ...newSettings }));
+    return { success: true };
+  };
+
+  const updateCurrentUser = (userData) => {
+    if (!currentUser) return { success: false, error: 'Chưa đăng nhập.' };
+    setUsers(prev =>
+      prev.map(u => (u.id === currentUser.id ? { ...u, ...userData } : u))
+    );
+    setCurrentUser(prev => ({ ...prev, ...userData }));
+    return { success: true };
+  };
+
+  const exportAllData = () => {
+    return {
+      accounts,
+      users,
+      customers,
+      rentals,
+      transactions,
+      disputes,
+      notifications,
+      systemSettings,
+      exportedAt: new Date().toISOString(),
+      version: '1.0.0'
+    };
+  };
+
+  const importAllData = (backupData) => {
+    try {
+      if (backupData.accounts && Array.isArray(backupData.accounts)) setAccounts(backupData.accounts);
+      if (backupData.users && Array.isArray(backupData.users)) setUsers(backupData.users);
+      if (backupData.customers && Array.isArray(backupData.customers)) setCustomers(backupData.customers);
+      if (backupData.rentals && Array.isArray(backupData.rentals)) setRentals(backupData.rentals);
+      if (backupData.transactions && Array.isArray(backupData.transactions)) setTransactions(backupData.transactions);
+      if (backupData.disputes && Array.isArray(backupData.disputes)) setDisputes(backupData.disputes);
+      if (backupData.systemSettings && typeof backupData.systemSettings === 'object') setSystemSettings(backupData.systemSettings);
+      return { success: true };
+    } catch (e) {
+      return { success: false, error: e.message };
+    }
   };
 
   const addTestBalance = (amount = 200000) => {
@@ -928,6 +996,11 @@ export const AppProvider = ({ children }) => {
         transactions,
         disputes,
         notifications,
+        systemSettings,
+        updateSystemSettings,
+        updateCurrentUser,
+        exportAllData,
+        importAllData,
         addNotification,
         markNotificationAsRead,
         markAllNotificationsAsRead,
