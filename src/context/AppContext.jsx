@@ -62,8 +62,14 @@ export const AppProvider = ({ children }) => {
 
 
   const [currentUser, setCurrentUser] = useState(() => {
-    // Yêu cầu 4: Khởi động trang web ở trạng thái chưa đăng nhập tài khoản admin hay khách
-    return null;
+    // Khởi tạo từ localStorage nếu có phiên đăng nhập trước đó; nếu chưa có thì mặc định null (chưa đăng nhập)
+    const savedUser = safeGetJSON('gamerent_current_user', null);
+    if (!savedUser) return null;
+    const rawUsers = safeGetJSON('gamerent_users', INITIAL_USERS);
+    const matched = rawUsers.find(
+      u => u.id === savedUser.id || (u.email && savedUser.email && u.email.toLowerCase() === savedUser.email.toLowerCase())
+    );
+    return matched ? { ...savedUser, ...matched } : savedUser;
   });
 
   const [rentals, setRentals] = useState(() => {
@@ -94,7 +100,11 @@ export const AppProvider = ({ children }) => {
   }, [customers]);
 
   useEffect(() => {
-    localStorage.setItem('gamerent_current_user', JSON.stringify(currentUser));
+    if (currentUser) {
+      localStorage.setItem('gamerent_current_user', JSON.stringify(currentUser));
+    } else {
+      localStorage.removeItem('gamerent_current_user');
+    }
   }, [currentUser]);
 
   useEffect(() => {
@@ -260,6 +270,11 @@ export const AppProvider = ({ children }) => {
 
   const logout = () => {
     setCurrentUser(null);
+    try {
+      localStorage.removeItem('gamerent_current_user');
+    } catch (e) {
+      console.warn('Lỗi xóa gamerent_current_user:', e);
+    }
   };
 
   const switchRole = (targetRole) => {

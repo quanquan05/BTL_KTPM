@@ -994,6 +994,7 @@ export const Navbar = ({ currentView = 'overview', setView, onOpenDeposit, onOpe
                     data-testid="btn-logout"
                     onClick={() => {
                       logout();
+                      if (setView) setView('home');
                       setShowUserMenu(false);
                     }}
                     style={{

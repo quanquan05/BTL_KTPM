@@ -22,18 +22,40 @@ const MainApp = () => {
   const { currentUser } = useApp();
   const isAdmin = currentUser?.role === 'admin';
 
-  // Khởi động mặc định vào Cửa hàng thuê ('home')
-  const [currentView, setCurrentView] = useState('home'); 
+  // Khởi động mặc định vào Cửa hàng thuê ('home') nếu mở mới; giữ view qua sessionStorage khi reload trang
+  const [currentView, setCurrentView] = useState(() => {
+    try {
+      return sessionStorage.getItem('gamerent_current_view') || 'home';
+    } catch {
+      return 'home';
+    }
+  }); 
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  // Bảo vệ route: Nếu khách thuê đang ở các trang quản trị admin, tự động chuyển về 'home'
+  // Lưu view hiện tại vào sessionStorage
+  React.useEffect(() => {
+    try {
+      sessionStorage.setItem('gamerent_current_view', currentView);
+    } catch {
+      // ignore
+    }
+  }, [currentView]);
+
+  // Bảo vệ route: Nếu khách thuê hoặc chưa đăng nhập đang ở các trang quản trị admin, tự động chuyển về 'home'
   React.useEffect(() => {
     const adminOnlyViews = ['overview', 'customers', 'revenue', 'reports', 'settings', 'admin'];
     if (!isAdmin && adminOnlyViews.includes(currentView)) {
       setCurrentView('home');
     }
   }, [isAdmin, currentView]);
+
+  // Nếu đang ở view 'detail' mà không có selectedAccount (ví dụ do reload trang), tự chuyển về 'home'
+  React.useEffect(() => {
+    if (currentView === 'detail' && !selectedAccount) {
+      setCurrentView('home');
+    }
+  }, [currentView, selectedAccount]);
 
   // Modals state
   const [isDepositOpen, setIsDepositOpen] = useState(false);
@@ -181,6 +203,11 @@ const MainApp = () => {
       <AuthModal
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
+        onLoginSuccess={(user) => {
+          if (user?.role === 'admin') {
+            setCurrentView('overview');
+          }
+        }}
       />
 
       {/* Floating Toolbar for Testers */}

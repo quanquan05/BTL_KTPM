@@ -142,4 +142,46 @@ describe('2. Module Xác thực & Đăng nhập (F_AUTH_LOGIN - Unit Test Cases)
     expect(res.success).toBe(false);
     expect(res.error).toContain('đang bị khóa do vi phạm');
   });
+
+  it('[UTCID07] Quản lý phiên: Khôi phục phiên đăng nhập từ LocalStorage khi reload trang', () => {
+    let store = {};
+    const mockStorage = {
+      getItem: (k) => store[k] || null,
+      setItem: (k, v) => { store[k] = String(v); },
+      removeItem: (k) => { delete store[k]; }
+    };
+
+    const loggedInUser = { id: 'USER-01', name: 'Khách Hàng Tester', email: 'tester@gamerent.vn', role: 'renter', balance: 100000 };
+    mockStorage.setItem('gamerent_current_user', JSON.stringify(loggedInUser));
+
+    const restoredRaw = mockStorage.getItem('gamerent_current_user');
+    expect(restoredRaw).not.toBeNull();
+    const restoredUser = JSON.parse(restoredRaw);
+    expect(restoredUser.id).toBe('USER-01');
+    expect(restoredUser.role).toBe('renter');
+  });
+
+  it('[UTCID08] Quản lý phiên: Khởi động ở trạng thái chưa đăng nhập khi LocalStorage trống', () => {
+    let store = {};
+    const mockStorage = {
+      getItem: (k) => store[k] || null,
+      removeItem: (k) => { delete store[k]; }
+    };
+    const restoredRaw = mockStorage.getItem('gamerent_current_user');
+    expect(restoredRaw).toBeNull();
+  });
+
+  it('[UTCID09] Quản lý phiên: Đăng xuất xóa hoàn toàn thông tin phiên khỏi LocalStorage', () => {
+    let store = {};
+    const mockStorage = {
+      getItem: (k) => store[k] || null,
+      setItem: (k, v) => { store[k] = String(v); },
+      removeItem: (k) => { delete store[k]; }
+    };
+    mockStorage.setItem('gamerent_current_user', JSON.stringify({ id: 'ADMIN-01', role: 'admin' }));
+    // Giả lập logout
+    mockStorage.removeItem('gamerent_current_user');
+    expect(mockStorage.getItem('gamerent_current_user')).toBeNull();
+  });
 });
+

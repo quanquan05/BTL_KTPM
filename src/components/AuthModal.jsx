@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, LogIn, UserPlus, AlertCircle, Shield } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
-export const AuthModal = ({ isOpen, onClose }) => {
+export const AuthModal = ({ isOpen, onClose, onLoginSuccess }) => {
   const { users, login, register } = useApp();
   const [tab, setTab] = useState('login'); // 'login' | 'register'
   const [email, setEmail] = useState('');
@@ -20,6 +20,9 @@ export const AuthModal = ({ isOpen, onClose }) => {
     if (!res.success) {
       setError(res.error);
     } else {
+      if (onLoginSuccess) {
+        onLoginSuccess(res.user);
+      }
       onClose();
     }
   };
@@ -35,6 +38,9 @@ export const AuthModal = ({ isOpen, onClose }) => {
     if (!res.success) {
       setError(res.error);
     } else {
+      if (onLoginSuccess) {
+        onLoginSuccess(res.user);
+      }
       onClose();
     }
   };
