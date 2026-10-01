@@ -1,12 +1,13 @@
-# Tool Scripts - GameRent BTL KTPM
+# 🛠️ Scripts & Tools - GameRent BTL KTPM
 
-Thư mục chứa các kịch bản Python tự động tạo lập hồ sơ kiểm thử và tài liệu đặc tả dự án:
+Thư mục chứa kịch bản Python tự động tạo lập Báo Cáo Bài Tập Lớn:
 
-1. **`generate_perfect_unit_test.py`**: Sinh file Excel Unit Testing 6 sheets (`Unit_Test_Case_GameRent.xlsx` & `Unit Test Case.xlsx`) theo mẫu `Unit Test Case.pdf`.
-2. **`generate_perfect_it_test.py`**: Sinh file Excel Integration Testing 9 sheets (`IT_Test_Case_GameRent.xlsx` & `IT Test Case.xlsx`) theo mẫu `IT_Test Case.pdf`.
-3. **`generate_perfect_st_test.py`**: Sinh file Excel System Testing (E2E) 9 sheets (`ST_Test_Case_GameRent.xlsx` & `ST Test Case.xlsx`) theo mẫu `ST_Test Case.pdf`.
-4. **`build_doc1_dac_ta_yeu_cau.py`**: Tạo tài liệu Word & PDF `1_Dac_Ta_Yeu_Cau_Phan_Mem`.
-5. **`build_doc2_tai_lieu_yeu_cau_he_thong.py`**: Tạo tài liệu Word & PDF `2_Tai_Lieu_Yeu_Cau_He_Thong`.
-6. **`generate_report.py`**: Tạo báo cáo bài tập lớn Chương 1 & Chương 2.
-7. **`generate_test_cases_doc.py`**: Tạo tài liệu đặc tả ca kiểm thử toàn diện Word & PDF.
-8. **`use_cases_data.py`**: Module cấu trúc dữ liệu chung của 10 Use Cases.
+- **`generate_full_btl_report.py`**: 
+  - Kịch bản Python tự động sinh tài liệu Báo cáo Word chuẩn 4 chương hoàn chỉnh: `Tài_Liệu/BTL_KTPM_Nhóm_15.docx`.
+  - Tuân thủ 100% mẫu quy định trong `YÊU CẦU BÀI TẬP LỚN MÔN KIỂM THỬ PHẦN MỀM.pdf`, đặc tả `UC1_Add New Product.pdf` và hướng dẫn báo cáo lỗi `Các nội dung quan trọng trong báo cáo lỗi.pdf`.
+  - Bao quát toàn diện 4 chương: Tổng quan bài toán, Phân tích & thiết kế test (Unit, IT, ST), Thực thi test & 10 Bug Reports chi tiết, Automation test với 107 test cases Vitest 100% Passed.
+
+### Cách chạy:
+```bash
+python scripts/generate_full_btl_report.py
+```

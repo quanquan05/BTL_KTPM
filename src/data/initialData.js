@@ -294,6 +294,360 @@ export const INITIAL_ACCOUNTS = [
     description: "Tài khoản đang được bảo trì cập nhật mật khẩu 2FA. Tạm thời không thể đặt thuê.",
     rating: 4.6,
     rentCount: 28
+  },
+  {
+    id: "ACC-LQ-03",
+    gameId: "lien-quan",
+    title: "Acc Tinh Anh 1 - Nakroth Quán Quân + Raz Muay Thái + Bảng Ngọc Chuẩn 90",
+    rank: "Tinh Anh",
+    server: "Mặt Trời (VN)",
+    skinsCount: 135,
+    highlightSkins: ["Raz Muay Thái", "Nakroth Thứ Nguyên Vệ Thần", "Airi Kiếm Sakura"],
+    skinDetails: [
+      { name: "Raz Muay Thái", tier: "Bậc SS Tuyệt Sắc", image: "/images/skins/raz-muay-thai.jpg" },
+      { name: "Nakroth Thứ Nguyên Vệ Thần", tier: "Bậc SSS Hữu Hạn", image: "/images/skins/nakroth-thu-nguyen.jpg" },
+      { name: "Airi Kiếm Sakura", tier: "Bậc SS Hữu Hạn", image: "/images/skins/airi-sakura.png" }
+    ],
+    galleryImages: [
+      { id: 0, title: "Raz Muay Thái Thần Cước", url: "/images/skins/raz-muay-thai.jpg" },
+      { id: 1, title: "Nakroth Thứ Nguyên Siêu Ảo Diệu", url: "/images/skins/nakroth-thu-nguyen.jpg" },
+      { id: 2, title: "Airi Kiếm Sakura Mộng Ảo", url: "/images/skins/airi-sakura.png" },
+      { id: 3, title: "Bảng Ngọc Chuẩn 90 Viên Đi Rừng", url: "/images/accounts/acc-lq-02.jpg" }
+    ],
+    pricePerHour: 9000,
+    status: "available",
+    thumbnail: "/images/skins/raz-muay-thai.jpg",
+    secretAccount: "lq_tinhanh_raz",
+    secretPassword: "RazMuayThai@2026",
+    winRate: "61.8%",
+    description: "Acc Tinh Anh leo rank dễ thở, full 90 ngọc sát thương chí mạng + xuyên giáp. Có bảo hiểm tài khoản và hỗ trợ 24/7.",
+    rating: 4.8,
+    rentCount: 36
+  },
+  {
+    id: "ACC-LQ-04",
+    gameId: "lien-quan",
+    title: "Acc Kim Cương - Murad Siêu Việt + Florentino Tinh Hệ Full Combo Sát Thủ",
+    rank: "Kim Cương",
+    server: "Mặt Trời (VN)",
+    skinsCount: 110,
+    highlightSkins: ["Murad Siêu Việt", "Florentino Tinh Hệ", "Tulen Tân Thần Thiên Hà"],
+    skinDetails: [
+      { name: "Murad Siêu Việt", tier: "Bậc SSS Công Nghệ", image: "/images/skins/murad-sieu-viet.jpg" },
+      { name: "Florentino Tinh Hệ", tier: "Bậc SSS Hữu Hạn", image: "/images/skins/florentino-tinh-he.jpg" },
+      { name: "Tulen Tân Thần Thiên Hà", tier: "Bậc SSS Huyền Thoại", image: "/images/skins/tulen-thien-ha.jpg" }
+    ],
+    galleryImages: [
+      { id: 0, title: "Murad Siêu Việt Lả Lướt Chiêu Thức", url: "/images/skins/murad-sieu-viet.jpg" },
+      { id: 1, title: "Florentino Tinh Hệ Đỉnh Cao Múa Kiếm", url: "/images/skins/florentino-tinh-he.jpg" },
+      { id: 2, title: "Tulen Tân Thần Lôi Quang Bão Tố", url: "/images/skins/tulen-thien-ha.jpg" },
+      { id: 3, title: "Chiến Tích Kim Cương 1 Thăng Hạng", url: "/images/accounts/acc-lq-01.jpg" }
+    ],
+    pricePerHour: 8000,
+    status: "rented",
+    thumbnail: "/images/skins/murad-sieu-viet.jpg",
+    secretAccount: "lq_kimcuong_murad",
+    secretPassword: "MuradSieuViet@99",
+    winRate: "58.4%",
+    description: "Tài khoản thích hợp kéo bạn bè hoặc cày chuỗi thắng. Đầy đủ tướng sát thủ hot meta mùa này.",
+    rating: 4.7,
+    rentCount: 22
+  },
+  {
+    id: "ACC-VAL-03",
+    gameId: "valorant",
+    title: "Acc Ascendant 3 - Kuronami Vandal + Oni Katana + Sovereign Ghost",
+    rank: "Ascendant",
+    server: "Asia / Singapore",
+    skinsCount: 28,
+    highlightSkins: ["Kuronami Vandal", "Oni Katana", "Sovereign Ghost"],
+    skinDetails: [
+      { name: "Kuronami Vandal", tier: "Exclusive Edition", image: "/images/skins/kuronami-vandal.png" },
+      { name: "Oni Katana", tier: "Premium Melee", image: "/images/skins/oni-katana.png" },
+      { name: "Sovereign Ghost", tier: "Deluxe Edition", image: "/images/skins/sovereign-ghost.png" }
+    ],
+    galleryImages: [
+      { id: 0, title: "Kuronami Vandal Full Upgrade Finisher", url: "/images/skins/kuronami-vandal.png" },
+      { id: 1, title: "Oni Katana Kiếm Quỷ Đỏ Múa Cực Mượt", url: "/images/skins/oni-katana.png" },
+      { id: 2, title: "Sovereign Ghost Âm Thanh Thanh Thoát", url: "/images/skins/sovereign-ghost.png" },
+      { id: 3, title: "Rank Ascendant 3 MMR Cực Cao", url: "/images/accounts/acc-val-02.png" }
+    ],
+    pricePerHour: 16000,
+    status: "available",
+    thumbnail: "/images/skins/kuronami-vandal.png",
+    secretAccount: "val_ascendant_kuronami",
+    secretPassword: "KuronamiOni@2026",
+    winRate: "63.2%",
+    description: "Acc MMR cực tốt, chuyên đấu rank Singapore ping 25ms. Nhiều skin nâng cấp tối đa hiệu ứng kết liễu đỉnh chóp.",
+    rating: 4.9,
+    rentCount: 48
+  },
+  {
+    id: "ACC-VAL-04",
+    gameId: "valorant",
+    title: "Acc Kim Cương 2 - Champions 2023 Vandal + Reaver Karambit",
+    rank: "Kim Cương",
+    server: "Asia / Hong Kong",
+    skinsCount: 19,
+    highlightSkins: ["Champions 2023 Vandal", "Reaver Karambit", "Glitchpop Dagger"],
+    skinDetails: [
+      { name: "Champions 2023 Vandal", tier: "Limited Champions", image: "/images/skins/champions-vandal.png" },
+      { name: "Reaver Karambit", tier: "Premium Melee", image: "/images/skins/reaver-karambit.png" },
+      { name: "Glitchpop Dagger", tier: "Ultra Edition", image: "/images/skins/glitchpop-dagger.png" }
+    ],
+    galleryImages: [
+      { id: 0, title: "Champions 2023 Vandal Ánh Kim", url: "/images/skins/champions-vandal.png" },
+      { id: 1, title: "Reaver Karambit Xoay Dao Huyền Ảo", url: "/images/skins/reaver-karambit.png" },
+      { id: 2, title: "Glitchpop Dagger Màu Sắc Sống Động", url: "/images/skins/glitchpop-dagger.png" },
+      { id: 3, title: "Rank Kim Cương 2 Dễ Bắn", url: "/images/games/valorant.jpg" }
+    ],
+    pricePerHour: 13000,
+    status: "available",
+    thumbnail: "/images/skins/champions-vandal.png",
+    secretAccount: "val_diamond_champ",
+    secretPassword: "ReaverKarambit#77",
+    winRate: "57.8%",
+    description: "Tài khoản có skin giới hạn Champions 2023 phát sáng khi top frag. Cam kết không voice toxic, rank sạch.",
+    rating: 4.8,
+    rentCount: 31
+  },
+  {
+    id: "ACC-GEN-02",
+    gameId: "genshin",
+    title: "Acc AR 58 - Zhongli Trấn + Kaedehara Kazuha + Hu Tao C1 Trấn Hộ Ma",
+    rank: "AR 58",
+    server: "Asia",
+    skinsCount: 22,
+    highlightSkins: ["Zhongli Trấn Giáo Nham", "Kaedehara Kazuha C2", "Hu Tao C1 Trấn Hộ Ma", "Kamisato Ayaka"],
+    skinDetails: [
+      { name: "Zhongli Trấn Giáo Nham", tier: "Nham Thần Bất Tử", image: "/images/skins/zhongli.png" },
+      { name: "Kaedehara Kazuha", tier: "Hỗ Trợ Toàn Năng 1000 EM", image: "/images/skins/kazuha.png" },
+      { name: "Hu Tao C1 Trấn Hộ Ma", tier: "DPS Hỏa Cực Đại", image: "/images/skins/hu-tao.png" },
+      { name: "Kamisato Ayaka", tier: "Công Chúa Băng", image: "/images/skins/ayaka.png" }
+    ],
+    galleryImages: [
+      { id: 0, title: "Nham Thần Zhongli Khiên Vững Chắc", url: "/images/skins/zhongli.png" },
+      { id: 1, title: "Kazuha Gom Quái Siêu Đỉnh", url: "/images/skins/kazuha.png" },
+      { id: 2, title: "Hu Tao Trấn Hộ Ma 100k Sát Thương", url: "/images/skins/hu-tao.png" },
+      { id: 3, title: "Bản Đồ Khám Phá 100% Toàn Bộ Vùng Đất", url: "/images/games/genshin.jpg" }
+    ],
+    pricePerHour: 16000,
+    status: "available",
+    thumbnail: "/images/skins/zhongli.png",
+    secretAccount: "genshin_ar58_zhongli",
+    secretPassword: "ZhongliKazuha@2026",
+    winRate: "36 Sao La Hoàn",
+    description: "Acc AR 58 build chuẩn chỉ từng thánh di vật, khiên Zhongli bất tử đánh boss như đi dạo. Đã mở full teleport Fontaine & Sumeru.",
+    rating: 4.9,
+    rentCount: 64
+  },
+  {
+    id: "ACC-GEN-03",
+    gameId: "genshin",
+    title: "Acc AR 55 - Xiao C1 Trấn Hòa Phác Diệp + Raiden Shogun + Lumine",
+    rank: "AR 55",
+    server: "Asia",
+    skinsCount: 15,
+    highlightSkins: ["Xiao C1 Trấn Hòa Phác Diệp", "Raiden Shogun", "Lumine", "Kamisato Ayaka"],
+    skinDetails: [
+      { name: "Xiao C1 Trấn Hòa Phác Diệp", tier: "Hộ Pháp Dạ Xoa", image: "/images/skins/xiao.png" },
+      { name: "Raiden Shogun", tier: "Lôi Thần Điện Hạ", image: "/images/skins/raiden-shogun.png" },
+      { name: "Lumine", tier: "Nhà Lữ Hành Đa Nguyên Tố", image: "/images/skins/lumine.png" },
+      { name: "Kamisato Ayaka", tier: "5 Sao Trấn Tuyệt Kỹ", image: "/images/skins/ayaka.png" }
+    ],
+    galleryImages: [
+      { id: 0, title: "Xiao Trấn Giáo Hòa Phác Diệp Cắm Đất", url: "/images/skins/xiao.png" },
+      { id: 1, title: "Raiden Shogun Tụ Năng Lượng Đội Hình", url: "/images/skins/raiden-shogun.png" },
+      { id: 2, title: "Lumine Khám Phá Thế Giới Teyvat", url: "/images/skins/lumine.png" },
+      { id: 3, title: "Đội Hình Đánh Boss Thế Giới Cực Nhanh", url: "/images/accounts/acc-gen-01.png" }
+    ],
+    pricePerHour: 12000,
+    status: "available",
+    thumbnail: "/images/skins/xiao.png",
+    secretAccount: "genshin_ar55_xiao",
+    secretPassword: "XiaoDada@Genshin26",
+    winRate: "36 Sao La Hoàn",
+    description: "Acc AR 55 có Xiao nhảy dậm sát thương diện rộng cực đã tay. Đi kèm nguyên bảo thạch tích lũy sẵn để quay tướng mới.",
+    rating: 4.7,
+    rentCount: 41
+  },
+  {
+    id: "ACC-FO4-02",
+    gameId: "fo4",
+    title: "Đội Hình Chelsea 180 Trăm Tỷ - Shevchenko LN +8, Gullit EBS +8, Courtois +8",
+    rank: "Tinh Anh",
+    server: "Garena VN",
+    skinsCount: 14,
+    highlightSkins: ["Gullit EBS +8", "Zidane ICON +5", "Courtois 23TS +8", "Ronaldo BTB +5"],
+    skinDetails: [
+      { name: "Gullit EBS +8", tier: "Cỗ Máy Tuyến Giữa Mạ Vàng", image: "/images/skins/gullit-icon.png" },
+      { name: "Zidane ICON +5", tier: "Thiên Tài Kiến Tạo", image: "/images/skins/zidane-icon.png" },
+      { name: "Courtois 23TS +8", tier: "Người Nhện Chelsea", image: "/images/skins/courtois-ts.png" },
+      { name: "Ronaldo BTB +5", tier: "Chân Sút Huyền Thoại", image: "/images/skins/ronaldo-btb.png" }
+    ],
+    galleryImages: [
+      { id: 0, title: "Ruud Gullit EBS +8 Cân Mọi Tranh Chấp Tuyến Giữa", url: "/images/skins/gullit-icon.png" },
+      { id: 1, title: "Zinedine Zidane ICON +5 Mượt Mà Đảo Chân", url: "/images/skins/zidane-icon.png" },
+      { id: 2, title: "Thibaut Courtois 23TS +8 Phản Xạ Xuất Thần", url: "/images/skins/courtois-ts.png" },
+      { id: 3, title: "Đội Hình Team Color Chelsea Đầy Đủ Buff Chỉ Số", url: "/images/games/fo4.jpg" }
+    ],
+    pricePerHour: 14000,
+    status: "available",
+    thumbnail: "/images/skins/gullit-icon.png",
+    secretAccount: "fo4_chelsea_180t",
+    secretPassword: "ChelseaGullit@88",
+    winRate: "62.5%",
+    description: "Team Color Chelsea full mạ vàng đè người cực rát, sút xa ZD bao cong. Phù hợp leo rank Tinh Anh - Siêu Sao.",
+    rating: 4.8,
+    rentCount: 52
+  },
+  {
+    id: "ACC-FO4-03",
+    gameId: "fo4",
+    title: "Đội Hình Siêu Sao Quốc Dân 120 Trăm Tỷ - Zidane ICON +7, Ronaldo BTB +8",
+    rank: "Siêu Sao",
+    server: "Garena VN",
+    skinsCount: 11,
+    highlightSkins: ["Zidane ICON +7", "Ronaldo BTB +8", "Courtois 23TS +8", "Gullit ICON"],
+    skinDetails: [
+      { name: "Zidane ICON +7", tier: "Nghệ Sĩ Sân Cỏ", image: "/images/skins/zidane-icon.png" },
+      { name: "Ronaldo BTB +8", tier: "Cỗ Máy Ghi Bàn Mạ Vàng", image: "/images/skins/ronaldo-btb.png" },
+      { name: "Courtois 23TS +8", tier: "Thủ Thành Khổng Lồ", image: "/images/skins/courtois-ts.png" },
+      { name: "Gullit ICON +5", tier: "Huyền Thoại", image: "/images/skins/gullit-icon.png" }
+    ],
+    galleryImages: [
+      { id: 0, title: "Zinedine Zidane ICON +7 Chuyền Chọc Khe Hoàn Hảo", url: "/images/skins/zidane-icon.png" },
+      { id: 1, title: "Cristiano Ronaldo BTB +8 Bứt Tốc Thần Sầu", url: "/images/skins/ronaldo-btb.png" },
+      { id: 2, title: "Thủ Thành Courtois 23TS +8 Bay Người Cản Phá", url: "/images/skins/courtois-ts.png" },
+      { id: 3, title: "Chiến Thuật Giả Lập Xếp Hạng Siêu Sao", url: "/images/accounts/acc-fo4-01.png" }
+    ],
+    pricePerHour: 15000,
+    status: "available",
+    thumbnail: "/images/skins/zidane-icon.png",
+    secretAccount: "fo4_sieusao_zidane",
+    secretPassword: "ZidaneRonaldo@2026",
+    winRate: "66.0%",
+    description: "Đội hình quốc dân toàn sao ICON và 23TS mạ vàng, chỉ số tổng trên 125, sút góc hẹp cũng vào.",
+    rating: 4.9,
+    rentCount: 47
+  },
+  {
+    id: "ACC-PUBG-02",
+    gameId: "pubg",
+    title: "Acc Steam Cao Thủ - Beryl Bướm Đêm Lv8 + M416 Phượng Hoàng + Set Streamer",
+    rank: "Cao Thủ",
+    server: "Steam Asia / SEA",
+    skinsCount: 52,
+    highlightSkins: ["Beryl Bướm Đêm Lv8", "M416 Phượng Hoàng", "Set Trang Phục Streamer"],
+    skinDetails: [
+      { name: "Beryl Bướm Đêm Lv8", tier: "Progressive Tia Lửa Tím", image: "/images/skins/pubg-beryl-owl.jpg" },
+      { name: "M416 Phượng Hoàng Lv10", tier: "Progressive Max Level", image: "/images/skins/pubg-m416-phoenix.jpg" },
+      { name: "Bộ đồ B.Duck", tier: "Set Trang Phục Hiếm", image: "/images/accounts/acc-pubg-01.jpg" }
+    ],
+    galleryImages: [
+      { id: 0, title: "Beryl M762 Bướm Đêm Hiệu Ứng Khói Tím", url: "/images/skins/pubg-beryl-owl.jpg" },
+      { id: 1, title: "M416 Phượng Hoàng Bắn Cháy Nòng", url: "/images/skins/pubg-m416-phoenix.jpg" },
+      { id: 2, title: "Trang Phục B.Duck Cực Dễ Thương", url: "/images/accounts/acc-pubg-01.jpg" },
+      { id: 3, title: "Rank Cao Thủ K/D 4.2 Cực Đỉnh", url: "/images/games/pubg.jpg" }
+    ],
+    pricePerHour: 17000,
+    status: "available",
+    thumbnail: "/images/skins/pubg-beryl-owl.jpg",
+    secretAccount: "steam_pubg_caothu",
+    secretPassword: "BerylM762Purple#99",
+    winRate: "4.2 K/D",
+    description: "Acc Cao Thủ PUBG Steam đầy đủ vũ khí nâng cấp xịn, hòm xác nảy lửa độc đáo. Đã bật Steam Guard và sẵn sàng chiến.",
+    rating: 4.9,
+    rentCount: 58
+  },
+  {
+    id: "ACC-PUBG-03",
+    gameId: "pubg",
+    title: "Acc Steam Bạch Kim - M416 Phượng Hoàng + Beryl Cực Chiến + Full Plus",
+    rank: "Bạch Kim",
+    server: "Steam Asia / SEA",
+    skinsCount: 34,
+    highlightSkins: ["M416 Phượng Hoàng", "Beryl Bướm Đêm", "Chảo Vàng Tri Ân"],
+    skinDetails: [
+      { name: "M416 Phượng Hoàng", tier: "Progressive Skin", image: "/images/skins/pubg-m416-phoenix.jpg" },
+      { name: "Beryl Bướm Đêm", tier: "Progressive Skin", image: "/images/skins/pubg-beryl-owl.jpg" },
+      { name: "Bộ đồ B.Duck", tier: "Set Hiếm", image: "/images/accounts/acc-pubg-01.jpg" }
+    ],
+    galleryImages: [
+      { id: 0, title: "M416 Phượng Hoàng Lửa Bất Diệt", url: "/images/skins/pubg-m416-phoenix.jpg" },
+      { id: 1, title: "Beryl Bướm Đêm Sấy Cực Đầm", url: "/images/skins/pubg-beryl-owl.jpg" },
+      { id: 2, title: "Gói PUBG Plus Trọn Đời Sẵn Sàng", url: "/images/accounts/acc-pubg-01.jpg" },
+      { id: 3, title: "Rank Bạch Kim Bắn Cực Thoải Mái", url: "/images/games/pubg.jpg" }
+    ],
+    pricePerHour: 12000,
+    status: "available",
+    thumbnail: "/images/skins/pubg-m416-phoenix.jpg",
+    secretAccount: "steam_pubg_bachkim",
+    secretPassword: "M416PhoenixFire@2026",
+    winRate: "2.9 K/D",
+    description: "Acc sạch giá sinh viên, có gói PUBG Plus vĩnh viễn, chơi rank không gặp bot. Tự động cấp mã đăng nhập Steam Guard.",
+    rating: 4.7,
+    rentCount: 33
+  },
+  {
+    id: "ACC-TC-02",
+    gameId: "toc-chien",
+    title: "Acc Đại Cao Thủ - Yone Hoa Linh Lục Địa + Yasuo Ma Kiếm + Zed Tử Thần",
+    rank: "Đại Cao Thủ",
+    server: "VNG Vietnam",
+    skinsCount: 76,
+    highlightSkins: ["Yone Hoa Linh Lục Địa", "Yasuo Ma Kiếm", "Zed Tử Thần Không Gian", "Akali K/DA ALL OUT"],
+    skinDetails: [
+      { name: "Yone Hoa Linh Lục Địa", tier: "Huyền Thoại Song Kiếm", image: "/images/skins/yone-hoa-linh.jpg" },
+      { name: "Yasuo Ma Kiếm", tier: "Trang Phục Huyền Thoại", image: "/images/skins/yasuo-ma-kiem.jpg" },
+      { name: "Zed Tử Thần Không Gian", tier: "Huyền Thoại Vũ Trụ", image: "/images/skins/zed-tu-than.jpg" },
+      { name: "Akali K/DA ALL OUT", tier: "Tuyệt Phẩm Âm Nhạc", image: "/images/skins/akali-kda.jpg" }
+    ],
+    galleryImages: [
+      { id: 0, title: "Yone Hoa Linh Lục Địa Múa Kiếm Đoạt Hồn", url: "/images/skins/yone-hoa-linh.jpg" },
+      { id: 1, title: "Yasuo Ma Kiếm Chém Gió Đỏ Rực", url: "/images/skins/yasuo-ma-kiem.jpg" },
+      { id: 2, title: "Zed Tử Thần Không Gian Sát Thủ Bóng Đêm", url: "/images/skins/zed-tu-than.jpg" },
+      { id: 3, title: "Chiến Tích Đại Cao Thủ 45 Điểm", url: "/images/games/toc-chien.jpg" }
+    ],
+    pricePerHour: 13000,
+    status: "available",
+    thumbnail: "/images/skins/yone-hoa-linh.jpg",
+    secretAccount: "tc_daicaothu_yone",
+    secretPassword: "YoneHoaLinh@2026",
+    winRate: "62.0%",
+    description: "Acc Đại Cao Thủ tướng sát thủ đường giữa và đường baron cực mạnh. Skin hiệu ứng mượt mà combo không trượt phát nào.",
+    rating: 4.9,
+    rentCount: 45
+  },
+  {
+    id: "ACC-TC-03",
+    gameId: "toc-chien",
+    title: "Acc Cao Thủ - Akali K/DA ALL OUT + Zed Tử Thần + Full Tướng Đấu Sĩ",
+    rank: "Cao Thủ",
+    server: "VNG Vietnam",
+    skinsCount: 58,
+    highlightSkins: ["Akali K/DA ALL OUT", "Zed Tử Thần Không Gian", "Yasuo Ma Kiếm", "Yone Hoa Linh"],
+    skinDetails: [
+      { name: "Akali K/DA ALL OUT", tier: "Tuyệt Phẩm Âm Nhạc", image: "/images/skins/akali-kda.jpg" },
+      { name: "Zed Tử Thần Không Gian", tier: "Huyền Thoại Vũ Trụ", image: "/images/skins/zed-tu-than.jpg" },
+      { name: "Yasuo Ma Kiếm", tier: "Trang Phục Huyền Thoại", image: "/images/skins/yasuo-ma-kiem.jpg" },
+      { name: "Yone Hoa Linh Lục Địa", tier: "Huyền Thoại Song Kiếm", image: "/images/skins/yone-hoa-linh.jpg" }
+    ],
+    galleryImages: [
+      { id: 0, title: "Akali K/DA ALL OUT Ánh Sáng Neon", url: "/images/skins/akali-kda.jpg" },
+      { id: 1, title: "Zed Tử Thần Phi Tiêu Bóng Ma", url: "/images/skins/zed-tu-than.jpg" },
+      { id: 2, title: "Yasuo Ma Kiếm Bão Tố", url: "/images/skins/yasuo-ma-kiem.jpg" },
+      { id: 3, title: "Khung Rank Cao Thủ Danh Giá", url: "/images/accounts/acc-tc-01.jpg" }
+    ],
+    pricePerHour: 11000,
+    status: "available",
+    thumbnail: "/images/skins/akali-kda.jpg",
+    secretAccount: "tc_caothu_akali",
+    secretPassword: "AkaliKDA@PopStars9",
+    winRate: "59.6%",
+    description: "Acc Cao Thủ thích hợp solo leo rank, full tướng hot meta sát thủ. Thuê nhận tài khoản ngay lập tức.",
+    rating: 4.8,
+    rentCount: 38
   }
 ];
 

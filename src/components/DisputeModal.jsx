@@ -16,13 +16,24 @@ export const DisputeModal = ({ isOpen, onClose, rental }) => {
   const { fileDispute } = useApp();
   const [reason, setReason] = useState('Sai mật khẩu đăng nhập');
   const [note, setNote] = useState('');
+  const [error, setError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
 
   if (!isOpen || !rental) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    fileDispute(rental.id, reason, note);
+    if (!note || !note.trim()) {
+      setError('Vui lòng nhập mô tả chi tiết sự cố bạn gặp phải (tối thiểu 5 ký tự).');
+      return;
+    }
+    if (note.trim().length < 5) {
+      setError('Mô tả sự cố quá ngắn. Vui lòng nhập tối thiểu 5 ký tự để được hỗ trợ tốt nhất.');
+      return;
+    }
+
+    setError('');
+    fileDispute(rental.id, reason, note.trim());
     setIsSuccess(true);
     setTimeout(() => {
       setIsSuccess(false);
@@ -236,7 +247,7 @@ export const DisputeModal = ({ isOpen, onClose, rental }) => {
               <div style={{ marginBottom: 14 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                   <label htmlFor="textarea-dispute-note" style={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155' }}>
-                    Mô tả chi tiết sự cố:
+                    Mô tả chi tiết sự cố: <span style={{ color: '#EF4444' }}>*</span>
                   </label>
                   <span style={{ fontSize: '0.7rem', color: '#94A3B8' }}>
                     {note.length}/300 ký tự
@@ -249,24 +260,51 @@ export const DisputeModal = ({ isOpen, onClose, rental }) => {
                   maxLength={300}
                   placeholder="Ví dụ: Đăng nhập vào báo sai mật khẩu từ phút thứ 5, có ảnh chụp màn hình gửi qua Zalo..."
                   value={note}
-                  onChange={(e) => setNote(e.target.value)}
+                  onChange={(e) => {
+                    setNote(e.target.value);
+                    if (error) setError('');
+                  }}
                   style={{
                     width: '100%',
                     padding: '10px 12px',
                     borderRadius: 10,
-                    border: '1.5px solid #CBD5E1',
+                    border: error ? '1.5px solid #EF4444' : '1.5px solid #CBD5E1',
+                    boxShadow: error ? '0 0 0 3px rgba(239, 68, 68, 0.12)' : 'none',
                     fontSize: '0.84rem',
                     fontFamily: 'inherit',
                     color: '#0F172A',
                     boxSizing: 'border-box',
                     resize: 'none',
                     outline: 'none',
-                    transition: 'border-color 0.15s ease'
+                    transition: 'border-color 0.15s ease, box-shadow 0.15s ease'
                   }}
-                  onFocus={(e) => (e.target.style.borderColor = '#DC2626')}
-                  onBlur={(e) => (e.target.style.borderColor = '#CBD5E1')}
-                  required
+                  onFocus={(e) => (e.target.style.borderColor = error ? '#EF4444' : '#DC2626')}
+                  onBlur={(e) => (e.target.style.borderColor = error ? '#EF4444' : '#CBD5E1')}
                 />
+
+                {/* Thông báo lỗi tùy biến thay vì popup mặc định của trình duyệt */}
+                {error && (
+                  <div
+                    id="dispute-note-error-msg"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 7,
+                      marginTop: 6,
+                      padding: '8px 12px',
+                      background: '#FFF1F2',
+                      border: '1px solid #FECDD3',
+                      borderRadius: 8,
+                      color: '#DC2626',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      animation: 'fadeIn 0.15s ease-out'
+                    }}
+                  >
+                    <AlertTriangle size={15} style={{ flexShrink: 0 }} />
+                    <span>{error}</span>
+                  </div>
+                )}
               </div>
 
               {/* 4. Policy Guarantee Box */}
@@ -297,8 +335,9 @@ export const DisputeModal = ({ isOpen, onClose, rental }) => {
                 padding: '14px 22px',
                 borderTop: '1px solid #E2E8F0',
                 display: 'flex',
+                alignItems: 'center',
                 justifyContent: 'flex-end',
-                gap: 8,
+                gap: 10,
                 background: '#F8FAFC'
               }}
             >
@@ -314,20 +353,35 @@ export const DisputeModal = ({ isOpen, onClose, rental }) => {
                 type="submit"
                 id="btn-submit-dispute"
                 data-testid="btn-submit-dispute"
-                className="btn btn-danger"
                 style={{
-                  padding: '8px 20px',
+                  padding: '9px 22px',
                   fontSize: '0.86rem',
+                  fontWeight: 700,
                   background: '#DC2626',
-                  borderColor: '#DC2626',
-                  boxShadow: '0 2px 8px rgba(220, 38, 38, 0.28)',
+                  border: '1px solid #DC2626',
+                  color: '#FFFFFF',
+                  borderRadius: 10,
+                  boxShadow: '0 4px 12px rgba(220, 38, 38, 0.35)',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: 6
+                  gap: 8,
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#B91C1C';
+                  e.currentTarget.style.borderColor = '#B91C1C';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#DC2626';
+                  e.currentTarget.style.borderColor = '#DC2626';
                 }}
               >
-                <Send size={15} />
-                <span>Gửi Khiếu Nại Ngay</span>
+                <Send size={15} color="#FFFFFF" strokeWidth={2.4} />
+                <span style={{ color: '#FFFFFF', fontWeight: 700, letterSpacing: '0.01em' }}>
+                  Gửi Khiếu Nại Ngay
+                </span>
               </button>
             </div>
           </form>

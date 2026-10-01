@@ -14,6 +14,8 @@ import { AccountDetailPage } from './pages/AccountDetailPage';
 import { MyRentalsPage } from './pages/MyRentalsPage';
 import { WalletPage } from './pages/WalletPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
+import { AccountInventoryPage } from './pages/AccountInventoryPage';
+import { ReportsDisputesPage } from './pages/ReportsDisputesPage';
 import { CustomersPage } from './pages/CustomersPage';
 import { RevenuePage } from './pages/RevenuePage';
 import { SettingsPage } from './pages/SettingsPage';
@@ -54,11 +56,15 @@ const MainApp = () => {
 
   // Bảo vệ route: Nếu khách thuê hoặc chưa đăng nhập đang ở các trang quản trị admin, tự động chuyển về 'home'
   React.useEffect(() => {
-    const adminOnlyViews = ['overview', 'customers', 'revenue', 'reports', 'settings', 'admin'];
+    const adminOnlyViews = ['overview', 'customers', 'revenue', 'reports', 'admin'];
     if (!isAdmin && adminOnlyViews.includes(currentView)) {
       setCurrentView('home');
     }
-  }, [isAdmin, currentView]);
+    // Nếu chưa đăng nhập mà truy cập trang settings thì chuyển về home
+    if (!currentUser && currentView === 'settings') {
+      setCurrentView('home');
+    }
+  }, [isAdmin, currentUser, currentView]);
 
   // Nếu đang ở view 'detail' mà không có selectedAccount (ví dụ do reload trang), tự khôi phục từ accounts hoặc quay về 'home'
   React.useEffect(() => {
@@ -82,10 +88,29 @@ const MainApp = () => {
   const [depositInitialAmount, setDepositInitialAmount] = useState(50000);
   const [isRentModalOpen, setIsRentModalOpen] = useState(false);
   const [accountToRent, setAccountToRent] = useState(null);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [rentDurationHours, setRentDurationHours] = useState(2);
+  const [isAuthOpen, setIsAuthOpen] = useState(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('auth') === 'login' || params.get('auth') === 'register';
+    } catch {
+      return false;
+    }
+  });
+  const [authInitialTab, setAuthInitialTab] = useState(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('auth') === 'register' ? 'register' : 'login';
+    } catch {
+      return 'login';
+    }
+  });
+  const [pendingRentAfterAuth, setPendingRentAfterAuth] = useState(null);
 
   const handleOpenDeposit = (missingAmount = 50000) => {
     if (!currentUser) {
+      setAuthInitialTab('login');
+      setPendingRentAfterAuth(null);
       setIsAuthOpen(true);
       return;
     }
@@ -106,13 +131,48 @@ const MainApp = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleTriggerRent = (account) => {
-    if (!currentUser) {
-      setIsAuthOpen(true);
+  const handleTriggerRent = (account, customDuration = null) => {
+    setAccountToRent(account);
+    if (customDuration) {
+      setRentDurationHours(customDuration);
+    }
+    setIsRentModalOpen(true);
+  };
+
+  const handleRequireRegisterForRent = ({ account, hours }) => {
+    setPendingRentAfterAuth({ account, hours });
+    setAccountToRent(account);
+    setRentDurationHours(hours || 2);
+    setIsRentModalOpen(false);
+    setAuthInitialTab('register');
+    setIsAuthOpen(true);
+  };
+
+  const handleAuthSuccess = (user) => {
+    setIsAuthOpen(false);
+
+    // Nếu khách vãng lai vừa đăng ký hoặc đăng nhập để thuê nick:
+    if (pendingRentAfterAuth) {
+      const pending = pendingRentAfterAuth;
+      setPendingRentAfterAuth(null);
+      setAccountToRent(pending.account);
+      setRentDurationHours(pending.hours || 2);
+      // Trở về cửa sổ xác nhận thuê acc
+      setTimeout(() => {
+        setIsRentModalOpen(true);
+      }, 60);
       return;
     }
-    setAccountToRent(account);
-    setIsRentModalOpen(true);
+
+    if (user?.role === 'admin') {
+      setCurrentView('overview');
+    }
+  };
+
+  const handleCloseAuth = () => {
+    setIsAuthOpen(false);
+    setPendingRentAfterAuth(null);
+    setAuthInitialTab('login');
   };
 
   return (
@@ -137,7 +197,11 @@ const MainApp = () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
           onOpenDeposit={() => handleOpenDeposit()}
-          onOpenAuth={() => setIsAuthOpen(true)}
+          onOpenAuth={() => {
+            setAuthInitialTab('login');
+            setPendingRentAfterAuth(null);
+            setIsAuthOpen(true);
+          }}
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         />
 
@@ -193,11 +257,11 @@ const MainApp = () => {
           )}
 
           {currentView === 'reports' && (
-            <AdminDashboardPage key="reports" initialTab="disputes" />
+            <ReportsDisputesPage />
           )}
 
           {currentView === 'admin' && (
-            <AdminDashboardPage key="admin" initialTab="accounts" />
+            <AccountInventoryPage />
           )}
 
           {currentView === 'settings' && (
@@ -220,25 +284,25 @@ const MainApp = () => {
         isOpen={isRentModalOpen}
         onClose={() => setIsRentModalOpen(false)}
         account={accountToRent}
+        initialDuration={rentDurationHours}
         onRentSuccess={() => {
           setCurrentView('my-rentals');
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         onOpenDeposit={handleOpenDeposit}
+        onRequireRegister={handleRequireRegisterForRent}
       />
 
       <AuthModal
         isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
-        onLoginSuccess={(user) => {
-          if (user?.role === 'admin') {
-            setCurrentView('overview');
-          }
-        }}
+        onClose={handleCloseAuth}
+        onLoginSuccess={handleAuthSuccess}
+        initialTab={authInitialTab}
+        pendingRental={pendingRentAfterAuth}
       />
 
       {/* Floating Toolbar for Testers */}
-      <FloatingTesterToolbar />
+      {typeof window !== 'undefined' && !window.location.search.includes('clean=1') && <FloatingTesterToolbar />}
     </div>
   );
 };

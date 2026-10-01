@@ -35,6 +35,7 @@ export const Sidebar = ({ currentView, setView, isOpen = true }) => {
     { id: 'home', label: 'Cửa hàng thuê', icon: Store },
     { id: 'my-rentals', label: 'Đơn của tôi', icon: Clock },
     { id: 'wallet', label: 'Ví & Nạp tiền', icon: Wallet },
+    { id: 'settings', label: 'Cài đặt tài khoản', icon: Settings },
   ];
 
   const menuItems = isAdmin ? adminMenuItems : renterMenuItems;

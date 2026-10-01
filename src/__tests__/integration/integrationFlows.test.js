@@ -228,4 +228,74 @@ describe('INTEGRATION TEST SUITE (ITC-01 -> ITC-05: Sandwich Strategy)', () => {
     expect(addedAcc).toBeDefined();
     expect(addedAcc.status).toBe('available');
   });
+
+  it('[ITC-07] Tích hợp Khách vãng lai thuê acc -> Chuyển sang Đăng ký -> Quay lại xác nhận thuê thành công', () => {
+    // 1. Khách vãng lai (chưa đăng nhập: currentUser = null)
+    let currentUser = null;
+    const targetAccount = mockDatabase.accounts[0]; // ACCVAL001, 15k/h, status: available
+    const selectedHours = 2;
+
+    // 2. Khách mở modal xác nhận thuê & bấm Xác nhận thuê
+    let pendingRental = null;
+    let authModalOpen = false;
+    let authInitialTab = 'login';
+
+    const handleConfirmRentAsGuest = () => {
+      if (!currentUser) {
+        // Kích hoạt luồng chuyển sang cửa sổ Đăng ký
+        pendingRental = { account: targetAccount, hours: selectedHours };
+        authInitialTab = 'register';
+        authModalOpen = true;
+        return { redirectedToRegister: true };
+      }
+      return { redirectedToRegister: false };
+    };
+
+    const guestAttempt = handleConfirmRentAsGuest();
+    expect(guestAttempt.redirectedToRegister).toBe(true);
+    expect(authModalOpen).toBe(true);
+    expect(authInitialTab).toBe('register');
+    expect(pendingRental.account.id).toBe('ACCVAL001');
+    expect(pendingRental.hours).toBe(2);
+
+    // 3. Khách hoàn tất form đăng ký
+    const regCheck = validateRegistration('guest_customer', 'pass123456', '0988776655', mockDatabase.users);
+    expect(regCheck.isValid).toBe(true);
+
+    const newRegisteredUser = {
+      id: 'USER-03',
+      username: 'guest_customer',
+      email: 'guest@gamerent.vn',
+      password: 'pass123456',
+      balance: 50000, // Nhận ngay ví trải nghiệm
+      role: 'renter',
+      isBlocked: false
+    };
+    mockDatabase.users.push(newRegisteredUser);
+    currentUser = newRegisteredUser;
+    authModalOpen = false;
+
+    // 4. Hệ thống tự động trở về cửa sổ xác nhận thuê với đúng acc và số giờ đã chọn
+    expect(pendingRental).not.toBeNull();
+    const resumedAccount = pendingRental.account;
+    const resumedHours = pendingRental.hours;
+    pendingRental = null;
+
+    expect(resumedAccount.id).toBe(targetAccount.id);
+    expect(resumedHours).toBe(2);
+
+    // 5. Lúc này khách đã có tài khoản và số dư 50.000 đ, thực hiện xác nhận thuê
+    const rentCheck = calculateRentalCost(resumedAccount, resumedHours, currentUser.balance);
+    expect(rentCheck.isValid).toBe(true);
+    expect(rentCheck.canRent).toBe(true);
+    expect(rentCheck.totalCost).toBe(30000);
+    expect(rentCheck.remainingBalance).toBe(20000);
+
+    // Trừ ví và kích hoạt ca thuê
+    currentUser.balance -= rentCheck.totalCost;
+    resumedAccount.status = 'rented';
+
+    expect(currentUser.balance).toBe(20000);
+    expect(resumedAccount.status).toBe('rented');
+  });
 });

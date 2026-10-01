@@ -55,7 +55,11 @@ export const Navbar = ({ currentView = 'overview', setView, onOpenDeposit, onOpe
     revenue: { title: 'Báo Cáo Doanh Thu', section: 'Tài Chính', icon: BarChart3 },
     reports: { title: 'Khiếu Nại & Sự Cố', section: 'Báo Cáo', icon: FileText },
     admin: { title: 'Kho Quản Lý Tài Khoản', section: 'Quản Trị', icon: Settings },
-    settings: { title: 'Cài Đặt Hệ Thống', section: 'Cấu Hình', icon: Settings }
+    settings: {
+      title: currentUser?.role === 'admin' ? 'Cài Đặt Hệ Thống' : 'Cài Đặt Tài Khoản',
+      section: 'Cấu Hình',
+      icon: Settings
+    }
   };
 
   const activeViewMeta = VIEW_CONFIG[currentView] || VIEW_CONFIG.overview;
@@ -956,6 +960,35 @@ export const Navbar = ({ currentView = 'overview', setView, onOpenDeposit, onOpe
                   >
                     <Wallet size={15} color="#10B981" />
                     <span>Quản lý Ví tiền</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    id="btn-nav-user-settings"
+                    data-testid="btn-nav-user-settings"
+                    onClick={() => {
+                      setView('settings');
+                      setShowUserMenu(false);
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      width: '100%',
+                      padding: '8px 10px',
+                      borderRadius: 8,
+                      border: 'none',
+                      background: 'transparent',
+                      color: 'var(--text-main)',
+                      fontSize: '0.82rem',
+                      cursor: 'pointer',
+                      textAlign: 'left'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#F8FAFC'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+                  >
+                    <Settings size={15} color="#64748B" />
+                    <span>Cài đặt tài khoản</span>
                   </button>
 
                   <button

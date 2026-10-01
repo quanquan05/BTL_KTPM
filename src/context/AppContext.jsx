@@ -9,6 +9,7 @@ import {
   INITIAL_DISPUTES
 } from '../data/initialData';
 import { generateRandomPassword } from '../utils/validation';
+import { getFavoritesStorageKey } from '../utils/favoriteUtils';
 
 const AppContext = createContext();
 
@@ -108,6 +109,39 @@ export const AppProvider = ({ children }) => {
     return merged;
   });
   const [notifications, setNotifications] = useState(() => safeGetJSON('gamerent_notifications', []));
+
+  // Tách biệt hoàn toàn danh sách yêu thích (thả tim) giữa Quản lý (Admin) và Khách hàng (User/Renter/Khách vãng lai)
+  const [favorites, setFavorites] = useState(() => {
+    try {
+      localStorage.removeItem('gamerent_fav_accounts');
+    } catch {
+      // ignore
+    }
+    const key = getFavoritesStorageKey(currentUser);
+    return safeGetJSON(key, []);
+  });
+
+  // Tự động chuyển đổi sang danh sách yêu thích của đúng tài khoản khi đổi vai trò hoặc đăng nhập/đăng xuất
+  useEffect(() => {
+    const key = getFavoritesStorageKey(currentUser);
+    setFavorites(safeGetJSON(key, []));
+  }, [currentUser?.id, currentUser?.role]);
+
+  const toggleFavorite = (accId, e) => {
+    e?.stopPropagation?.();
+    setFavorites(prev => {
+      const next = prev.includes(accId) ? prev.filter(id => id !== accId) : [...prev, accId];
+      try {
+        const key = getFavoritesStorageKey(currentUser);
+        localStorage.setItem(key, JSON.stringify(next));
+      } catch (err) {
+        console.warn('Lỗi lưu danh sách yêu thích:', err);
+      }
+      return next;
+    });
+  };
+
+  const isFavorite = (accId) => favorites.includes(accId);
 
   const DEFAULT_SETTINGS = {
     siteName: 'GameRent',
@@ -749,73 +783,173 @@ export const AppProvider = ({ children }) => {
     const rental = rentals.find(r => r.id === rentalId);
     if (!rental) return { success: false, error: 'Không tìm thấy đơn thuê.' };
 
+    const newDisputeId = `DISP-${Date.now().toString().slice(-4)}`;
     const newDispute = {
-      id: `DISP-${Date.now().toString().slice(-4)}`,
+      id: newDisputeId,
       orderId: rental.id,
       accountId: rental.accountId,
-      userId: currentUser.id,
-      userName: currentUser.name,
+      userId: currentUser ? currentUser.id : rental.userId,
+      userName: currentUser ? (currentUser.name || currentUser.username) : (rental.userName || rental.userId),
       reason,
-      note,
+      note: note ? note.trim() : '',
       createdAt: Date.now(),
       status: 'pending',
-      amount: rental.totalPrice
+      amount: rental.totalPrice || 0
     };
 
     setDisputes(prev => [newDispute, ...prev]);
 
     setRentals(prev =>
       prev.map(r =>
-        r.id === rentalId ? { ...r, status: 'disputed', disputeReason: reason } : r
+        r.id === rentalId ? { ...r, status: 'disputed', disputeReason: reason, disputeId: newDisputeId } : r
       )
     );
 
-    return { success: true };
+    // Gửi thông báo khẩn cấp cho Quản trị viên
+    addNotification({
+      id: `NOTIF-DISP-${Date.now().toString().slice(-4)}`,
+      userId: 'ADMIN-01',
+      title: '🚨 Khiếu Nại Mới Cần Xử Lý',
+      message: `Khách hàng ${newDispute.userName} vừa gửi khiếu nại cho đơn #${rental.id} (${reason}). Số tiền bảo hiểm: ${(rental.totalPrice || 0).toLocaleString('vi-VN')} đ.`,
+      type: 'danger',
+      timestamp: Date.now(),
+      isRead: false
+    });
+
+    return { success: true, disputeId: newDisputeId };
   };
 
-  const resolveDispute = (disputeId, action) => {
+  const resolveDispute = (disputeId, action, adminReasonNote = '') => {
     // action: 'refund' | 'reject'
     const dispute = disputes.find(d => d.id === disputeId);
-    if (!dispute) return;
+    if (!dispute) return { success: false, error: 'Không tìm thấy khiếu nại.' };
 
-    if (action === 'refund') {
-      // Hoàn tiền cho người dùng
+    const resolvedTime = Date.now();
+    const isRefund = action === 'refund';
+
+    if (isRefund) {
+      // 1. Hoàn tiền 100% cho người dùng vào danh sách users
       setUsers(prev =>
         prev.map(u =>
-          u.id === dispute.userId ? { ...u, balance: u.balance + dispute.amount } : u
+          u.id === dispute.userId ? { ...u, balance: (u.balance || 0) + dispute.amount } : u
         )
       );
 
-      // Ghi log hoàn tiền
+      // 2. Đồng bộ tức thì với currentUser nếu đang đăng nhập đúng tài khoản đó
+      setCurrentUser(prev => {
+        if (prev && prev.id === dispute.userId) {
+          return { ...prev, balance: (prev.balance || 0) + dispute.amount };
+        }
+        return prev;
+      });
+
+      // 3. Ghi log giao dịch hoàn tiền vào lịch sử ví
+      const refundTxId = `TX-RF-${Date.now().toString().slice(-4)}`;
       setTransactions(prev => [
         {
-          id: `TX-RF-${Date.now().toString().slice(-4)}`,
+          id: refundTxId,
           userId: dispute.userId,
           type: 'refund',
           amount: dispute.amount,
-          paymentMethod: 'Hệ thống hoàn tiền',
+          paymentMethod: 'Bảo hiểm GameRent 100%',
           status: 'completed',
-          timestamp: Date.now(),
-          note: `Hoàn tiền tranh chấp đơn #${dispute.orderId} (${dispute.reason})`
+          timestamp: resolvedTime,
+          note: `Hoàn tiền bảo hiểm 100% khiếu nại #${dispute.id} (Đơn #${dispute.orderId} - Lý do: ${dispute.reason})`
         },
         ...prev
       ]);
 
-      // Chuyển acc sang bảo trì
+      // 4. Chuyển acc game sang bảo trì và đổi mật khẩu mới để bảo vệ an toàn kho tài khoản
       setAccounts(prev =>
-        prev.map(a =>
-          a.id === dispute.accountId ? { ...a, status: 'maintenance' } : a
+        prev.map(a => {
+          if (a.id === dispute.accountId) {
+            const newPassword = generateRandomPassword(a.secretPassword);
+            return {
+              ...a,
+              status: 'maintenance',
+              secretPassword: newPassword,
+              maintenanceNote: `Bảo trì sau khiếu nại #${dispute.id} (${dispute.reason})`
+            };
+          }
+          return a;
+        })
+      );
+
+      // 5. Cập nhật đơn thuê: chuyển trạng thái thành 'completed', thu hồi quyền chơi
+      setRentals(prev =>
+        prev.map(r =>
+          r.id === dispute.orderId
+            ? {
+                ...r,
+                status: 'completed',
+                remainingSeconds: 0,
+                isRefunded: true,
+                refundAmount: dispute.amount,
+                disputeStatus: 'resolved',
+                resolvedAt: resolvedTime
+              }
+            : r
         )
       );
+
+      // 6. Gửi thông báo thành công cho khách hàng
+      addNotification({
+        id: `NOTIF-RF-${Date.now().toString().slice(-4)}`,
+        userId: dispute.userId,
+        title: '✅ Khiếu Nại Được Duyệt - Hoàn Tiền 100%',
+        message: `Khiếu nại #${dispute.id} (Đơn #${dispute.orderId}) đã được duyệt. Số tiền ${dispute.amount?.toLocaleString('vi-VN')} đ đã được cộng vào ví của bạn.`,
+        type: 'success',
+        timestamp: resolvedTime,
+        isRead: false
+      });
+    } else {
+      // Khi Admin Bác bỏ khiếu nại:
+      // 1. Cập nhật đơn thuê ghi nhận đã bị từ chối
+      setRentals(prev =>
+        prev.map(r =>
+          r.id === dispute.orderId
+            ? {
+                ...r,
+                disputeStatus: 'rejected',
+                rejectReason: adminReasonNote || 'Khiếu nại không đủ căn cứ sau khi kỹ thuật viên thẩm định tài khoản.'
+              }
+            : r
+        )
+      );
+
+      // 2. Gửi thông báo từ chối cho khách
+      addNotification({
+        id: `NOTIF-REJ-${Date.now().toString().slice(-4)}`,
+        userId: dispute.userId,
+        title: '❌ Khiếu Nại Bị Từ Chối',
+        message: `Khiếu nại #${dispute.id} (Đơn #${dispute.orderId}) đã bị từ chối. Lý do: ${adminReasonNote || 'Tài khoản hoạt động bình thường, không có lỗi từ hệ thống.'}`,
+        type: 'danger',
+        timestamp: resolvedTime,
+        isRead: false
+      });
     }
 
+    // 7. Cập nhật trạng thái của khiếu nại
     setDisputes(prev =>
       prev.map(d =>
         d.id === disputeId
-          ? { ...d, status: action === 'refund' ? 'resolved' : 'rejected' }
+          ? {
+              ...d,
+              status: isRefund ? 'resolved' : 'rejected',
+              resolvedAt: resolvedTime,
+              adminNote: adminReasonNote || (isRefund ? 'Đã phê duyệt hoàn tiền bảo hiểm 100%' : 'Bác bỏ khiếu nại')
+            }
           : d
       )
     );
+
+    return {
+      success: true,
+      action,
+      amount: dispute.amount,
+      orderId: dispute.orderId,
+      userId: dispute.userId
+    };
   };
 
   // ==========================================
@@ -932,7 +1066,35 @@ export const AppProvider = ({ children }) => {
       prev.map(u => (u.id === currentUser.id ? { ...u, ...userData } : u))
     );
     setCurrentUser(prev => ({ ...prev, ...userData }));
+    // Tự động đồng bộ cập nhật sang danh sách khách hàng CRM nếu có hồ sơ tương ứng
+    setCustomers(prev =>
+      prev.map(c => (c.email === currentUser.email || c.id === currentUser.id ? {
+        ...c,
+        name: userData.name || c.name,
+        phone: userData.phone || c.phone,
+        email: userData.email || c.email
+      } : c))
+    );
     return { success: true };
+  };
+
+  const changePassword = (currentPassword, newPassword) => {
+    if (!currentUser) return { success: false, error: 'Bạn chưa đăng nhập.' };
+    if (!currentPassword) return { success: false, error: 'Vui lòng nhập mật khẩu hiện tại.' };
+    if (currentUser.password && currentUser.password !== currentPassword) {
+      return { success: false, error: 'Mật khẩu hiện tại không chính xác.' };
+    }
+    if (!newPassword || newPassword.length < 6) {
+      return { success: false, error: 'Mật khẩu mới phải có ít nhất 6 ký tự.' };
+    }
+    if (newPassword === currentPassword) {
+      return { success: false, error: 'Mật khẩu mới không được trùng với mật khẩu hiện tại.' };
+    }
+    setUsers(prev =>
+      prev.map(u => (u.id === currentUser.id ? { ...u, password: newPassword } : u))
+    );
+    setCurrentUser(prev => ({ ...prev, password: newPassword }));
+    return { success: true, message: 'Đổi mật khẩu thành công!' };
   };
 
   const exportAllData = () => {
@@ -999,6 +1161,7 @@ export const AppProvider = ({ children }) => {
         systemSettings,
         updateSystemSettings,
         updateCurrentUser,
+        changePassword,
         exportAllData,
         importAllData,
         addNotification,
@@ -1026,7 +1189,10 @@ export const AppProvider = ({ children }) => {
         deleteCustomer,
         resetToDefaultData,
         addTestBalance,
-        fastForwardRentalTime
+        fastForwardRentalTime,
+        favorites,
+        toggleFavorite,
+        isFavorite
       }}
     >
       {children}

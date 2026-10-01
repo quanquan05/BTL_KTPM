@@ -705,10 +705,87 @@ export const AdminDashboardPage = ({ initialTab = 'disputes' }) => {
       {activeTab === 'disputes' && (
         <div>
           {disputes.length === 0 ? (
-            <div className="glass-panel" style={{ textAlign: 'center', padding: '36px 20px', borderRadius: 12, background: '#FFFFFF' }}>
-              <div style={{ fontSize: '1.8rem', marginBottom: 6 }}>✅</div>
-              <h4 style={{ fontSize: '1.05rem', color: 'var(--text-main)', marginBottom: 2 }}>Không có khiếu nại nào</h4>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.84rem' }}>Tất cả các phiên thuê đều hoạt động ổn định!</p>
+            <div
+              className="glass-panel"
+              style={{
+                textAlign: 'center',
+                padding: '40px 20px',
+                borderRadius: 16,
+                background: '#FFFFFF',
+                border: '1px solid var(--border-subtle)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <div
+                style={{
+                  position: 'relative',
+                  width: 72,
+                  height: 72,
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)',
+                  border: '2px solid #A7F3D0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: 14,
+                  boxShadow: '0 8px 20px -4px rgba(16, 185, 129, 0.2)'
+                }}
+              >
+                <ShieldCheck size={36} color="#059669" strokeWidth={2.2} />
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: -2,
+                    right: -2,
+                    width: 22,
+                    height: 22,
+                    borderRadius: '50%',
+                    background: '#10B981',
+                    border: '2px solid #FFFFFF',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <Check size={12} color="#FFFFFF" strokeWidth={3} />
+                </div>
+              </div>
+
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '3px 12px',
+                  borderRadius: 20,
+                  background: '#ECFDF5',
+                  color: '#047857',
+                  fontSize: '0.74rem',
+                  fontWeight: 700,
+                  border: '1px solid #A7F3D0',
+                  marginBottom: 8
+                }}
+              >
+                <span
+                  style={{
+                    width: 7,
+                    height: 7,
+                    borderRadius: '50%',
+                    background: '#10B981'
+                  }}
+                />
+                Hệ thống ổn định
+              </div>
+
+              <h4 style={{ fontSize: '1.1rem', color: '#0F172A', marginBottom: 4, fontWeight: 800 }}>
+                Không có khiếu nại nào
+              </h4>
+              <p style={{ color: '#64748B', fontSize: '0.84rem', maxWidth: 420 }}>
+                Tất cả các phiên thuê đều hoạt động an toàn và ổn định!
+              </p>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>

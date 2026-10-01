@@ -36,7 +36,7 @@ export const AccountDetailPage = ({
   onOpenDeposit,
   onSelectAccount
 }) => {
-  const { currentUser, accounts, categories } = useApp();
+  const { currentUser, accounts, categories, favorites, toggleFavorite } = useApp();
   const [duration, setDuration] = useState(2);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [activeTab, setActiveTab] = useState('inventory'); // 'inventory' | 'guide' | 'reviews' | 'warranty'
@@ -44,7 +44,7 @@ export const AccountDetailPage = ({
   const [appliedVoucher, setAppliedVoucher] = useState(null);
   const [voucherError, setVoucherError] = useState('');
   const [isCopied, setIsCopied] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
+  const isFavorite = favorites?.includes(account?.id);
 
   if (!account) return null;
 
@@ -197,7 +197,9 @@ export const AccountDetailPage = ({
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <button
             type="button"
-            onClick={() => setIsFavorite(!isFavorite)}
+            id="btn-detail-favorite"
+            data-testid="btn-detail-favorite"
+            onClick={() => toggleFavorite(account.id)}
             className="btn btn-secondary"
             style={{
               padding: '7px 12px',
@@ -1238,12 +1240,18 @@ export const AccountDetailPage = ({
 
               <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: 8, marginTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
                 <span style={{ color: 'var(--text-subtle)' }}>Số dư Ví hiện có:</span>
-                <span style={{ fontWeight: 700, color: userBalance >= totalPrice ? '#059669' : '#DC2626' }}>
-                  {userBalance.toLocaleString('vi-VN')} đ
-                </span>
+                {currentUser ? (
+                  <span style={{ fontWeight: 700, color: userBalance >= totalPrice ? '#059669' : '#DC2626' }}>
+                    {userBalance.toLocaleString('vi-VN')} đ
+                  </span>
+                ) : (
+                  <span style={{ fontWeight: 600, color: 'var(--text-subtle)', fontStyle: 'italic' }}>
+                    Chưa đăng nhập
+                  </span>
+                )}
               </div>
 
-              {userBalance < totalPrice && (
+              {currentUser && userBalance < totalPrice && (
                 <div style={{ marginTop: 8 }}>
                   <button
                     type="button"
@@ -1255,6 +1263,11 @@ export const AccountDetailPage = ({
                   </button>
                 </div>
               )}
+              {!currentUser && (
+                <div style={{ marginTop: 8, fontSize: '0.75rem', color: 'var(--primary)', textAlign: 'center', background: 'var(--primary-light, #EFF6FF)', padding: '6px 10px', borderRadius: 6 }}>
+                  ✨ Đăng ký thành viên mới nhận ngay 50.000 đ vào ví
+                </div>
+              )}
             </div>
 
             {/* Rent Button */}
@@ -1263,7 +1276,7 @@ export const AccountDetailPage = ({
               id="btn-detail-rent-now"
               data-testid="btn-detail-rent-now"
               disabled={!isAvailable}
-              onClick={() => onRentNow(account)}
+              onClick={() => onRentNow(account, hours)}
               className="btn btn-primary"
               style={{
                 width: '100%',

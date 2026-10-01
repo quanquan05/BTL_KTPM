@@ -2,9 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { X, Check, Copy, Key, ExternalLink, AlertCircle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
-export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOpenDeposit }) => {
+export const RentConfirmModal = ({
+  isOpen,
+  onClose,
+  account,
+  initialDuration = 2,
+  onRentSuccess,
+  onOpenDeposit,
+  onRequireRegister
+}) => {
   const { currentUser, rentAccount } = useApp();
-  const [durationHours, setDurationHours] = useState(2);
+  const [durationHours, setDurationHours] = useState(initialDuration || 2);
   const [agreedTerms, setAgreedTerms] = useState(true);
   const [error, setError] = useState('');
   const [rentResult, setRentResult] = useState(null);
@@ -16,11 +24,11 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
     if (isOpen) {
       setRentResult(null);
       setError('');
-      setDurationHours(2);
+      setDurationHours(initialDuration || 2);
       setCopiedAcc(false);
       setCopiedPass(false);
     }
-  }, [isOpen, account?.id]);
+  }, [isOpen, account?.id, initialDuration]);
 
   const handleClose = () => {
     setRentResult(null);
@@ -30,17 +38,47 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
 
   if (!isOpen || !account) return null;
 
-  const hours = Number(durationHours) || 0;
+  // Kiểm tra tính hợp lệ của thời lượng thuê (BVA 1h - 48h)
+  const rawHoursNum = Number(durationHours);
+  let durationError = null;
+
+  if (durationHours === '' || durationHours === null || durationHours === undefined) {
+    durationError = 'Vui lòng nhập số giờ thuê';
+  } else if (isNaN(rawHoursNum)) {
+    durationError = 'Số giờ thuê phải là chữ số hợp lệ';
+  } else if (!Number.isInteger(rawHoursNum)) {
+    durationError = 'Số giờ thuê phải là số nguyên (không chứa phần thập phân)';
+  } else if (rawHoursNum < 1) {
+    durationError = 'Thời gian thuê tối thiểu là 1 giờ';
+  } else if (rawHoursNum > 48) {
+    durationError = 'Thời gian thuê tối đa là 48 giờ (vui lòng chọn từ 1 đến 48 giờ)';
+  }
+
+  const isDurationValid = !durationError;
+  const hours = isDurationValid ? rawHoursNum : 0;
   const totalPrice = account.pricePerHour * hours;
   const userBalance = currentUser?.balance || 0;
-  const isEnoughBalance = userBalance >= totalPrice;
+  const isEnoughBalance = isDurationValid && userBalance >= totalPrice;
+  const isRentButtonDisabled = !isDurationValid || !agreedTerms || (currentUser ? !isEnoughBalance : false);
 
   const handleConfirmRent = (e) => {
     e.preventDefault();
     setError('');
 
+    if (!isDurationValid) {
+      setError(durationError);
+      return;
+    }
+
     if (!agreedTerms) {
       setError('Bạn cần đồng ý với điều khoản quy định để tiếp tục.');
+      return;
+    }
+
+    if (!currentUser) {
+      if (onRequireRegister) {
+        onRequireRegister({ account, hours });
+      }
       return;
     }
 
@@ -187,7 +225,7 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
             </button>
           </div>
         ) : (
-          <form onSubmit={handleConfirmRent}>
+          <form onSubmit={handleConfirmRent} noValidate>
             <div className="modal-body" style={{ padding: '20px 24px' }}>
               {/* Account Quick Preview */}
               <div style={{ display: 'flex', gap: 12, marginBottom: 16, background: 'var(--bg-surface)', padding: 10, borderRadius: 10, border: '1px solid var(--border-subtle)' }}>
@@ -262,10 +300,45 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
                     value={durationHours}
                     onChange={(e) => setDurationHours(e.target.value)}
                     className="form-input"
-                    style={{ width: 70, padding: '4px 8px', textAlign: 'center', fontSize: '0.84rem', height: 32 }}
+                    style={{
+                      width: 75,
+                      padding: '4px 8px',
+                      textAlign: 'center',
+                      fontSize: '0.84rem',
+                      height: 32,
+                      fontWeight: 600,
+                      borderColor: durationError ? '#ef4444' : undefined,
+                      color: durationError ? '#ef4444' : undefined,
+                      boxShadow: durationError ? '0 0 0 3px rgba(239, 68, 68, 0.2)' : undefined,
+                      background: durationError ? 'rgba(239, 68, 68, 0.05)' : undefined
+                    }}
                   />
                   <span style={{ fontSize: '0.78rem', color: 'var(--text-subtle)' }}>giờ (1 - 48h)</span>
                 </div>
+
+                {durationError && (
+                  <div
+                    id="rent-duration-error-badge"
+                    data-testid="rent-duration-error-badge"
+                    style={{
+                      marginTop: 8,
+                      padding: '8px 12px',
+                      borderRadius: 8,
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      color: '#ef4444',
+                      fontSize: '0.8rem',
+                      fontWeight: 500,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      lineHeight: 1.4
+                    }}
+                  >
+                    <AlertCircle size={15} style={{ flexShrink: 0, color: '#ef4444' }} />
+                    <span>{durationError}</span>
+                  </div>
+                )}
               </div>
 
               {/* Total calculation box */}
@@ -278,21 +351,36 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
                   marginBottom: 14
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.84rem', color: 'var(--text-muted)', marginBottom: 4 }}>
-                  <span>Chi phí ({hours} giờ × {account.pricePerHour.toLocaleString('vi-VN')} đ):</span>
-                  <span id="text-total-rent-price" style={{ fontWeight: 800, color: 'var(--primary)', fontSize: '0.98rem' }}>
-                    {totalPrice.toLocaleString('vi-VN')} đ
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.84rem', color: 'var(--text-muted)', marginBottom: 4 }}>
+                  <span>
+                    Chi phí {isDurationValid ? `(${hours} giờ × ${account.pricePerHour.toLocaleString('vi-VN')} đ):` : '(Số giờ không hợp lệ):'}
+                  </span>
+                  <span
+                    id="text-total-rent-price"
+                    style={{
+                      fontWeight: 800,
+                      color: isDurationValid ? 'var(--primary)' : '#ef4444',
+                      fontSize: isDurationValid ? '0.98rem' : '0.85rem'
+                    }}
+                  >
+                    {isDurationValid ? `${totalPrice.toLocaleString('vi-VN')} đ` : 'Chưa xác định (1 - 48h)'}
                   </span>
                 </div>
 
                 <div style={{ borderTop: '1px dashed var(--border-medium)', paddingTop: 6, display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
                   <span style={{ color: 'var(--text-subtle)' }}>Số dư ví hiện tại:</span>
-                  <span style={{ fontWeight: 700, color: isEnoughBalance ? 'var(--accent-green-text)' : 'var(--accent-red-text)' }}>
-                    {userBalance.toLocaleString('vi-VN')} đ
-                  </span>
+                  {currentUser ? (
+                    <span style={{ fontWeight: 700, color: !isDurationValid ? 'var(--text-muted)' : isEnoughBalance ? 'var(--accent-green-text)' : 'var(--accent-red-text)' }}>
+                      {userBalance.toLocaleString('vi-VN')} đ
+                    </span>
+                  ) : (
+                    <span style={{ fontWeight: 600, color: 'var(--text-subtle)', fontStyle: 'italic' }}>
+                      Khách vãng lai (Chưa đăng nhập)
+                    </span>
+                  )}
                 </div>
 
-                {!isEnoughBalance && (
+                {!currentUser || !isDurationValid ? null : !isEnoughBalance ? (
                   <div
                     id="warning-insufficient-balance"
                     style={{
@@ -322,7 +410,7 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
                       + Nạp ngay
                     </button>
                   </div>
-                )}
+                ) : null}
               </div>
 
               {/* Terms checkbox */}
@@ -356,10 +444,26 @@ export const RentConfirmModal = ({ isOpen, onClose, account, onRentSuccess, onOp
                 className="btn btn-primary"
                 id="btn-confirm-rent-action"
                 data-testid="btn-confirm-rent-action"
-                disabled={!isEnoughBalance || !agreedTerms}
-                style={{ fontSize: '0.86rem' }}
+                disabled={isRentButtonDisabled}
+                style={{
+                  fontSize: '0.86rem',
+                  opacity: isRentButtonDisabled ? 0.6 : 1,
+                  cursor: isRentButtonDisabled ? 'not-allowed' : 'pointer'
+                }}
               >
-                <Key size={15} /> Xác Nhận Thuê ({totalPrice.toLocaleString('vi-VN')} đ)
+                {!isDurationValid ? (
+                  <>
+                    <AlertCircle size={15} /> Thời Gian Thuê Không Hợp Lệ
+                  </>
+                ) : !currentUser ? (
+                  <>
+                    <Key size={15} /> Xác Nhận Thuê
+                  </>
+                ) : (
+                  <>
+                    <Key size={15} /> Xác Nhận Thuê ({totalPrice.toLocaleString('vi-VN')} đ)
+                  </>
+                )}
               </button>
             </div>
           </form>
